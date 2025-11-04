@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Shop {
+  shopifyDomain  String          @id
+  accessToken    String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  appCollections AppCollection[]
+}
+
+model AppCollection {
+  id                  Int                  @id @default(autoincrement())
+  shopifyDomain       String
+  collectionId        String
+  enabled             Boolean              @default(false)
+  shop                Shop                 @relation(fields: [shopifyDomain], references: [shopifyDomain], onDelete: Cascade)
+  collectionSetting   CollectionSetting?
+  featuredProducts    FeaturedProduct[]
+  productBehaviorRule ProductBehaviorRule?
+  tagSortingRules     TagSortingRule[]
+  featuredSettings    FeaturedSettings?
+
+  @@unique([shopifyDomain, collectionId])
+}
+
+model CollectionSetting {
+  id               Int           @id @default(autoincrement())
+  shopifyDomain    String
+  collectionId     String
+  useCustomSorting Boolean       @default(false)
+  primarySortOrder String?
+  lookbackPeriod   Int           @default(30)
+  includeDiscounts Boolean       @default(true)
+  ordersRange      String        @default("all-orders")
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  appCollection    AppCollection @relation(fields: [shopifyDomain, collectionId], references: [shopifyDomain, collectionId], onDelete: Cascade)
+
+  @@unique([shopifyDomain, collectionId])
+}
+
+model FeaturedProduct {
+  id            Int           @id @default(autoincrement())
+  shopifyDomain String
+  collectionId  String
+  productId     String
+  position      Int
+  featuredType  String        @default("manual")
+  daysToFeature Int?
+  startDate     DateTime?
+  scheduleApplied Boolean     @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  appCollection AppCollection @relation(fields: [shopifyDomain, collectionId], references: [shopifyDomain, collectionId], onDelete: Cascade)
+
+  @@unique([shopifyDomain, collectionId, productId])
+}
+
+model FeaturedSettings {
+  id            Int           @id @default(autoincrement())
+  shopifyDomain String
+  collectionId  String
+  sortOrder     String        @default("manual")
+  limitFeatured Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  appCollection AppCollection @relation(fields: [shopifyDomain, collectionId], references: [shopifyDomain, collectionId], onDelete: Cascade)
+
+  @@unique([shopifyDomain, collectionId])
+}
+
+model ProductBehaviorRule {
+  id                           Int           @id @default(autoincrement())
+  shopifyDomain                String
+  collectionId                 String
+  pushNewProductsUp            Boolean       @default(false)
+  newProductDays               Int           @default(7)
+  pushDownOutOfStock           Boolean       @default(false)
+  outOfStockVsNewPriority      String        @default("PUSH_DOWN")
+  outOfStockVsFeaturedPriority String        @default("KEEP_FEATURED")
+  outOfStockVsTagsPriority     String        @default("KEEP_TAGGED")
+  createdAt                    DateTime      @default(now())
+  updatedAt                    DateTime      @updatedAt
+  appCollection                AppCollection @relation(fields: [shopifyDomain, collectionId], references: [shopifyDomain, collectionId], onDelete: Cascade)
+
+  @@unique([shopifyDomain, collectionId])
+}
+
+model TagSortingRule {
+  id            Int           @id @default(autoincrement())
+  shopifyDomain String
+  collectionId  String
+  tagName       String
+  position      String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  appCollection AppCollection @relation(fields: [shopifyDomain, collectionId], references: [shopifyDomain, collectionId], onDelete: Cascade)
+
+  @@unique([shopifyDomain, collectionId, tagName])
+}
+
+model Session {
+  id            String    @id @default(cuid())
+  shop          String    @unique
+  state         String
+  isOnline      Boolean   @default(true)
+  scope         String?
+  expires       DateTime?
+  accessToken   String?
+  userId        String?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean   @default(false)
+  country       String?
+  collaborator  Boolean   @default(false)
+  emailVerified Boolean   @default(false)
+  locale        String?
+}
