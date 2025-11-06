@@ -144,3 +144,98 @@ export const UPDATE_FEATURED_PRODUCTS = `#graphql
     }
   }
 `;
+
+
+// Add these queries to your existing queries file
+export const GET_BESTSELLERS = `
+  query GetBestsellers($first: Int!, $sortKey: ProductSortKeys = BEST_SELLING) {
+    products(first: $first, sortKey: $sortKey) {
+      edges {
+        node {
+          id
+          title
+          handle
+          description
+          featuredImage {
+            url
+            altText
+          }
+          variants(first: 10) {
+            edges {
+              node {
+                id
+                price
+                sku
+                inventoryQuantity
+                createdAt
+              }
+            }
+          }
+          totalInventory
+          createdAt
+          publishedAt
+          status
+          vendor
+          tags
+          onlineStoreUrl
+        }
+      }
+    }
+  }
+`;
+
+export const GET_PRODUCTS_BY_DATE = `
+  query GetProductsByDate($first: Int!, $query: String) {
+    products(first: $first, query: $query) {
+      edges {
+        node {
+          id
+          title
+          createdAt
+          publishedAt
+          totalInventory
+          variants(first: 5) {
+            edges {
+              node {
+                price
+                inventoryQuantity
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+// Add this query to your lib/queries.ts file
+export const GET_NEW_ARRIVALS = `#graphql
+  query GetNewArrivals($first: Int!, $query: String) {
+    products(first: $first, query: $query, sortKey: CREATED_AT, reverse: true) {
+      edges {
+        node {
+          id
+          title
+          handle
+          featuredImage {
+            url
+            altText
+          }
+          variants(first: 1) {
+            edges {
+              node {
+                price
+                inventoryQuantity
+              }
+            }
+          }
+          totalInventory
+          createdAt
+          publishedAt
+          status
+          vendor
+        }
+      }
+    }
+  }
+`;

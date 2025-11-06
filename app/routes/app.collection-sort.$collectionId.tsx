@@ -124,7 +124,7 @@ const GET_COLLECTION = `#graphql
 `;
 
 const SET_COLLECTION_PRODUCTS_ORDER = `#graphql
-  mutation collectionReorderProducts($id: ID!, $moves: [CollectionMoveInput!]!) {
+  mutation collectionReorderProducts($id: ID!, $moves: [MoveInput!]!) {
     collectionReorderProducts(id: $id, moves: $moves) {
       job {
         id
@@ -137,6 +137,7 @@ const SET_COLLECTION_PRODUCTS_ORDER = `#graphql
     }
   }
 `;
+
 const GET_JOB_STATUS = `#graphql
   query GetJobStatus($id: ID!) {
     job(id: $id) {
@@ -438,219 +439,394 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "resort-collection": {
-  console.log("🚀 STARTING RESORT COLLECTION");
-  console.log("Collection ID:", gid);
-  console.log("Shop:", session.shop);
-  
-  try {
-    // 1. First, check collection type and details
-    console.log("📋 Step 1: Checking collection details...");
-    const collectionCheckResponse = await admin.graphql(`
-      query GetCollectionDetails($id: ID!) {
-        collection(id: $id) {
-          id
-          title
-          sortOrder
-          productsCount {
-            count
-          }
-        }
-      }
-    `, { variables: { id: gid } });
-
-    const collectionDetails = await collectionCheckResponse.json() as any;
-    console.log("📊 Collection Details:", JSON.stringify(collectionDetails, null, 2));
-
-    if (!collectionDetails.data?.collection) {
-      console.log("❌ Collection not found!");
-      return { success: false, error: "Collection not found" };
-    }
-
-    const collection = collectionDetails.data.collection;
-    console.log(`🏷️ Collection: ${collection.title}`);
-    console.log(`🔀 Sort Order: ${collection.sortOrder}`);
-    console.log(`📦 Products Count: ${collection.productsCount.count}`);
-
-    // Check if collection is manual
-    if (collection.sortOrder !== "MANUAL") {
-      console.log("❌ Collection is not manual - cannot reorder!");
-      return { 
-        success: false, 
-        error: `This is an ${collection.sortOrder?.toLowerCase()} collection. Only manual collections can be reordered. Please change it to a manual collection in Shopify admin.` 
-      };
-    }
-
-    // 2. Get featured products from database
-    console.log("📋 Step 2: Getting featured products from database...");
-    const featuredProducts = await prisma.featuredProduct.findMany({
-      where: {
-        shopifyDomain: session.shop,
-        collectionId: gid
-      },
-      orderBy: { position: 'asc' }
-    });
-    
-    console.log(`⭐ Featured products in DB: ${featuredProducts.length}`);
-    featuredProducts.forEach((fp: any, index: number) => {
-      console.log(`   ${index + 1}. ${fp.productId} (Position: ${fp.position})`);
-    });
-
-    // 3. Get all products from collection
-    console.log("📋 Step 3: Getting products from Shopify collection...");
-    const productsResponse = await admin.graphql(GET_COLLECTION_PRODUCTS, {
-      variables: { id: gid, first: 250 }
-    });
-    
-    const productsData = await productsResponse.json() as any;
-    const allProducts = productsData.data?.collection?.products?.edges?.map((edge: any) => edge.node) || [];
-    
-    console.log(`🛍️ Products in Shopify collection: ${allProducts.length}`);
-    allProducts.slice(0, 5).forEach((p: any, index: number) => {
-      console.log(`   ${index + 1}. ${p.title} (${p.id})`);
-    });
-
-    if (allProducts.length === 0) {
-      console.log("❌ No products found in collection!");
-      return { success: false, error: "No products found in this collection" };
-    }
-
-    // 4. Create product order
-    console.log("📋 Step 4: Creating product order...");
-    const productIds: string[] = [];
-
-    // Add featured products first
-    featuredProducts.forEach((fp: any) => {
-      const productExists = allProducts.some((p: any) => p.id === fp.productId);
-      if (productExists) {
-        productIds.push(fp.productId);
-        console.log(`   ✅ Added featured product: ${fp.productId}`);
-      } else {
-        console.log(`   ❌ Featured product not in collection: ${fp.productId}`);
-      }
-    });
-
-    // Add remaining products
-    allProducts.forEach((product: any) => {
-      if (!productIds.includes(product.id)) {
-        productIds.push(product.id);
-      }
-    });
-
-    console.log(`📋 Final product order: ${productIds.length} products`);
-    console.log("   First 5 products in new order:");
-    productIds.slice(0, 5).forEach((id, index) => {
-      console.log(`   ${index + 1}. ${id}`);
-    });
-
-    // 5. Apply new order to Shopify - FIXED MUTATION
-    console.log("📋 Step 5: Calling Shopify API to reorder...");
-    
-    // Create moves array with the correct structure
-    const moves = productIds.map((productId, index) => ({
-      id: productId,
-      newPosition: index.toString()
-    }));
-
-    console.log("🔄 Sending moves to Shopify:", JSON.stringify(moves.slice(0, 3), null, 2));
-
-    // Use the correct GraphQL mutation format
-    const reorderResponse = await admin.graphql(`
-      mutation collectionReorderProducts($id: ID!, $moves: [CollectionMoveInput!]!) {
-        collectionReorderProducts(id: $id, moves: $moves) {
-          job {
-            id
-            done
-          }
-          userErrors {
-            field
-            message
-          }
-        }
-      }
-    `, {
-      variables: {
-        id: gid,
-        moves: moves
-      }
-    });
-
-    const reorderData = await reorderResponse.json() as any;
-    console.log("📨 Shopify API Response:", JSON.stringify(reorderData, null, 2));
-
-    // Check for GraphQL errors
-    if (reorderData.errors) {
-      console.error("❌ GraphQL Errors:", reorderData.errors);
-      const errorMessage = reorderData.errors.map((err: any) => err.message).join(', ');
-      return { success: false, error: "GraphQL error: " + errorMessage };
-    }
-
-    // Check for user errors from Shopify
-    if (reorderData.data?.collectionReorderProducts?.userErrors?.length > 0) {
-      console.error("❌ Shopify User Errors:", reorderData.data.collectionReorderProducts.userErrors);
-      const errorMessage = reorderData.data.collectionReorderProducts.userErrors[0].message;
-      return { success: false, error: "Shopify error: " + errorMessage };
-    }
-
-    // ✅ CRITICAL: Wait for the job to complete
-    const jobId = reorderData.data?.collectionReorderProducts?.job?.id;
-    if (jobId) {
-      console.log("⏳ Reorder job started with ID:", jobId);
-      
-      // Poll for job completion
-      const jobCompleted = await pollJobStatus(admin, jobId);
-      
-      if (jobCompleted) {
-        console.log("✅ Job completed successfully!");
-      } else {
-        console.log("⚠️ Job polling timed out, but operation may still complete in background");
-      }
-    } else {
-      console.log("ℹ️ No job ID returned - operation may be synchronous");
-    }
-
-    // 6. Optional: Verify the new order
-    console.log("📋 Step 6: Verifying collection order...");
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Wait for changes to propagate
-
-    try {
-      const verifyResponse = await admin.graphql(`
-        query VerifyCollectionOrder($id: ID!) {
-          collection(id: $id) {
-            products(first: 10) {
-              edges {
-                node {
-                  id
-                  title
+        console.log("🚀 STARTING RESORT COLLECTION");
+        console.log("Collection ID:", gid);
+        console.log("Shop:", session.shop);
+        
+        try {
+          // 1. First, check collection type and details
+          console.log("📋 Step 1: Checking collection details...");
+          const collectionCheckResponse = await admin.graphql(`
+            query GetCollectionDetails($id: ID!) {
+              collection(id: $id) {
+                id
+                title
+                sortOrder
+                productsCount {
+                  count
                 }
               }
             }
+          `, { variables: { id: gid } });
+
+          const collectionDetails = await collectionCheckResponse.json() as any;
+          console.log("📊 Collection Details:", JSON.stringify(collectionDetails, null, 2));
+
+          if (!collectionDetails.data?.collection) {
+            console.log("❌ Collection not found!");
+            return { success: false, error: "Collection not found" };
+          }
+
+          const collection = collectionDetails.data.collection;
+          console.log(`🏷️ Collection: ${collection.title}`);
+          console.log(`🔀 Sort Order: ${collection.sortOrder}`);
+          console.log(`📦 Products Count: ${collection.productsCount.count}`);
+
+          // Check if collection is manual
+          if (collection.sortOrder !== "MANUAL") {
+            console.log("❌ Collection is not manual - cannot reorder!");
+            return { 
+              success: false, 
+              error: `This is an ${collection.sortOrder?.toLowerCase()} collection. Only manual collections can be reordered. Please change it to a manual collection in Shopify admin.` 
+            };
+          }
+
+          // 2. Get behavior rules from database
+          console.log("📋 Step 2: Getting behavior rules from database...");
+          const behaviorRules = await prisma.productBehaviorRule.findUnique({
+            where: {
+              shopifyDomain_collectionId: {
+                shopifyDomain: session.shop,
+                collectionId: gid
+              }
+            }
+          });
+
+          console.log("📋 Behavior Rules:", behaviorRules);
+
+          // 3. Get featured products from database
+          console.log("📋 Step 3: Getting featured products from database...");
+          const featuredProducts = await prisma.featuredProduct.findMany({
+            where: {
+              shopifyDomain: session.shop,
+              collectionId: gid
+            },
+            orderBy: { position: 'asc' }
+          });
+          
+          console.log(`⭐ Featured products in DB: ${featuredProducts.length}`);
+
+          // 4. Get all products from collection with inventory data
+          console.log("📋 Step 4: Getting products from Shopify collection with inventory...");
+          const productsResponse = await admin.graphql(`
+            query GetCollectionProductsWithInventory($id: ID!, $first: Int!) {
+              collection(id: $id) {
+                products(first: $first) {
+                  edges {
+                    node {
+                      id
+                      title
+                      handle
+                      featuredImage {
+                        url
+                        altText
+                      }
+                      totalInventory
+                      createdAt
+                      publishedAt
+                    }
+                  }
+                }
+              }
+            }
+          `, {
+            variables: { id: gid, first: 250 }
+          });
+          
+          const productsData = await productsResponse.json() as any;
+          const allProducts = productsData.data?.collection?.products?.edges?.map((edge: any) => edge.node) || [];
+          
+          console.log(`🛍️ Products in Shopify collection: ${allProducts.length}`);
+
+          if (allProducts.length === 0) {
+            console.log("❌ No products found in collection!");
+            return { success: false, error: "No products found in this collection" };
+          }
+
+          // 5. Apply out-of-stock logic based on behavior rules
+          console.log("📋 Step 5: Applying out-of-stock logic...");
+          
+          let inStockProducts: any[] = [];
+          let outOfStockProducts: any[] = [];
+
+          // Separate products based on inventory
+          allProducts.forEach((product: any) => {
+            if (product.totalInventory > 0) {
+              inStockProducts.push(product);
+            } else {
+              outOfStockProducts.push(product);
+            }
+          });
+
+          console.log(`✅ In-stock products: ${inStockProducts.length}`);
+          console.log(`❌ Out-of-stock products: ${outOfStockProducts.length}`);
+
+          // 6. Create product order based on behavior rules - FIXED VERSION
+          console.log("📋 Step 6: Creating product order with proper out-of-stock logic...");
+          const productIds: string[] = [];
+
+          // Track which featured products we've processed
+          const processedFeaturedProducts = new Set();
+
+          // Step 1: Add featured products that should stay at top
+          featuredProducts.forEach((fp: any) => {
+            const product = allProducts.find((p: any) => p.id === fp.productId);
+            if (product) {
+              const isOutOfStock = product.totalInventory <= 0;
+              
+              // Check if we should keep this featured product at top despite being out-of-stock
+              const shouldKeepFeaturedAtTop = 
+                !behaviorRules?.pushDownOutOfStock || // If push down is disabled, keep all featured
+                !isOutOfStock || // If product is in stock, keep it
+                (isOutOfStock && behaviorRules.outOfStockVsFeaturedPriority === "push-featured"); // Explicitly keep out-of-stock featured
+              
+              if (shouldKeepFeaturedAtTop) {
+                productIds.push(fp.productId);
+                processedFeaturedProducts.add(fp.productId);
+                console.log(`⭐ ${isOutOfStock ? 'Out-of-stock ' : ''}Featured product at top: ${product.title}`);
+              } else {
+                console.log(`📥 Featured product pushed down (out-of-stock): ${product.title}`);
+                // Don't add to productIds here - it will be added later with out-of-stock products
+              }
+            }
+          });
+
+          // Step 2: Add remaining in-stock products (non-featured)
+          inStockProducts.forEach((product: any) => {
+            if (!processedFeaturedProducts.has(product.id) && !productIds.includes(product.id)) {
+              productIds.push(product.id);
+            }
+          });
+
+          // Step 3: Add out-of-stock products at the end
+          if (behaviorRules?.pushDownOutOfStock) {
+            outOfStockProducts.forEach((product: any) => {
+              if (!productIds.includes(product.id)) {
+                productIds.push(product.id);
+                console.log(`📥 Adding out-of-stock product to bottom: ${product.title}`);
+              }
+            });
+          } else {
+            // If push down out-of-stock is disabled, mix out-of-stock products normally
+            outOfStockProducts.forEach((product: any) => {
+              if (!productIds.includes(product.id)) {
+                productIds.push(product.id);
+              }
+            });
+          }
+
+          console.log(`📋 Final product order: ${productIds.length} products`);
+          console.log("First 10 products in order:");
+          productIds.slice(0, 10).forEach((id, index) => {
+            const product = allProducts.find((p: any) => p.id === id);
+            const isOutOfStock = product?.totalInventory <= 0;
+            console.log(`   ${index + 1}. ${product?.title} ${isOutOfStock ? '(OUT OF STOCK)' : ''}`);
+          });
+
+          // 7. Apply new order to Shopify
+          console.log("📋 Step 7: Calling Shopify API to reorder...");
+          
+          const moves = productIds.map((productId, index) => ({
+            id: productId,
+            newPosition: index.toString()
+          }));
+
+          console.log("🔄 Sending moves to Shopify...");
+
+          const reorderResponse = await admin.graphql(`
+            mutation collectionReorderProducts($id: ID!, $moves: [MoveInput!]!) {
+              collectionReorderProducts(id: $id, moves: $moves) {
+                job {
+                  id
+                  done
+                }
+                userErrors {
+                  field
+                  message
+                }
+              }
+            }
+          `, {
+            variables: {
+              id: gid,
+              moves: moves
+            }
+          });
+
+          const reorderData = await reorderResponse.json() as any;
+          console.log("📨 Shopify API Response:", JSON.stringify(reorderData, null, 2));
+
+          // Check for errors
+          if (reorderData.errors) {
+            console.error("❌ GraphQL Errors:", reorderData.errors);
+            const errorMessage = reorderData.errors.map((err: any) => err.message).join(', ');
+            return { success: false, error: "GraphQL error: " + errorMessage };
+          }
+
+          if (reorderData.data?.collectionReorderProducts?.userErrors?.length > 0) {
+            console.error("❌ Shopify User Errors:", reorderData.data.collectionReorderProducts.userErrors);
+            const errorMessage = reorderData.data.collectionReorderProducts.userErrors[0].message;
+            return { success: false, error: "Shopify error: " + errorMessage };
+          }
+
+          // Wait for job completion
+          const jobId = reorderData.data?.collectionReorderProducts?.job?.id;
+          if (jobId) {
+            console.log("⏳ Reorder job started with ID:", jobId);
+            const jobCompleted = await pollJobStatus(admin, jobId);
+            
+            if (jobCompleted) {
+              console.log("✅ Job completed successfully!");
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            } else {
+              console.log("⚠️ Job polling timed out");
+            }
+          }
+
+          console.log("🎉 COLLECTION REORDER PROCESS COMPLETED!");
+          return { 
+            success: true,
+            message: "✅ Collection successfully reordered with out-of-stock rules applied!",
+            jobId: jobId || null
+          };
+          
+        } catch (error) {
+          console.error("💥 Resort collection error:", error);
+          return { 
+            success: false, 
+            error: error instanceof Error ? error.message : "Failed to resort collection" 
+          };
+        }
+      }
+
+      case "import-featured-products": {
+        const file = formData.get("featuredProductsFile") as File;
+        if (!file) {
+          return { success: false, error: "No file uploaded" };
+        }
+
+        console.log("📥 Starting featured products import...");
+        
+        // Get current products for validation
+        const productsResponse = await admin.graphql(GET_COLLECTION_PRODUCTS, {
+          variables: { id: gid, first: 250 }
+        });
+        const productsData = await productsResponse.json() as any;
+        const allProducts = productsData.data?.collection?.products?.edges?.map((edge: any) => edge.node) || [];
+
+        const content = await file.text();
+        const lines = content.split('\n').filter(line => line.trim());
+        
+        if (lines.length < 2) {
+          return { success: false, error: "CSV file is empty or invalid" };
+        }
+
+        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
+        console.log("📋 CSV Headers:", headers);
+        
+        const importedProducts: any[] = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+          const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
+          const product: any = {};
+          
+          headers.forEach((header, index) => {
+            const cleanHeader = header.toLowerCase().replace(/\s+/g, '');
+            product[cleanHeader] = values[index];
+          });
+          
+          console.log(`📦 Processing product ${i}:`, product);
+          
+          // Validate required fields
+          if (!product.productid) {
+            console.log("❌ Missing product ID, skipping row:", product);
+            continue;
+          }
+
+          // Find the product in the available products
+          const existingProduct = allProducts.find((p: any) => p.id === product.productid);
+          if (existingProduct) {
+            const importedProduct = {
+              id: product.productid,
+              title: existingProduct.title,
+              handle: existingProduct.handle,
+              featuredImage: existingProduct.featuredImage,
+              position: parseInt(product.position) || importedProducts.length,
+              featuredType: (product.featuretype || "manual") as "manual" | "scheduled",
+              daysToFeature: product.daystofeature ? parseInt(product.daystofeature) : undefined,
+              startDate: product.startdate || undefined,
+              scheduleApplied: product.scheduleapplied?.toLowerCase() === "true"
+            };
+            
+            console.log("✅ Valid product found:", importedProduct);
+            importedProducts.push(importedProduct);
+          } else {
+            console.log("❌ Product not found in collection:", product.productid);
           }
         }
-      `, { variables: { id: gid } });
 
-      const verifyData = await verifyResponse.json() as any;
-      console.log("🔍 Current collection order after reorder:");
-      verifyData.data?.collection?.products?.edges?.forEach((edge: any, index: number) => {
-        console.log(`   ${index + 1}. ${edge.node.title} (${edge.node.id})`);
-      });
-    } catch (verifyError) {
-      console.log("⚠️ Could not verify collection order:", verifyError);
-    }
+        console.log(`📊 Total products to import: ${importedProducts.length}`);
 
-    console.log("🎉 COLLECTION REORDER PROCESS COMPLETED!");
-    return { 
-      success: true,
-      message: "✅ Collection successfully reordered! Changes should now be visible in Shopify Admin." 
-    };
-    
-  } catch (error) {
-    console.error("💥 Resort collection error:", error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Failed to resort collection" 
-    };
-  }
-}
+        if (importedProducts.length === 0) {
+          return { success: false, error: "No valid products found in CSV file" };
+        }
+
+        // Delete existing featured products
+        console.log("🗑️ Deleting existing featured products...");
+        await prisma.featuredProduct.deleteMany({
+          where: {
+            shopifyDomain: session.shop,
+            collectionId: gid
+          }
+        });
+
+        // Create new featured products with positions from CSV
+        console.log("💾 Saving imported products to database...");
+        for (let i = 0; i < importedProducts.length; i++) {
+          const product = importedProducts[i];
+          await prisma.featuredProduct.create({
+            data: {
+              shopifyDomain: session.shop,
+              collectionId: gid,
+              productId: product.id,
+              position: product.position,
+              featuredType: product.featuredType,
+              daysToFeature: product.daysToFeature,
+              startDate: product.startDate ? new Date(product.startDate) : null,
+              scheduleApplied: product.scheduleApplied || false
+            }
+          });
+          console.log(`✅ Saved product: ${product.title} at position ${product.position}`);
+        }
+
+        console.log("🎉 Featured products import completed!");
+
+        // Auto re-sort collection after import
+        console.log("🔄 Auto re-sorting collection after import...");
+        try {
+          const resortResult = await action({ 
+            request: new Request(request.url, { 
+              method: 'POST',
+              body: new URLSearchParams({ intent: 'resort-collection' })
+            }), 
+            params 
+          } as ActionFunctionArgs);
+          
+          if (resortResult.success) {
+            console.log("✅ Auto re-sort completed after import!");
+          } else {
+            console.log("⚠️ Auto re-sort failed:", resortResult.error);
+          }
+        } catch (resortError) {
+          console.log("⚠️ Auto re-sort error:", resortError);
+        }
+
+        return { 
+          success: true, 
+          importedCount: importedProducts.length, 
+          message: `Successfully imported ${importedProducts.length} featured products and re-sorted collection!` 
+        };
+      }
 
       case "import-products": {
         const file = formData.get("productsFile") as File;
@@ -809,6 +985,7 @@ const CollectionSort = () => {
   // Refs for file inputs
   const productsFileInputRef = useRef<HTMLInputElement>(null);
   const tagsFileInputRef = useRef<HTMLInputElement>(null);
+  const featuredProductsFileInputRef = useRef<HTMLInputElement>(null);
   
   // State
   const [selectedTab, setSelectedTab] = useState(0);
@@ -823,12 +1000,18 @@ const CollectionSort = () => {
   const [importLoading, setImportLoading] = useState(false);
   const [resortMessage, setResortMessage] = useState<string>("");
   const [actionMessage, setActionMessage] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
+  // NEW STATE: For manual position selection after import
+  const [showPositionModal, setShowPositionModal] = useState(false);
+  const [importedProducts, setImportedProducts] = useState<Product[]>([]);
+  const [productPositions, setProductPositions] = useState<{[key: string]: number}>({});
   
   // Featured Products Settings
   const [sortOrder, setSortOrder] = useState(savedData.featuredSettings?.sortOrder || "manual");
- const [limitFeatured, setLimitFeatured] = useState(
-  savedData.featuredSettings?.limitFeatured ? savedData.featuredSettings.limitFeatured.toString() : "0"
-);
+  const [limitFeatured, setLimitFeatured] = useState(
+    savedData.featuredSettings?.limitFeatured ? savedData.featuredSettings.limitFeatured.toString() : "0"
+  );
   
   // Collection Settings State
   const [loadFromCollection, setLoadFromCollection] = useState("");
@@ -844,8 +1027,7 @@ const CollectionSort = () => {
   const [pushDownOutOfStock, setPushDownOutOfStock] = useState(savedData.productBehaviorRules?.pushDownOutOfStock || true);
   const [outOfStockNew, setOutOfStockNew] = useState(savedData.productBehaviorRules?.outOfStockVsNewPriority || "push-down");
   const [outOfStockFeatured, setOutOfStockFeatured] = useState(savedData.productBehaviorRules?.outOfStockVsFeaturedPriority || "push-down");
-  const [outOfStockTags, setOutOfStockTags] = useState(savedData.productBehaviorRules?.outOfStockVsTagsPriority || "position-defined");
-  
+  const [outOfStockTags, setOutOfStockTags] = useState(savedData.productBehaviorRules?.outOfStockVsTagsPriority || "position-defined");  
   // Manage Tags State
   const [sortByTags, setSortByTags] = useState(savedData.tagRules.length > 0);
   const [tagName, setTagName] = useState("");
@@ -912,6 +1094,14 @@ const CollectionSort = () => {
     value: pos.value,
   }));
 
+  // NEW: Generate position options for dropdown
+  const generatePositionOptions = (count: number) => {
+    return Array.from({ length: count }, (_, i) => ({
+      label: `Position ${i + 1}`,
+      value: (i + 1).toString(),
+    }));
+  };
+
   const disabledSectionStyle = {
     opacity: 0.5,
     pointerEvents: "none" as const,
@@ -922,6 +1112,172 @@ const CollectionSort = () => {
     p.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
     !featuredProducts.find((fp: Product) => fp.id === p.id)
   );
+
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  // Handle remove file
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (featuredProductsFileInputRef.current) {
+      featuredProductsFileInputRef.current.value = '';
+    }
+  };
+
+  // NEW: Process imported products and show position modal
+  const processImportedProducts = (products: Product[]) => {
+    setImportedProducts(products);
+    
+    // Initialize positions with current order
+    const initialPositions: {[key: string]: number} = {};
+    products.forEach((product, index) => {
+      initialPositions[product.id] = index + 1;
+    });
+    setProductPositions(initialPositions);
+    
+    setShowPositionModal(true);
+  };
+
+  // NEW: Handle position change for individual product
+  const handlePositionChange = (productId: string, newPosition: string) => {
+    setProductPositions(prev => ({
+      ...prev,
+      [productId]: parseInt(newPosition)
+    }));
+  };
+
+  // NEW: Apply positions and save imported products
+  const handleApplyPositions = async () => {
+    setImportLoading(true);
+    
+    try {
+      // Sort imported products by selected positions
+      const sortedProducts = [...importedProducts].sort((a, b) => {
+        return productPositions[a.id] - productPositions[b.id];
+      });
+
+      // Update positions in sorted products
+      const productsWithUpdatedPositions = sortedProducts.map((product, index) => ({
+        ...product,
+        position: index
+      }));
+
+      // Save to database
+      const formData = new FormData();
+      formData.append("intent", "save-featured-products");
+      formData.append("featuredProducts", JSON.stringify(productsWithUpdatedPositions));
+      formData.append("featuredSettings", JSON.stringify({
+        sortOrder,
+        limitFeatured: parseInt(limitFeatured) || 0
+      }));
+
+      submit(formData, { 
+        method: "POST",
+        replace: true 
+      });
+
+      setFeaturedProducts(productsWithUpdatedPositions);
+      setShowPositionModal(false);
+      setSaveSuccess(true);
+      setActionMessage(`Successfully imported ${importedProducts.length} products with custom positions!`);
+      
+      // Auto re-sort collection
+      setTimeout(() => {
+        const resortFormData = new FormData();
+        resortFormData.append("intent", "resort-collection");
+        submit(resortFormData, { 
+          method: "POST",
+          replace: true 
+        });
+      }, 1000);
+
+    } catch (error) {
+      console.error("Failed to apply positions:", error);
+      setActionMessage("Failed to apply positions");
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
+  // Handle import featured products
+  const handleImportFeaturedProducts = async () => {
+    if (!selectedFile) {
+      setActionMessage("Please select a file first");
+      return;
+    }
+
+    setImportLoading(true);
+    setActionMessage("Importing featured products...");
+
+    try {
+      const content = await selectedFile.text();
+      const lines = content.split('\n').filter(line => line.trim());
+      
+      if (lines.length < 2) {
+        setActionMessage("CSV file is empty or invalid");
+        return;
+      }
+
+      const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
+      
+      const importedProducts: Product[] = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
+        const product: any = {};
+        
+        headers.forEach((header, index) => {
+          const cleanHeader = header.toLowerCase().replace(/\s+/g, '');
+          product[cleanHeader] = values[index];
+        });
+        
+        if (!product.productid) continue;
+
+        // Find the product in the available products
+        const existingProduct = products.find((p: Product) => p.id === product.productid);
+        if (existingProduct) {
+          const importedProduct: Product = {
+            id: product.productid,
+            title: existingProduct.title,
+            handle: existingProduct.handle,
+            featuredImage: existingProduct.featuredImage,
+            position: parseInt(product.position) || 0,
+            featuredType: (product.featuretype || "manual") as "manual" | "scheduled",
+            daysToFeature: product.daystofeature ? parseInt(product.daystofeature) : undefined,
+            startDate: product.startdate || undefined,
+            scheduleApplied: product.scheduleapplied?.toLowerCase() === "true"
+          };
+          
+          importedProducts.push(importedProduct);
+        }
+      }
+
+      if (importedProducts.length === 0) {
+        setActionMessage("No valid products found in CSV file");
+        return;
+      }
+
+      // Process imported products and show position modal
+      processImportedProducts(importedProducts);
+      
+      // Clear file after import
+      setSelectedFile(null);
+      if (featuredProductsFileInputRef.current) {
+        featuredProductsFileInputRef.current.value = '';
+      }
+      
+    } catch (error) {
+      console.error("Import failed:", error);
+      setActionMessage("Failed to import featured products");
+    } finally {
+      setImportLoading(false);
+    }
+  };
 
   // Handle adding product to featured
   const handleAddProduct = (product: Product) => {
@@ -990,13 +1346,17 @@ const CollectionSort = () => {
     setDraggedProduct(null);
   };
 
-  // File import handlers
+  // File import handlers for other types
   const handleImportProductsClick = () => {
     productsFileInputRef.current?.click();
   };
 
   const handleImportTagsClick = () => {
     tagsFileInputRef.current?.click();
+  };
+
+  const handleImportFeaturedProductsClick = () => {
+    featuredProductsFileInputRef.current?.click();
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'products' | 'tags') => {
@@ -1007,8 +1367,13 @@ const CollectionSort = () => {
     setActionMessage(`Importing ${type}...`);
 
     const formData = new FormData();
-    formData.append("intent", type === 'products' ? "import-products" : "import-tags");
-    formData.append(type === 'products' ? "productsFile" : "tagsFile", file);
+    formData.append("intent", 
+      type === 'products' ? "import-products" : "import-tags"
+    );
+    formData.append(
+      type === 'products' ? "productsFile" : "tagsFile", 
+      file
+    );
 
     try {
       submit(formData, { 
@@ -1032,6 +1397,72 @@ const CollectionSort = () => {
       // Reset file input
       if (e.target) e.target.value = '';
     }
+  };
+
+  // Export CSV functions
+  const exportFeaturedProductsCSV = () => {
+    const headers = ['Product ID', 'Title', 'Handle', 'Position', 'Featured Type', 'Days to Feature', 'Start Date', 'Schedule Applied'];
+    const csvData = featuredProducts.map(p => [
+      p.id,
+      p.title,
+      p.handle,
+      p.position?.toString() || '0',
+      p.featuredType,
+      p.daysToFeature?.toString() || '',
+      p.startDate || '',
+      p.scheduleApplied ? 'true' : 'false'
+    ]);
+    
+    const csvContent = [headers, ...csvData]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `collection-${collectionId}-featured-products.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportProductsCSV = () => {
+    const headers = ['Product ID', 'Title', 'Handle', 'Position'];
+    const csvData = featuredProducts.map(p => [
+      p.id,
+      p.title,
+      p.handle,
+      p.position?.toString() || '0'
+    ]);
+    
+    const csvContent = [headers, ...csvData]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `collection-${collectionId}-products.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportTagsCSV = () => {
+    const headers = ['Tag Name', 'Position'];
+    const csvData = tagRules.map(rule => [rule.name, rule.position]);
+    
+    const csvContent = [headers, ...csvData]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `collection-${collectionId}-tags.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   // Save featured products
@@ -1203,46 +1634,6 @@ const CollectionSort = () => {
     setTagRules(tagRules.filter((rule) => rule.position !== position));
   };
 
-  // Export CSV functions
-  const exportProductsCSV = () => {
-    const headers = ['Product ID', 'Title', 'Handle', 'Position'];
-    const csvData = featuredProducts.map(p => [
-      p.id,
-      p.title,
-      p.handle,
-      p.position?.toString() || '0'
-    ]);
-    
-    const csvContent = [headers, ...csvData]
-      .map(row => row.map(field => `"${field}"`).join(','))
-      .join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `collection-${collectionId}-products.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const exportTagsCSV = () => {
-    const headers = ['Tag Name', 'Position'];
-    const csvData = tagRules.map(rule => [rule.name, rule.position]);
-    
-    const csvContent = [headers, ...csvData]
-      .map(row => row.map(field => `"${field}"`).join(','))
-      .join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `collection-${collectionId}-tags.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const tabs = [
     {
       id: 'featured-products',
@@ -1327,11 +1718,82 @@ const CollectionSort = () => {
                       </Button>
                     </InlineStack>
 
+                    {/* Import/Export Section for Featured Products */}
+                    <Card>
+                      <BlockStack gap="200">
+                        <Text as="h3" variant="headingSm">
+                          Import/Export Featured Products
+                        </Text>
+                        <Text as="p" tone="subdued">
+                          Export your current featured products to a CSV file, or import featured products from a CSV file. The CSV should include Product ID, Title, Handle, Position, Featured Type, Days to Feature, Start Date, and Schedule Applied.
+                        </Text>
+                        
+                        {/* Export Section */}
+                        <InlineStack gap="200">
+                          <Button 
+                            onClick={exportFeaturedProductsCSV}
+                            icon={ArrowDownIcon}
+                          >
+                            Export Featured Products
+                          </Button>
+                          <Text as="span">or</Text>
+                          <Button 
+                            onClick={handleImportFeaturedProductsClick}
+                            icon={ArrowUpIcon}
+                          >
+                            Select CSV File
+                          </Button>
+                          {/* Hidden file input for featured products */}
+                          <input
+                            type="file"
+                            ref={featuredProductsFileInputRef}
+                            style={{ display: 'none' }}
+                            accept=".csv"
+                            onChange={handleFileSelect}
+                          />
+                        </InlineStack>
+
+                        {/* Selected File Display */}
+                        {selectedFile && (
+                          <Card>
+                            <InlineStack align="space-between" blockAlign="center">
+                              <InlineStack gap="200" blockAlign="center">
+                                <Icon source={CheckIcon} tone="success" />
+                                <Text as="span" variant="bodyMd" fontWeight="medium">
+                                  Selected file: {selectedFile.name}
+                                </Text>
+                              </InlineStack>
+                              <InlineStack gap="200">
+                                <Button 
+                                  onClick={handleImportFeaturedProducts}
+                                  variant="primary"
+                                  loading={importLoading}
+                                >
+                                  Import Now
+                                </Button>
+                                <Button 
+                                  onClick={handleRemoveFile}
+                                  variant="plain"
+                                  tone="critical"
+                                  icon={DeleteIcon}
+                                >
+                                  Remove
+                                </Button>
+                              </InlineStack>
+                            </InlineStack>
+                          </Card>
+                        )}
+
+                        <Button variant="plain">
+                          How to create a correct .CSV file for import?
+                        </Button>
+                      </BlockStack>
+                    </Card>
+
+                    {/* Rest of the Featured Products Tab content remains the same */}
                     {/* Search Section */}
                     <BlockStack gap="400">
-                      <Text as="h3" variant="headingSm">
-                        Add Featured Products
-                      </Text>
+                      
                       <Text as="p" tone="subdued">
                         Move products up/down in the list by dragging them. Schedule products by choosing a start date and the number of days when the product will be featured.
                         At the end of this period a product will be removed from featured automatically.
@@ -1464,11 +1926,10 @@ const CollectionSort = () => {
                                       </Badge>
                                     )}
                                     
-                                    {/* Position indicator */}
-                                    <Badge>
-                                      Position: {index + 1}
-                                    </Badge>
-
+                                   {/* Position indicator */}
+                                      <Badge>
+                                        {`Position: ${index + 1}`}
+                                      </Badge>
                                     {/* Radio Options */}
                                     <ChoiceList
                                       title="Feature type"
@@ -1587,26 +2048,6 @@ const CollectionSort = () => {
                     <BlockStack gap="600">
                       <Box paddingBlockStart="600">
                         <BlockStack gap="400">
-                          <Box>
-                            <Text as="h3" variant="headingSm">
-                              Featured Sort Order
-                            </Text>
-                            <Text as="p" tone="subdued">
-                              Default sorting order for organizing featured products.
-                            </Text>
-                            <Box maxWidth="320px">
-                              <Select
-                                label="Sort order"
-                                labelHidden
-                                options={[
-                                  { label: "Manual", value: "manual" },
-                                  { label: "Random Order", value: "random" },
-                                ]}
-                                value={sortOrder}
-                                onChange={setSortOrder}
-                              />
-                            </Box>
-                          </Box>
 
                           <Box>
                             <Text as="h3" variant="headingSm">
@@ -1633,7 +2074,7 @@ const CollectionSort = () => {
                   </BlockStack>
                 )}
 
-                {/* Collection Settings Tab */}
+                {/* Collection Settings Tab - Remains the same */}
                 {selectedTab === 1 && (
                   <BlockStack gap="400">
                     <InlineStack align="space-between">
@@ -1650,24 +2091,6 @@ const CollectionSort = () => {
                     </InlineStack>
 
                     <BlockStack gap="400">
-                      {/* Load from Collection */}
-                      <Card>
-                        <InlineStack align="start" gap="400">
-                          <Text as="h3" variant="headingSm">
-                            Load from another collection
-                          </Text>
-                          <Box maxWidth="320px">
-                            <Select
-                              label="Load from collection"
-                              options={collectionOptions}
-                              value={loadFromCollection}
-                              onChange={setLoadFromCollection}
-                              placeholder="Select collection"
-                            />
-                          </Box>
-                        </InlineStack>
-                      </Card>
-
                       {/* Use Custom Sorting */}
                       <Card>
                         <InlineStack align="space-between">
@@ -1868,68 +2291,74 @@ const CollectionSort = () => {
                           </InlineStack>
                         </Card>
 
-                        {/* Out-of-Stock in New */}
-                        <Card>
-                          <BlockStack gap="200">
-                            <Text as="h3" variant="headingSm">
-                              Out-of-Stock in New
-                            </Text>
-                            <Text as="p" tone="subdued">
-                              Available when 'Push New Products Up' and 'Push Out-of-Stock' are both enabled.
-                            </Text>
-                            <Select
-                              label="Out of stock in new"
-                              options={outOfStockNewOptions}
-                              value={outOfStockNew}
-                              onChange={setOutOfStockNew}
-                              disabled={!useCustomSorting || !pushNewProducts || !pushDownOutOfStock}
-                            />
-                          </BlockStack>
-                        </Card>
+                        {/* Out-of-Stock in New - FIXED: Only show when both pushNewProducts AND pushDownOutOfStock are enabled */}
+                        {pushNewProducts && pushDownOutOfStock && (
+                          <Card>
+                            <BlockStack gap="200">
+                              <Text as="h3" variant="headingSm">
+                                Out-of-Stock in New
+                              </Text>
+                              <Text as="p" tone="subdued">
+                                Available when 'Push New Products Up' and 'Push Out-of-Stock' are both enabled.
+                              </Text>
+                              <Select
+                                label="Out of stock in new"
+                                options={outOfStockNewOptions}
+                                value={outOfStockNew}
+                                onChange={setOutOfStockNew}
+                                disabled={!useCustomSorting}
+                              />
+                            </BlockStack>
+                          </Card>
+                        )}
 
-                        {/* Out-of-Stock in Featured */}
-                        <Card>
-                          <BlockStack gap="200">
-                            <Text as="h3" variant="headingSm">
-                              Out-of-Stock vs Featured
-                            </Text>
-                            <Text as="p" tone="subdued">
-                              Available for any primary sorting order except "Manual". Featured products are set per collection. Choose your preference.
-                            </Text>
-                            <Select
-                              label="Out of stock in featured"
-                              options={outOfStockFeaturedOptions}
-                              value={outOfStockFeatured}
-                              onChange={setOutOfStockFeatured}
-                              disabled={!useCustomSorting || !pushDownOutOfStock}
-                            />
-                          </BlockStack>
-                        </Card>
+                        {/* Out-of-Stock in Featured - FIXED: Only show when pushDownOutOfStock is enabled */}
+                        {pushDownOutOfStock && (
+                          <Card>
+                            <BlockStack gap="200">
+                              <Text as="h3" variant="headingSm">
+                                Out-of-Stock vs Featured
+                              </Text>
+                              <Text as="p" tone="subdued">
+                                Available for any primary sorting order except "Manual". Featured products are set per collection. Choose your preference.
+                              </Text>
+                              <Select
+                                label="Out of stock in featured"
+                                options={outOfStockFeaturedOptions}
+                                value={outOfStockFeatured}
+                                onChange={setOutOfStockFeatured}
+                                disabled={!useCustomSorting}
+                              />
+                            </BlockStack>
+                          </Card>
+                        )}
 
-                        {/* Out-of-Stock in Tags */}
-                        <Card>
-                          <BlockStack gap="200">
-                            <Text as="h3" variant="headingSm">
-                              Out-of-Stock vs Tags
-                            </Text>
-                            <Text as="p" tone="subdued">
-                              Applies if you use tags to place products in specific positions. Choose your preference when a product with this tag is out-of-stock.
-                            </Text>
-                            <Select
-                              label="Out of stock in tags"
-                              options={outOfStockTagsOptions}
-                              value={outOfStockTags}
-                              onChange={setOutOfStockTags}
-                              disabled={!useCustomSorting || !pushDownOutOfStock}
-                            />
-                          </BlockStack>
-                        </Card>
+                        {/* Out-of-Stock in Tags - FIXED: Only show when pushDownOutOfStock is enabled */}
+                        {pushDownOutOfStock && (
+                          <Card>
+                            <BlockStack gap="200">
+                              <Text as="h3" variant="headingSm">
+                                Out-of-Stock vs Tags
+                              </Text>
+                              <Text as="p" tone="subdued">
+                                Applies if you use tags to place products in specific positions. Choose your preference when a product with this tag is out-of-stock.
+                              </Text>
+                              <Select
+                                label="Out of stock in tags"
+                                options={outOfStockTagsOptions}
+                                value={outOfStockTags}
+                                onChange={setOutOfStockTags}
+                                disabled={!useCustomSorting}
+                              />
+                            </BlockStack>
+                          </Card>
+                        )}
                       </div>
                     </BlockStack>
                   </BlockStack>
                 )}
 
-                {/* Manage Tags Tab */}
+                {/* Manage Tags Tab - Remains the same */}
                 {selectedTab === 2 && (
                   <BlockStack gap="400">
                     <InlineStack align="space-between">
@@ -2111,6 +2540,69 @@ const CollectionSort = () => {
               <Text as="p">{resortMessage}</Text>
             </Banner>
           )}
+        </Modal.Section>
+      </Modal>
+
+      {/* NEW: Position Selection Modal */}
+<Modal
+  open={showPositionModal}
+  onClose={() => setShowPositionModal(false)}
+  title="Set Product Positions"
+  primaryAction={{
+    content: "Apply Positions",
+    onAction: handleApplyPositions,
+    loading: importLoading,
+  }}
+  secondaryActions={[{
+    content: "Cancel",
+    onAction: () => setShowPositionModal(false),
+  }]}
+  size="large"
+>
+        <Modal.Section>
+          <BlockStack gap="400">
+            <Text as="p">
+              Set the positions for your imported products. Products will be displayed in the order you specify below.
+            </Text>
+            
+            <BlockStack gap="300">
+              {importedProducts.map((product, index) => (
+                <Card key={product.id} padding="300">
+                  <InlineStack align="space-between" blockAlign="center">
+                    <InlineStack gap="300" blockAlign="center">
+                      <Thumbnail
+                        source={product.featuredImage?.url || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product_small.png"}
+                        alt={product.featuredImage?.altText || product.title}
+                        size="small"
+                      />
+                      <BlockStack gap="100">
+                        <Text as="span" variant="bodyMd" fontWeight="medium">
+                          {product.title}
+                        </Text>
+                        <Text as="span" variant="bodySm" tone="subdued">
+                          {product.handle}
+                        </Text>
+                      </BlockStack>
+                    </InlineStack>
+                    
+                    <Select
+                      label="Position"
+                      labelHidden
+                      options={generatePositionOptions(importedProducts.length)}
+                      value={productPositions[product.id]?.toString() || (index + 1).toString()}
+                      onChange={(value) => handlePositionChange(product.id, value)}
+                    />
+                  </InlineStack>
+                </Card>
+              ))}
+            </BlockStack>
+            
+            <Banner tone="info">
+              <Text as="p">
+                Products will be sorted by the positions you set above. Lower numbers appear first.
+              </Text>
+            </Banner>
+          </BlockStack>
         </Modal.Section>
       </Modal>
 

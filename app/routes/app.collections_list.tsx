@@ -320,10 +320,16 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
 }
 
 // Collection Row Component
-function CollectionRow({ collection, shopifyDomain, onToggleChange }: { 
+function CollectionRow({ 
+  collection, 
+  shopifyDomain, 
+  onToggleChange, 
+  position 
+}: { 
   collection: Collection; 
   shopifyDomain: string;
   onToggleChange: (id: string, value: boolean) => void;
+  position: number;
 }) {
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -337,7 +343,7 @@ function CollectionRow({ collection, shopifyDomain, onToggleChange }: {
     : enabled;
 
   return (
-    <IndexTable.Row id={id} key={id}>
+    <IndexTable.Row id={id} key={id} position={position}>
       <IndexTable.Cell>
         <Thumbnail
           source={image?.url || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-collection_small.png"}
@@ -538,6 +544,7 @@ function CollectionListPageContent() {
       collection={collection}
       shopifyDomain={shopifyDomain}
       onToggleChange={handleToggleChange}
+      position={index + 1} // Add position prop starting from 1
     />
   ));
 

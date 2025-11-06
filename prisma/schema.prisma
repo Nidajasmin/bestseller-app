@@ -13,6 +13,7 @@ model Shop {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   appCollections AppCollection[]
+  settings       Settings?   
 }
 
 model AppCollection {
@@ -123,4 +124,84 @@ model Session {
   collaborator  Boolean   @default(false)
   emailVerified Boolean   @default(false)
   locale        String?
+}
+
+// New models for collection manager
+model Settings {
+  id                       String   @id @default(cuid())
+  shopifyDomain            String   @unique  // Use shopifyDomain instead of shopId
+  shop                     Shop     @relation(fields: [shopifyDomain], references: [shopifyDomain], onDelete: Cascade)
+  
+  // Bestsellers settings
+  bestsellersEnabled       Boolean  @default(true)
+  bestsellersTag           String   @default("bestsellers-resort")
+  bestsellersCount         Int      @default(50)
+  bestsellersLookback      Int      @default(180) // 6 months (180 days)
+  bestsellersExcludeOOS    Boolean  @default(true)
+  bestsellersCreateCollection Boolean @default(true)
+  bestsellersCollectionId  String?
+  
+  // Trending settings
+  trendingEnabled          Boolean  @default(true)
+  trendingTag              String   @default("br-trending")
+  trendingCount            Int      @default(50)
+  trendingLookback         Int      @default(7) // days
+  trendingExcludeOOS       Boolean  @default(false)
+  trendingCreateCollection Boolean  @default(false)
+  trendingCollectionId     String?
+  trendingCollectionTitle  String?
+  
+  // New Arrivals settings
+  newArrivalsEnabled       Boolean  @default(true)
+  newArrivalsTag           String   @default("br-new")
+  newArrivalsCount         Int      @default(50)
+  newArrivalsPeriod        Int      @default(7) // days
+  newArrivalsExcludeOOS    Boolean  @default(true)
+  newArrivalsCreateCollection Boolean @default(true)
+  newArrivalsCollectionId  String?
+  newArrivalsCollectionTitle String?
+  
+  // Aging Inventory settings
+  agingEnabled             Boolean  @default(true)
+  agingTag                 String   @default("br-aging")
+  agingCount               Int      @default(50)
+  agingLookback            Int      @default(90) // days
+  agingCreateCollection    Boolean  @default(true)
+  agingCollectionId        String?
+  agingCollectionTitle     String?
+  
+  // Additional settings
+  excludeEnabled           Boolean  @default(true)
+  excludeTags              String[] @default([])
+  
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model Collection {
+  id          String   @id @default(cuid())
+  shopifyId   String   @unique
+  title       String
+  handle      String
+  shopifyDomain String  // Use shopifyDomain instead of shopId
+  type        String   // "bestsellers", "trending", "new_arrivals", "aging"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("collections")
+}
+
+model ProductTag {
+  id          String   @id @default(cuid())
+  shopifyId   String
+  tag         String
+  type        String   // "bestsellers", "trending", "new_arrivals", "aging"
+  shopifyDomain String  // Use shopifyDomain instead of shopId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([shopifyId, tag])
+  @@map("product_tags")
 }
