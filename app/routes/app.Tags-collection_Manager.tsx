@@ -150,7 +150,7 @@ const GET_ORDERS_QUERY = `#graphql
   }
 `;
 
-// Type definitions (unchanged)
+// Type definitions
 interface ProductSales {
   [productId: string]: {
     id: string;
@@ -189,14 +189,14 @@ interface Settings {
   bestsellersEnabled: boolean;
   bestsellersTag: string;
   bestsellersCount: number;
-  bestsellersLookback: number;
+  bestsellersLookback: number; // Fixed at 180 days (6 months)
   bestsellersExcludeOOS: boolean;
   bestsellersCreateCollection: boolean;
   bestsellersCollectionId: string | null;
   trendingEnabled: boolean;
   trendingTag: string;
   trendingCount: number;
-  trendingLookback: number;
+  trendingLookback: number; // Fixed at 7 days
   trendingExcludeOOS: boolean;
   trendingCreateCollection: boolean;
   trendingCollectionId: string | null;
@@ -220,7 +220,6 @@ interface Settings {
   excludeTags: string[];
 }
 
-// Add these type definitions at the top of your file
 interface GraphQLResponse<T> {
   data: T;
   errors?: Array<{
@@ -260,7 +259,6 @@ interface Order {
   };
 }
 
-// Then update the function with proper typing
 async function fetchAllOrders(admin: any, query: string): Promise<Order[]> {
   let allOrders: Order[] = [];
   let hasNextPage = true;
@@ -300,7 +298,7 @@ async function fetchAllOrders(admin: any, query: string): Promise<Order[]> {
   }
 }
 
-// Loader function (unchanged)
+// Loader function
 export async function loader({ request }: { request: Request }) {
   const { admin, session } = await authenticate.admin(request);
   
@@ -341,14 +339,14 @@ export async function loader({ request }: { request: Request }) {
       bestsellersEnabled: true,
       bestsellersTag: 'bestsellers-resort',
       bestsellersCount: 50,
-      bestsellersLookback: 180, // 6 months
+      bestsellersLookback: 180, // Fixed 6 months
       bestsellersExcludeOOS: true,
       bestsellersCreateCollection: true,
       bestsellersCollectionId: null,
       trendingEnabled: true,
       trendingTag: 'br-trending',
       trendingCount: 50,
-      trendingLookback: 7,
+      trendingLookback: 7, // Fixed 7 days
       trendingExcludeOOS: false,
       trendingCreateCollection: false,
       trendingCollectionId: null,
@@ -381,7 +379,7 @@ export async function loader({ request }: { request: Request }) {
   });
 };
 
-// Action function (unchanged)
+// Action function
 export async function action({ request }: { request: Request }) {
   const { admin, session } = await authenticate.admin(request);
   const formData = await request.formData();
@@ -397,14 +395,14 @@ export async function action({ request }: { request: Request }) {
             bestsellersEnabled: formData.get('bestsellersEnabled') === 'true',
             bestsellersTag: formData.get('bestsellersTag') as string,
             bestsellersCount: parseInt(formData.get('bestsellersCount') as string),
-            bestsellersLookback: parseInt(formData.get('bestsellersLookback') as string),
+            // bestsellersLookback is fixed at 180 days - not updated from form
             bestsellersExcludeOOS: formData.get('bestsellersExcludeOOS') === 'true',
             bestsellersCreateCollection: formData.get('bestsellersCreateCollection') === 'true',
             
             trendingEnabled: formData.get('trendingEnabled') === 'true',
             trendingTag: formData.get('trendingTag') as string,
             trendingCount: parseInt(formData.get('trendingCount') as string),
-            trendingLookback: parseInt(formData.get('trendingLookback') as string),
+            // trendingLookback is fixed at 7 days - not updated from form
             trendingExcludeOOS: formData.get('trendingExcludeOOS') === 'true',
             trendingCreateCollection: formData.get('trendingCreateCollection') === 'true',
             trendingCollectionTitle: formData.get('trendingCollectionTitle') as string,
@@ -432,14 +430,14 @@ export async function action({ request }: { request: Request }) {
             bestsellersEnabled: formData.get('bestsellersEnabled') === 'true',
             bestsellersTag: formData.get('bestsellersTag') as string,
             bestsellersCount: parseInt(formData.get('bestsellersCount') as string),
-            bestsellersLookback: parseInt(formData.get('bestsellersLookback') as string),
+            bestsellersLookback: 180, // Fixed 180 days on create
             bestsellersExcludeOOS: formData.get('bestsellersExcludeOOS') === 'true',
             bestsellersCreateCollection: formData.get('bestsellersCreateCollection') === 'true',
             
             trendingEnabled: formData.get('trendingEnabled') === 'true',
             trendingTag: formData.get('trendingTag') as string,
             trendingCount: parseInt(formData.get('trendingCount') as string),
-            trendingLookback: parseInt(formData.get('trendingLookback') as string),
+            trendingLookback: 7, // Fixed 7 days on create
             trendingExcludeOOS: formData.get('trendingExcludeOOS') === 'true',
             trendingCreateCollection: formData.get('trendingCreateCollection') === 'true',
             trendingCollectionTitle: formData.get('trendingCollectionTitle') as string,
@@ -486,9 +484,9 @@ export async function action({ request }: { request: Request }) {
         return Response.json({ success: false, message: 'Bestsellers is disabled' });
       }
       
-      // Get orders within lookback period (6 months)
+      // Get orders within fixed lookback period (6 months = 180 days)
       const lookbackDate = new Date();
-      lookbackDate.setDate(lookbackDate.getDate() - settings.bestsellersLookback);
+      lookbackDate.setDate(lookbackDate.getDate() - 180); // Fixed 180 days
       
       let orders: any[] = [];
       
@@ -507,7 +505,7 @@ export async function action({ request }: { request: Request }) {
       if (orders.length === 0) {
         return Response.json({ 
           success: false, 
-          message: 'No orders found in the specified time period for bestsellers analysis' 
+          message: 'No orders found in the last 6 months for bestsellers analysis' 
         });
       }
       
@@ -688,9 +686,9 @@ export async function action({ request }: { request: Request }) {
         return Response.json({ success: false, message: 'Trending is disabled' });
       }
       
-      // Get orders within trending lookback period
+      // Get orders within fixed trending lookback period (7 days)
       const lookbackDate = new Date();
-      lookbackDate.setDate(lookbackDate.getDate() - settings.trendingLookback);
+      lookbackDate.setDate(lookbackDate.getDate() - 7); // Fixed 7 days
       
       let orders: any[] = [];
       
@@ -709,7 +707,7 @@ export async function action({ request }: { request: Request }) {
       if (orders.length === 0) {
         return Response.json({ 
           success: false, 
-          message: 'No orders found in the specified time period for trending analysis' 
+          message: 'No orders found in the last 7 days for trending analysis' 
         });
       }
       
@@ -912,7 +910,7 @@ export async function action({ request }: { request: Request }) {
       
       return Response.json({ 
         success: true, 
-        message: `Trending products processed successfully! Tagged ${taggedCount} products.` 
+        message: `Trending products processed successfully! Tagged ${taggedCount} products with the most sales in the last 7 days.` 
       });
     } else if (actionType === 'processNewArrivals') {
       // Process new arrivals
@@ -1076,13 +1074,13 @@ export async function action({ request }: { request: Request }) {
         const newTags = [...newestProduct.tags, settings.newArrivalsTag];
         
         await admin.graphql(UPDATE_PRODUCT_MUTATION, {
-          variables: {
-            input: {
-              id: newestProduct.id,
-              tags: newTags
+            variables: {
+              input: {
+                id: newestProduct.id,
+                tags: newTags
+              }
             }
-          }
-        });
+          });
         
         taggedCount++;
         console.log(`Tagged new arrival: ${newestProduct.title}`);
@@ -1306,7 +1304,6 @@ export async function action({ request }: { request: Request }) {
   }
 }
 
-// The rest of the component code remains the same
 export default function CollectionManager() {
   const { shop, collections, settings, shopifyDomain } = useLoaderData();
   const actionData = useActionData();
@@ -1324,12 +1321,10 @@ export default function CollectionManager() {
   // State for form fields
   const [bestsellersTag, setBestsellersTag] = useState(settings.bestsellersTag);
   const [bestsellersCount, setBestsellersCount] = useState(settings.bestsellersCount);
-  const [bestsellersLookback, setBestsellersLookback] = useState(settings.bestsellersLookback);
   const [bestsellersExcludeOOS, setBestsellersExcludeOOS] = useState(settings.bestsellersExcludeOOS);
   
   const [trendingTag, setTrendingTag] = useState(settings.trendingTag);
   const [trendingCount, setTrendingCount] = useState(settings.trendingCount);
-  const [trendingLookback, setTrendingLookback] = useState(settings.trendingLookback);
   const [trendingExcludeOOS, setTrendingExcludeOOS] = useState(settings.trendingExcludeOOS);
   
   const [newArrivalsTag, setNewArrivalsTag] = useState(settings.newArrivalsTag);
@@ -1365,7 +1360,7 @@ export default function CollectionManager() {
     formData.append('bestsellersEnabled', settings.bestsellersEnabled.toString());
     formData.append('bestsellersTag', bestsellersTag);
     formData.append('bestsellersCount', bestsellersCount.toString());
-    formData.append('bestsellersLookback', bestsellersLookback.toString());
+    // bestsellersLookback is fixed at 180 days - not included in form data
     formData.append('bestsellersExcludeOOS', bestsellersExcludeOOS.toString());
     formData.append('bestsellersCreateCollection', settings.bestsellersCreateCollection.toString());
     
@@ -1373,7 +1368,7 @@ export default function CollectionManager() {
     formData.append('trendingEnabled', settings.trendingEnabled.toString());
     formData.append('trendingTag', trendingTag);
     formData.append('trendingCount', trendingCount.toString());
-    formData.append('trendingLookback', trendingLookback.toString());
+    // trendingLookback is fixed at 7 days - not included in form data
     formData.append('trendingExcludeOOS', trendingExcludeOOS.toString());
     formData.append('trendingCreateCollection', settings.trendingCreateCollection.toString());
     formData.append('trendingCollectionTitle', settings.trendingCollectionTitle || '');
@@ -1535,19 +1530,23 @@ export default function CollectionManager() {
                         <BlockStack gap="200">
                           <Text variant="bodyMd" as="p" fontWeight="semibold">Bestsellers Criteria</Text>
                           <Text variant="bodySm" as="p">
-                            Products are ranked by the number of units sold in the last 6 months. The more units sold, the higher the ranking.
+                            Products are ranked by the number of units sold in the last 6 months (180 days). The more units sold, the higher the ranking.
                           </Text>
                           
                           <Box paddingBlockStart="200">
-                            <TextField
-                              label="Lookback Period"
-                              type="number"
-                              value={bestsellersLookback.toString()}
-                              onChange={(value) => setBestsellersLookback(parseInt(value) || 0)}
-                              autoComplete="off"
-                              suffix="days"
-                              helpText="Default is 180 days (6 months). This determines how far back to analyze sales data."
-                            />
+                            <div style={{ 
+                              padding: '12px', 
+                              backgroundColor: '#f6f6f7', 
+                              borderRadius: '6px',
+                              border: '1px solid #e1e3e5'
+                            }}>
+                              <Text variant="bodyMd" as="p" fontWeight="medium">
+                                Lookback Period: <Badge tone="success">180 days (6 months) - Fixed</Badge>
+                              </Text>
+                              <Text variant="bodySm" as="p">
+                                Bestsellers are calculated based on sales data from the last 6 months to ensure consistent performance measurement.
+                              </Text>
+                            </div>
                           </Box>
                         </BlockStack>
                       </div>
@@ -1611,15 +1610,23 @@ export default function CollectionManager() {
                       </div>
 
                       <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
-                        <TextField
-                          label="Lookback Period"
-                          type="number"
-                          value={trendingLookback.toString()}
-                          onChange={(value) => setTrendingLookback(parseInt(value) || 0)}
-                          autoComplete="off"
-                          suffix="days"
-                          helpText="Defines how far back in time the app looks at sales to decide what's trending. Shorter periods keep your trending list fresh and dynamic. Recommended: 7-14 days."
-                        />
+                        <BlockStack gap="200">
+                          <Text variant="bodyMd" as="p" fontWeight="semibold">Trending Criteria</Text>
+                          
+                          <div style={{ 
+                            padding: '12px', 
+                            backgroundColor: '#f6f6f7', 
+                            borderRadius: '6px',
+                            border: '1px solid #e1e3e5'
+                          }}>
+                            <Text variant="bodyMd" as="p" fontWeight="medium">
+                              Lookback Period: <Badge tone="success">7 days - Fixed</Badge>
+                            </Text>
+                            <Text variant="bodySm" as="p">
+                              Trending products are identified based on sales from the last 7 days to capture current popularity and momentum.
+                            </Text>
+                          </div>
+                        </BlockStack>
                       </div>
 
                       <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>

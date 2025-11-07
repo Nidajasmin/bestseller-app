@@ -20,6 +20,7 @@ import {
   TextField,
   Select,
   Box,
+  Pagination,
 } from "@shopify/polaris";
 import {
   ViewIcon,
@@ -43,6 +44,10 @@ interface Collection {
 interface LoaderData {
   collections: Collection[];
   shopifyDomain: string;
+  totalCollections: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
 }
 
 // Define types for Prisma models based on your schema
@@ -101,36 +106,55 @@ const CustomToggle = ({ checked, onChange, id }: { checked: boolean; onChange: (
   );
 };
 
-// --- LOADER: Server-side data fetching ---
+// --- LOADER: Server-side data fetching with pagination ---
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
     console.log("🔍 Loader started...");
     const { admin, session } = await authenticate.admin(request);
     const shopifyDomain = session.shop;
 
-    console.log("🛍️ Fetching collections for shop:", shopifyDomain);
+    // Get URL parameters for pagination
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = 250; // Fetch 250 collections per page
+    const after = url.searchParams.get('after') || null;
 
-    // 1. Fetch all collections from Shopify
-    const response = await admin.graphql(
-      `#graphql
-        query getCollections {
-          collections(first: 50) {
-            edges {
-              node {
-                id
-                title
-                handle
-                image {
-                  url
-                }
-                productsCount {
-                  count
-                }
+    console.log("🛍️ Fetching collections for shop:", shopifyDomain, "Page:", page);
+
+    // 1. Fetch collections from Shopify with pagination
+    let graphqlQuery = `#graphql
+      query getCollections($first: Int!, $after: String) {
+        collections(first: $first, after: $after) {
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+          }
+          edges {
+            cursor
+            node {
+              id
+              title
+              handle
+              image {
+                url
+              }
+              productsCount {
+                count
               }
             }
           }
-        }`
-    );
+        }
+      }`;
+
+    const response = await admin.graphql(graphqlQuery, {
+      variables: {
+        first: limit,
+        after: after
+      }
+    });
+    
     const shopifyData = await response.json();
     
     console.log("📦 Shopify API response:", shopifyData);
@@ -140,17 +164,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
       throw new Error('Invalid response from Shopify API');
     }
     
-    const allCollections = shopifyData.data.collections.edges.map((edge: any) => edge.node);
-    console.log(`📊 Found ${allCollections.length} collections from Shopify`);
+    const collectionsData = shopifyData.data.collections;
+    const allCollections = collectionsData.edges.map((edge: any) => edge.node);
+    console.log(`📊 Found ${allCollections.length} collections from Shopify for page ${page}`);
 
-    // 2. Fetch enabled collections from our database
+    // 2. Fetch enabled collections from our database for these specific collections
     console.log("🗄️ Fetching enabled collections from database...");
+    const collectionIds = allCollections.map((col: any) => col.id);
+    
     const enabledCollections = await prisma.appCollection.findMany({
-      where: { shopifyDomain },
+      where: { 
+        shopifyDomain,
+        collectionId: { in: collectionIds }
+      },
       select: { collectionId: true, enabled: true },
     });
 
-    console.log(`✅ Found ${enabledCollections.length} enabled collections in database`);
+    console.log(`✅ Found ${enabledCollections.length} enabled collections in database for this page`);
 
     // 3. Create a map of collectionId -> enabled status
     const collectionStatusMap = new Map();
@@ -165,14 +195,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }));
 
     console.log("🎉 Loader completed successfully");
-    return { collections: collectionsWithStatus, shopifyDomain };
+    
+    return { 
+      collections: collectionsWithStatus, 
+      shopifyDomain,
+      totalCollections: collectionsData.edges.length,
+      currentPage: page,
+      hasNextPage: collectionsData.pageInfo.hasNextPage,
+      hasPreviousPage: collectionsData.pageInfo.hasPreviousPage,
+      endCursor: collectionsData.pageInfo.endCursor,
+      startCursor: collectionsData.pageInfo.startCursor
+    };
   } catch (error) {
     console.error("❌ Loader failed:", error);
     
     // Return empty collections if there's an error but don't crash the page
     return { 
       collections: [], 
-      shopifyDomain: '' 
+      shopifyDomain: '',
+      totalCollections: 0,
+      currentPage: 1,
+      hasNextPage: false,
+      hasPreviousPage: false
     };
   }
 }
@@ -414,13 +458,22 @@ function CollectionRow({
 
 // Main Component
 function CollectionListPageContent() {
-  const { collections: initialCollections, shopifyDomain } = useLoaderData<LoaderData>();
+  const { 
+    collections: initialCollections, 
+    shopifyDomain, 
+    currentPage: initialPage,
+    hasNextPage,
+    hasPreviousPage
+  } = useLoaderData<LoaderData>();
   const navigate = useNavigate();
   const submit = useSubmit();
 
   console.log("🎬 Component rendered with:", {
     initialCollectionsCount: initialCollections.length,
-    shopifyDomain
+    shopifyDomain,
+    currentPage: initialPage,
+    hasNextPage,
+    hasPreviousPage
   });
 
   const [toastActive, setToastActive] = useState(false);
@@ -433,10 +486,10 @@ function CollectionListPageContent() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [displayedCollections, setDisplayedCollections] = useState<Collection[]>(initialCollections);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(initialPage);
 
-  // Calculate paginated collections
-  const startIndex = (currentPage - 1) * itemsPerPage;
+  // Calculate paginated collections for the current view (not API pagination)
+  const startIndex = 0; // We're now paginating at API level, so start from 0
   const endIndex = startIndex + itemsPerPage;
   const paginatedCollections = displayedCollections.slice(startIndex, endIndex);
 
@@ -466,8 +519,16 @@ function CollectionListPageContent() {
 
     console.log(`📊 Filtered to ${filtered.length} collections`);
     setDisplayedCollections(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
   }, [initialCollections, searchQuery, statusFilter]);
+
+  // Handle page navigation for API pagination
+  const handlePageChange = (page: number) => {
+    console.log("📄 Changing to page:", page);
+    // Navigate to the same page with new page parameter
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page.toString());
+    navigate(url.pathname + url.search);
+  };
 
   const handleToggleChange = (id: string, value: boolean) => {
     console.log("🔄 Toggle change requested:", { id, value });
@@ -529,13 +590,13 @@ function CollectionListPageContent() {
     { label: 'Disabled', value: 'disabled' },
   ];
 
-  // Items per page options
+  // Items per page options for UI pagination
   const pageSizeOptions = [
-    { label: '2 items', value: '2' },
     { label: '5 items', value: '5' },
     { label: '10 items', value: '10' },
     { label: '20 items', value: '20' },
     { label: '50 items', value: '50' },
+    { label: 'All on page', value: '250' },
   ];
 
   const rows = paginatedCollections.map((collection, index) => (
@@ -544,7 +605,7 @@ function CollectionListPageContent() {
       collection={collection}
       shopifyDomain={shopifyDomain}
       onToggleChange={handleToggleChange}
-      position={index + 1} // Add position prop starting from 1
+      position={index + 1}
     />
   ));
 
@@ -571,9 +632,21 @@ function CollectionListPageContent() {
             <Card>
               {/* Search and Filter Section */}
               <Box padding="400">
-                <InlineStack align="space-between" blockAlign="center">
-                  <InlineStack gap="400" blockAlign="center">
-                    <div style={{ width: '300px' }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '1fr auto', 
+                  gap: '16px', 
+                  alignItems: 'center',
+                  marginBottom: '16px'
+                }}>
+                  {/* Left side: Search and Filters */}
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: '16px', 
+                    alignItems: 'center',
+                    flexWrap: 'wrap'
+                  }}>
+                    <div style={{ width: '300px', minWidth: '250px' }}>
                       <TextField
                         label="Search collections"
                         labelHidden
@@ -584,7 +657,7 @@ function CollectionListPageContent() {
                         prefix={<Icon source={SearchIcon} />}
                       />
                     </div>
-                    <div style={{ width: '200px' }}>
+                    <div style={{ width: '180px', minWidth: '150px' }}>
                       <Select
                         label="Filter by status"
                         labelHidden
@@ -593,7 +666,7 @@ function CollectionListPageContent() {
                         onChange={setStatusFilter}
                       />
                     </div>
-                    <div style={{ width: '150px' }}>
+                    <div style={{ width: '160px', minWidth: '140px' }}>
                       <Select
                         label="Items per page"
                         labelHidden
@@ -602,33 +675,45 @@ function CollectionListPageContent() {
                         onChange={(value) => setItemsPerPage(parseInt(value))}
                       />
                     </div>
-                  </InlineStack>
-                </InlineStack>
+                  </div>
 
-                {/* Pagination Controls */}
-                {displayedCollections.length > itemsPerPage && (
-                  <Box paddingBlockStart="400">
-                    <InlineStack align="center" gap="400">
-                      <Button
-                        size="slim"
-                        disabled={currentPage === 1}
-                        onClick={() => setCurrentPage(currentPage - 1)}
-                      >
-                        Previous
-                      </Button>
-                      <Text as="span" variant="bodyMd">
-                        Page {currentPage} of {Math.ceil(displayedCollections.length / itemsPerPage)}
+                  {/* Right side: Pagination */}
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'flex-end',
+                    minWidth: '300px'
+                  }}>
+                    <div style={{
+                      backgroundColor: '#f6f6f7',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      border: '1px solid #e1e3e5'
+                    }}>
+                      <Pagination
+                        hasPrevious={hasPreviousPage}
+                        onPrevious={() => handlePageChange(currentPage - 1)}
+                        hasNext={hasNextPage}
+                        onNext={() => handlePageChange(currentPage + 1)}
+                        label={`Page ${currentPage}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Collection Count Info */}
+                <Box paddingBlockStart="200">
+                  <InlineStack align="space-between" blockAlign="center">
+                    <Text as="span" variant="bodyMd" tone="subdued">
+                      Showing {paginatedCollections.length} of {displayedCollections.length} collections 
+                      {displayedCollections.length !== initialCollections.length && ' (filtered)'}
+                    </Text>
+                    {displayedCollections.length > itemsPerPage && (
+                      <Text as="span" variant="bodySm" tone="subdued">
+                        Viewing {Math.min(itemsPerPage, displayedCollections.length)} per page
                       </Text>
-                      <Button
-                        size="slim"
-                        disabled={currentPage >= Math.ceil(displayedCollections.length / itemsPerPage)}
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                      >
-                        Next
-                      </Button>
-                    </InlineStack>
-                  </Box>
-                )}
+                    )}
+                  </InlineStack>
+                </Box>
               </Box>
 
               <IndexTable
@@ -646,13 +731,66 @@ function CollectionListPageContent() {
                 emptyState={
                   <div style={{ padding: '40px', textAlign: 'center' }}>
                     <Text as="p" variant="bodyMd">
-                      No collections found matching your search criteria.
+                      {initialCollections.length === 0 
+                        ? "No collections found in your store." 
+                        : "No collections found matching your search criteria."}
                     </Text>
+                    {initialCollections.length === 0 && hasNextPage && (
+                      <Box paddingBlockStart="400">
+                        <Button onClick={() => handlePageChange(1)}>
+                          Load Collections
+                        </Button>
+                      </Box>
+                    )}
                   </div>
                 }
               >
                 {rows}
               </IndexTable>
+
+              {/* Bottom Section with Pagination */}
+              <Box padding="400">
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '1fr auto 1fr', 
+                  gap: '16px', 
+                  alignItems: 'center'
+                }}>
+                  {/* Left side - Page info */}
+                  <div>
+                    <Text as="span" variant="bodySm" tone="subdued">
+                      Page {currentPage} • {initialCollections.length} collections on this page
+                    </Text>
+                  </div>
+
+                  {/* Center - Pagination */}
+                  <div>
+                    {(hasNextPage || hasPreviousPage) && (
+                      <div style={{
+                        backgroundColor: '#f6f6f7',
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        border: '1px solid #e1e3e5'
+                      }}>
+                        <Pagination
+                          hasPrevious={hasPreviousPage}
+                          onPrevious={() => handlePageChange(currentPage - 1)}
+                          hasNext={hasNextPage}
+                          onNext={() => handlePageChange(currentPage + 1)}
+                          label={`Page ${currentPage}`}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right side - Items per page info */}
+                  <div style={{ textAlign: 'right' }}>
+                    <Text as="span" variant="bodySm" tone="subdued">
+                      {itemsPerPage === 250 ? 'Showing all collections' : `${itemsPerPage} items per page`}
+                    </Text>
+                  </div>
+                </div>
+              </Box>
             </Card>
           </Layout.Section>
         </Layout>

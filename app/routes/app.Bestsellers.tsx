@@ -1,3 +1,4 @@
+// app/routes/app.Bestsellers.tsx
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -8,12 +9,18 @@ import {
   Badge,
   Thumbnail,
   Select,
-  Button,
-  Spinner,
   Box,
   InlineStack,
   BlockStack,
+  TextField,
+  Pagination,
+  Button,
+  Icon,
 } from '@shopify/polaris';
+import { useLoaderData, useSubmit, useNavigate, type LoaderFunctionArgs } from "react-router";
+import { authenticate } from "../shopify.server";
+import { fetchAllProducts, fetchProductSalesData } from "../lib/shopify";
+import { SearchIcon } from '@shopify/polaris-icons';
 
 interface BestsellerProduct {
   id: string;
@@ -29,193 +36,177 @@ interface BestsellerProduct {
   created: string;
 }
 
-// Mock function to simulate API call
-const fetchBestsellers = async (first: number = 25): Promise<any> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
+interface LoaderData {
+  bestsellers: BestsellerProduct[];
+  totalProducts: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  selectedPeriod: string;
+  productsCount: number;
+  searchQuery: string;
+}
+
+// UPDATED: "New" is now fixed to the last 10 days
+const isProductNew = (createdAt: string): boolean => {
+  const createdDate = new Date(createdAt);
+  const tenDaysAgo = new Date();
+  tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+  return createdDate > tenDaysAgo;
+};
+
+// Updated loader function with pagination and search
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { admin } = await authenticate.admin(request);
+  const url = new URL(request.url);
   
-  // Return mock data structure similar to your GraphQL response
-  return {
-    products: {
-      edges: [
-        {
-          node: {
-            id: 'gid://shopify/Product/1',
-            title: 'summer 2',
-            featuredImage: {
-              url: '',
-              altText: 'summer 2'
-            },
-            variants: {
-              edges: [
-                {
-                  node: {
-                    price: '20.00',
-                    inventoryQuantity: 22,
-                    sku: 'SUM2'
-                  }
-                }
-              ]
-            },
-            totalInventory: 22,
-            createdAt: '2025-10-30T04:55:06Z',
-            publishedAt: '2025-10-30T04:55:06Z',
-            status: 'ACTIVE',
-            vendor: 'Vendor 1',
-            tags: ['summer', 'new'],
-            onlineStoreUrl: 'https://store.com/products/summer-2'
-          }
-        },
-        {
-          node: {
-            id: 'gid://shopify/Product/2',
-            title: 'Wester Dress 3',
-            featuredImage: {
-              url: '',
-              altText: 'Wester Dress 3'
-            },
-            variants: {
-              edges: [
-                {
-                  node: {
-                    price: '40.00',
-                    inventoryQuantity: 8,
-                    sku: 'WD3'
-                  }
-                }
-              ]
-            },
-            totalInventory: 8,
-            createdAt: '2025-10-30T04:53:38Z',
-            publishedAt: '2025-10-30T04:53:38Z',
-            status: 'ACTIVE',
-            vendor: 'Vendor 2',
-            tags: ['dress', 'western'],
-            onlineStoreUrl: 'https://store.com/products/wester-dress-3'
-          }
-        },
-        {
-          node: {
-            id: 'gid://shopify/Product/3',
-            title: 'watch3',
-            featuredImage: {
-              url: '',
-              altText: 'watch3'
-            },
-            variants: {
-              edges: [
-                {
-                  node: {
-                    price: '45.00',
-                    inventoryQuantity: 31,
-                    sku: 'W3'
-                  }
-                }
-              ]
-            },
-            totalInventory: 31,
-            createdAt: '2025-11-01T10:15:20Z',
-            publishedAt: '2025-11-01T10:15:20Z',
-            status: 'ACTIVE',
-            vendor: 'Vendor 3',
-            tags: ['watch', 'accessories'],
-            onlineStoreUrl: 'https://store.com/products/watch3'
-          }
-        },
-        {
-          node: {
-            id: 'gid://shopify/Product/4',
-            title: 'Summer Dress 1',
-            featuredImage: {
-              url: '',
-              altText: 'Summer Dress 1'
-            },
-            variants: {
-              edges: [
-                {
-                  node: {
-                    price: '34.88',
-                    inventoryQuantity: 24,
-                    sku: 'SD1'
-                  }
-                }
-              ]
-            },
-            totalInventory: 24,
-            createdAt: '2025-10-28T10:44:04Z',
-            publishedAt: '2025-10-28T10:44:04Z',
-            status: 'ACTIVE',
-            vendor: 'Vendor 4',
-            tags: ['dress', 'summer'],
-            onlineStoreUrl: 'https://store.com/products/summer-dress-1'
-          }
-        },
-        {
-          node: {
-            id: 'gid://shopify/Product/5',
-            title: 'watch2',
-            featuredImage: {
-              url: '',
-              altText: 'watch2'
-            },
-            variants: {
-              edges: [
-                {
-                  node: {
-                    price: '19.99',
-                    inventoryQuantity: 2,
-                    sku: 'W2'
-                  }
-                }
-              ]
-            },
-            totalInventory: 2,
-            createdAt: '2025-11-01T10:14:41Z',
-            publishedAt: '2025-11-01T10:14:41Z',
-            status: 'ACTIVE',
-            vendor: 'Vendor 5',
-            tags: ['watch', 'accessories'],
-            onlineStoreUrl: 'https://store.com/products/watch2'
-          }
-        },
-        {
-          node: {
-            id: 'gid://shopify/Product/6',
-            title: 'Watch 4',
-            featuredImage: {
-              url: '',
-              altText: 'Watch 4'
-            },
-            variants: {
-              edges: [
-                {
-                  node: {
-                    price: '10.00',
-                    inventoryQuantity: 0,
-                    sku: 'W4'
-                  }
-                }
-              ]
-            },
-            totalInventory: 0,
-            createdAt: '2025-11-03T05:44:33Z',
-            publishedAt: '2025-11-03T05:44:33Z',
-            status: 'ACTIVE',
-            vendor: 'Vendor 6',
-            tags: ['watch', 'new'],
-            onlineStoreUrl: 'https://store.com/products/watch-4'
-          }
-        }
-      ]
+  const selectedPeriod = parseInt(url.searchParams.get("period") || "30");
+  const productsCount = parseInt(url.searchParams.get("count") || "250");
+  const page = parseInt(url.searchParams.get("page") || "1");
+  const searchQuery = url.searchParams.get("search") || "";
+  const after = url.searchParams.get("after") || null;
+
+  try {
+    // Fetch products with pagination
+    const [productsData, salesData] = await Promise.all([
+      fetchAllProducts(admin, productsCount, after),
+      fetchProductSalesData(admin, selectedPeriod)
+    ]);
+    
+    console.log(`Fetched ${productsData?.data?.products?.edges?.length || 0} products for page ${page}`);
+    console.log(`Fetched sales data for ${salesData.size} products`);
+
+    if (productsData?.data?.products && productsData.data.products.edges.length > 0) {
+      
+      const products = productsData.data.products.edges.map((edge: any) => edge.node);
+
+      type IntermediateBestsellerProduct = Omit<BestsellerProduct, 'position'>;
+
+      // Transform products with REAL sales data
+      const transformedData: IntermediateBestsellerProduct[] = products.map((product: any) => {
+        const mainVariant = product.variants?.edges[0]?.node;
+        const price = mainVariant?.price || '0.00';
+        const basePrice = parseFloat(price);
+        const inventory = product.totalInventory || 0;
+        
+        // Get REAL sales data from orders
+        const productSalesData = salesData.get(product.id) || { sales: 0, revenue: 0 };
+        const sales = productSalesData.sales;
+        const revenue = productSalesData.revenue;
+        
+        const isNew = isProductNew(product.createdAt);
+        
+        // Simple trend calculation based on sales
+        let trend = '→'; // neutral
+        if (sales > 0) trend = '↑'; // has sales
+        if (sales === 0) trend = '↓'; // no sales
+        
+        return {
+          id: product.id,
+          trend,
+          image: product.featuredImage?.url || '',
+          title: product.title,
+          price: `$${basePrice.toFixed(2)}`,
+          sales,
+          revenue: `$${revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+          isNew,
+          inStock: inventory,
+          created: new Date(product.createdAt).toLocaleDateString('en-US', {
+            year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
+          }).replace(',', ''),
+        };
+      });
+
+      // Filter by search query if provided
+      let filteredProducts = transformedData;
+      if (searchQuery) {
+        filteredProducts = transformedData.filter(product =>
+          product.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+
+      // Sort by REAL sales in descending order (most sold products first)
+      const productsWithSales = filteredProducts.filter(product => product.sales > 0);
+      const productsWithoutSales = filteredProducts.filter(product => product.sales === 0);
+      
+      const sortedWithSales = productsWithSales.sort((a, b) => b.sales - a.sales);
+      const sortedWithoutSales = productsWithoutSales.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+      
+      // Combine both arrays
+      const sortedData = [...sortedWithSales, ...sortedWithoutSales];
+      
+      // Assign final positions and slice to the desired count
+      const finalData: BestsellerProduct[] = sortedData.map((product: IntermediateBestsellerProduct, index: number) => ({
+        ...product,
+        position: index + 1 + ((page - 1) * productsCount),
+      }));
+
+      console.log(`Processed ${filteredProducts.length} products. Showing ${finalData.length} bestsellers.`);
+      console.log(`Products with sales: ${productsWithSales.length}, without sales: ${productsWithoutSales.length}`);
+      
+      // Always show pagination - calculate based on whether we have products
+      const hasNextPage = productsData.data.products.pageInfo?.hasNextPage || false;
+      const hasPreviousPage = page > 1; // Always show previous if not on first page
+      
+      return {
+        bestsellers: finalData,
+        totalProducts: filteredProducts.length,
+        currentPage: page,
+        hasNextPage,
+        hasPreviousPage,
+        selectedPeriod: selectedPeriod.toString(),
+        productsCount,
+        searchQuery,
+        endCursor: productsData.data.products.pageInfo?.endCursor,
+      };
     }
-  };
+    
+    console.log("No products found in the store.");
+    return { 
+      bestsellers: [], 
+      totalProducts: 0,
+      currentPage: page,
+      hasNextPage: false,
+      hasPreviousPage: false,
+      selectedPeriod: selectedPeriod.toString(), 
+      productsCount,
+      searchQuery,
+    };
+
+  } catch (error) {
+    console.error('Error in Bestsellers loader:', error);
+    return { 
+      bestsellers: [], 
+      totalProducts: 0,
+      currentPage: page,
+      hasNextPage: false,
+      hasPreviousPage: false,
+      selectedPeriod: selectedPeriod.toString(), 
+      productsCount,
+      searchQuery,
+    };
+  }
 };
 
 export default function BestsellersPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState('30');
-  const [bestsellers, setBestsellers] = useState<BestsellerProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [productsCount, setProductsCount] = useState(25);
+  const { 
+    bestsellers = [], 
+    totalProducts,
+    currentPage: initialPage,
+    hasNextPage,
+    hasPreviousPage,
+    selectedPeriod: initialPeriod = "30", 
+    productsCount: initialCount = 250,
+    searchQuery: initialSearch
+  } = useLoaderData<LoaderData>();
+  
+  const submit = useSubmit();
+  const navigate = useNavigate();
+  
+  const [selectedPeriod, setSelectedPeriod] = useState(initialPeriod);
+  const [productsCount, setProductsCount] = useState(initialCount);
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [currentPage, setCurrentPage] = useState(initialPage);
 
   const periodOptions = [
     { label: '14 days', value: '14' },
@@ -225,285 +216,299 @@ export default function BestsellersPage() {
     { label: '365 days', value: '365' },
   ];
 
-  useEffect(() => {
-    loadBestsellers();
-  }, [selectedPeriod, productsCount]);
-
-  const loadBestsellers = async () => {
-    setLoading(true);
-    try {
-      const bestsellersData = await fetchBestsellers(productsCount);
-      
-      if (bestsellersData?.products) {
-        const transformedData = transformProductsToBestsellers(
-          bestsellersData.products.edges.map((edge: any) => edge.node),
-          parseInt(selectedPeriod)
-        );
-        setBestsellers(transformedData);
-      }
-    } catch (error) {
-      console.error('Error loading bestsellers:', error);
-      setBestsellers(generateMockBestsellers());
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const transformProductsToBestsellers = (products: any[], period: number): BestsellerProduct[] => {
-    const bestsellersData = products.map((product, index) => {
-      const mainVariant = product.variants?.edges[0]?.node;
-      const price = mainVariant?.price || '0.00';
-      const basePrice = parseFloat(price);
-      const inventory = product.totalInventory || 0;
-      
-      const sales = calculateSales(product, index, period);
-      const revenue = (sales * basePrice).toFixed(2);
-      const isNew = isProductNew(product.createdAt, period);
-      const trend = calculateTrend(index, product.createdAt);
-      
-      return {
-        id: product.id,
-        position: index + 1,
-        trend: trend,
-        image: product.featuredImage?.url || '',
-        title: product.title,
-        price: `$${basePrice.toFixed(2)}`,
-        sales: sales,
-        revenue: `$${parseFloat(revenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-        isNew: isNew,
-        inStock: inventory,
-        created: formatDate(product.createdAt),
-      };
-    });
-
-    return bestsellersData.sort((a, b) => b.sales - a.sales)
-                         .map((product, index) => ({
-                           ...product,
-                           position: index + 1
-                         }));
-  };
-
-  const calculateSales = (product: any, index: number, period: number): number => {
-    const baseSales = Math.max(50 - index * 2, 5);
-    const periodMultiplier = period / 30;
-    const inventoryFactor = (product.totalInventory || 0) > 0 ? 1 : 0.1;
-    const randomFactor = 0.8 + Math.random() * 0.4;
+  // Handle period change
+  const handlePeriodChange = (value: string) => {
+    setSelectedPeriod(value);
     
-    return Math.floor(baseSales * periodMultiplier * inventoryFactor * randomFactor);
+    const params = new URLSearchParams(window.location.search);
+    params.set("period", value);
+    params.set("page", "1"); // Reset to first page when period changes
+    
+    submit(params, { replace: true });
   };
 
-  const calculateTrend = (index: number, createdAt: string): string => {
-    const productAge = (new Date().getTime() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24);
-    if (index <= 2 && productAge < 30) return '↑';
-    if (index > 10 && productAge > 90) return '↓';
-    return '→';
+  // Handle count change
+  const handleCountChange = (value: string) => {
+    const newCount = parseInt(value);
+    setProductsCount(newCount);
+    
+    const params = new URLSearchParams(window.location.search);
+    params.set("count", value);
+    params.set("page", "1"); // Reset to first page when count changes
+    
+    submit(params, { replace: true });
   };
 
-  const isProductNew = (createdAt: string, period: number): boolean => {
-    const createdDate = new Date(createdAt);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - period);
-    return createdDate > cutoffDate;
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", page.toString());
+    
+    navigate(`?${params.toString()}`, { replace: true });
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).replace(',', '');
-  };
-
-  const generateMockBestsellers = (): BestsellerProduct[] => {
-    return [
-      {
-        id: '1',
-        position: 1,
-        trend: '↑',
-        image: '',
-        title: 'summer 2',
-        price: '$20.00',
-        sales: 34,
-        revenue: '$680.00',
-        isNew: true,
-        inStock: 22,
-        created: '2025-10-30 04:55:06',
-      },
-      {
-        id: '2',
-        position: 2,
-        trend: '↑',
-        image: '',
-        title: 'Wester Dress 3',
-        price: '$40.00',
-        sales: 17,
-        revenue: '$680.00',
-        isNew: true,
-        inStock: 8,
-        created: '2025-10-30 04:53:38',
-      },
-      {
-        id: '3',
-        position: 3,
-        trend: '↑',
-        image: '',
-        title: 'watch3',
-        price: '$45.00',
-        sales: 14,
-        revenue: '$630.00',
-        isNew: true,
-        inStock: 31,
-        created: '2025-11-01 10:15:20',
-      },
-      {
-        id: '4',
-        position: 4,
-        trend: '↑',
-        image: '',
-        title: 'Summer Dress 1',
-        price: '$34.88',
-        sales: 10,
-        revenue: '$348.80',
-        isNew: true,
-        inStock: 24,
-        created: '2025-10-28 10:44:04',
-      },
-      {
-        id: '5',
-        position: 5,
-        trend: '↑',
-        image: '',
-        title: 'watch2',
-        price: '$19.99',
-        sales: 10,
-        revenue: '$199.90',
-        isNew: true,
-        inStock: 2,
-        created: '2025-11-01 10:14:41',
-      },
-      {
-        id: '6',
-        position: 6,
-        trend: '↑',
-        image: '',
-        title: 'Watch 4',
-        price: '$10.00',
-        sales: 5,
-        revenue: '$50.00',
-        isNew: true,
-        inStock: 0,
-        created: '2025-11-03 05:44:33',
+  // Handle search with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery !== initialSearch) {
+        const params = new URLSearchParams(window.location.search);
+        if (searchQuery) {
+          params.set("search", searchQuery);
+        } else {
+          params.delete("search");
+        }
+        params.set("page", "1"); // Reset to first page when searching
+        
+        submit(params, { replace: true });
       }
-    ];
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, submit]);
+
+  // Generate count options dynamically
+  const generateCountOptions = () => {
+    const options = [];
+    
+    // Add common increments
+    const commonIncrements = [25, 50, 100, 250, 500];
+    
+    commonIncrements.forEach(count => {
+      options.push({
+        label: `${count} products`,
+        value: count.toString()
+      });
+    });
+    
+    // Add current count if it's not in common increments
+    if (!commonIncrements.includes(productsCount)) {
+      options.push({
+        label: `${productsCount} products`,
+        value: productsCount.toString()
+      });
+    }
+    
+    // Sort by value
+    return options.sort((a, b) => parseInt(a.value) - parseInt(b.value));
   };
 
-  const rows = bestsellers.map((product) => [
-    <Text as="span" fontWeight="bold">{product.trend}</Text>,
-    product.position.toString(),
+  const rows = bestsellers.map((product: BestsellerProduct) => [
+    <Text as="span" fontWeight="bold" key="trend">{product.trend}</Text>,
+    <Text as="span" key="position">{product.position.toString()}</Text>,
     product.image ? (
-      <Thumbnail source={product.image} alt={product.title} size="small" />
+      <Thumbnail source={product.image} alt={product.title} size="small" key="image" />
     ) : (
       <Thumbnail
         source="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_medium.png?format=webp&v=1530129081"
         alt="No image"
         size="small"
+        key="image"
       />
     ),
-    <Text as="span" fontWeight="medium">{product.title}</Text>,
-    <Text as="span">{product.price}</Text>,
-    <Text as="span" fontWeight="bold">{product.sales}</Text>,
-    <Text as="span" fontWeight="bold">{product.revenue}</Text>,
-    <Badge tone={product.isNew ? 'success' : 'info'}>{product.isNew ? 'yes' : 'no'}</Badge>,
-    <Text as="span">{product.inStock}</Text>,
-    <Text as="span">{product.created}</Text>,
+    <Text as="span" fontWeight="medium" key="title">{product.title}</Text>,
+    <Text as="span" key="price">{product.price}</Text>,
+    <Text as="span" fontWeight="bold" key="sales">{product.sales}</Text>,
+    <Text as="span" fontWeight="bold" key="revenue">{product.revenue}</Text>,
+    <Badge tone={product.isNew ? 'success' : 'info'} key="new">{product.isNew ? 'yes' : 'no'}</Badge>,
+    <Text as="span" key="stock">{product.inStock}</Text>,
+    <Text as="span" key="created">{product.created}</Text>,
   ]);
+
+  const getCurrentDateTime = (): string => {
+    const now = new Date();
+    return now.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }) + ' (' + now.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit'
+    }) + ' GMT - 05:00)';
+  };
+
+  // Always show pagination in top right
+  const showPagination = bestsellers.length > 0;
 
   return (
     <Page
-      title="Bestsellers (by # of Sales) within 30 days"
+      title={`Bestsellers (by # of Sales) within ${selectedPeriod} days`}
       subtitle="Store-wide statistics for products identified as 'bestsellers' based on the number of sales"
     >
       <Layout>
         <Layout.Section>
           <Card>
+            {/* Search and Controls Section */}
             <Box padding="400" borderBlockEndWidth="025" borderColor="border">
-              <InlineStack align="space-between" blockAlign="center">
-                <BlockStack gap="200">
-                  <Select
-                    label=""
-                    options={periodOptions}
-                    onChange={setSelectedPeriod}
-                    value={selectedPeriod}
-                  />
-                  <Text as="p" tone="subdued" variant="bodySm">
-                    The lookback period is {selectedPeriod} days from today.
-                  </Text>
-                </BlockStack>
-                <InlineStack gap="200">
-                  <Select
-                    label=""
-                    options={[
-                      { label: '25 products', value: '25' },
-                      { label: '50 products', value: '50' },
-                      { label: '100 products', value: '100' },
-                    ]}
-                    onChange={(value) => setProductsCount(parseInt(value))}
-                    value={productsCount.toString()}
-                  />
-                  <Button onClick={loadBestsellers} disabled={loading}>
-                    Refresh
-                  </Button>
+              <BlockStack gap="400">
+                {/* Top Row: Search and Count */}
+                <InlineStack align="space-between" blockAlign="center">
+                  <div style={{ width: '320px' }}>
+                    <TextField
+                      label="Search products"
+                      labelHidden
+                      placeholder="Search by product title..."
+                      value={searchQuery}
+                      onChange={setSearchQuery}
+                      autoComplete="off"
+                      prefix={<Icon source={SearchIcon} />}
+                      clearButton
+                      onClearButtonClick={() => setSearchQuery('')}
+                    />
+                  </div>
+                  
+                  <InlineStack gap="400" blockAlign="center">
+                    {/* Products per page selector */}
+                    <InlineStack gap="200" blockAlign="center">
+                      <Text as="span" variant="bodyMd" tone="subdued">
+                        Show:
+                      </Text>
+                      <div style={{ width: '180px' }}>
+                        <Select
+                          label="Products per page"
+                          labelHidden
+                          options={generateCountOptions()}
+                          onChange={handleCountChange}
+                          value={productsCount.toString()}
+                        />
+                      </div>
+                    </InlineStack>
+
+                    {/* Pagination - ALWAYS SHOW IN TOP RIGHT */}
+                    {showPagination && (
+                      <div style={{
+                        backgroundColor: '#f6f6f7',
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: '1px solid #e1e3e5',
+                        minWidth: '200px'
+                      }}>
+                        <Pagination
+                          hasPrevious={hasPreviousPage}
+                          onPrevious={() => handlePageChange(currentPage - 1)}
+                          hasNext={hasNextPage}
+                          onNext={() => handlePageChange(currentPage + 1)}
+                          label={`Page ${currentPage}`}
+                        />
+                      </div>
+                    )}
+                  </InlineStack>
                 </InlineStack>
-              </InlineStack>
+
+                {/* Middle Row: Period and Information */}
+                <InlineStack align="space-between" blockAlign="center">
+                  <BlockStack gap="100">
+                    <InlineStack gap="200" blockAlign="center">
+                      <Text as="span" variant="bodyMd">
+                        Lookback period:
+                      </Text>
+                      <div style={{ width: '150px' }}>
+                        <Select
+                          label="Period"
+                          labelHidden
+                          options={periodOptions}
+                          onChange={handlePeriodChange}
+                          value={selectedPeriod}
+                        />
+                      </div>
+                      <Text as="span" tone="subdued" variant="bodySm">
+                        {selectedPeriod} days from today
+                      </Text>
+                    </InlineStack>
+                    
+                    {searchQuery && (
+                      <Text as="p" variant="bodySm" tone="subdued">
+                        Searching for: "{searchQuery}" • Found {totalProducts} matching products
+                      </Text>
+                    )}
+                  </BlockStack>
+                  
+                  {/* Additional info on the right */}
+                  <Text as="span" variant="bodySm" tone="subdued">
+                    {bestsellers.length} products displayed
+                  </Text>
+                </InlineStack>
+              </BlockStack>
             </Box>
 
+            {/* Information Section */}
             <Box padding="400">
-              <Text as="h3" variant="headingSm">Trend</Text>
-              <Text as="p" tone="subdued" variant="bodySm">
-                Position compared to 7 days ago
-              </Text>
+              <BlockStack gap="200">
+                <Text as="h3" variant="headingSm">Trend Indicators</Text>
+                <Text as="p" tone="subdued" variant="bodySm">
+                  <strong>↑</strong> Product has sales • <strong>→</strong> Neutral position • <strong>↓</strong> No sales
+                </Text>
+                <Text as="p" tone="subdued" variant="bodySm">
+                  <strong>Note:</strong> The "New" badge indicates a product created in the last 10 days.
+                </Text>
+              </BlockStack>
             </Box>
 
-            {loading ? (
-              <Box padding="800" textAlign="center">
-                <Spinner size="large" />
-                <Text as="p" tone="subdued" variant="bodyMd">
-                  Loading bestsellers...
-                </Text>
-              </Box>
+            {/* Data Table */}
+            {bestsellers.length > 0 ? (
+              <>
+                <DataTable
+                  columnContentTypes={['text', 'numeric', 'text', 'text', 'numeric', 'numeric', 'numeric', 'text', 'numeric', 'text']}
+                  headings={['Trend', 'Position', 'Image', 'Title', 'Price', '# of Sales', 'Revenue', 'New', 'In Stock', 'Created']}
+                  rows={rows}
+                  footerContent={`Showing ${bestsellers.length} of ${totalProducts} bestselling products${searchQuery ? ' matching search' : ''}`}
+                />
+
+                {/* Bottom Pagination - ALWAYS SHOW */}
+                {showPagination && (
+                  <Box padding="400">
+                    <InlineStack align="center">
+                      <div style={{
+                        backgroundColor: '#f6f6f7',
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        border: '1px solid #e1e3e5'
+                      }}>
+                        <Pagination
+                          hasPrevious={hasPreviousPage}
+                          onPrevious={() => handlePageChange(currentPage - 1)}
+                          hasNext={hasNextPage}
+                          onNext={() => handlePageChange(currentPage + 1)}
+                          label={`Page ${currentPage}`}
+                        />
+                      </div>
+                    </InlineStack>
+                  </Box>
+                )}
+              </>
             ) : (
-              <DataTable
-                columnContentTypes={[
-                  'text',
-                  'numeric',
-                  'text',
-                  'text',
-                  'numeric',
-                  'numeric',
-                  'numeric',
-                  'text',
-                  'numeric',
-                  'text',
-                ]}
-                headings={[
-                  'Trend',
-                  'Position',
-                  'Image',
-                  'Title',
-                  'Price',
-                  '# of Sales',
-                  'Revenue',
-                  'New',
-                  'In Stock',
-                  'Created'
-                ]}
-                rows={rows}
-                footerContent={`Showing ${bestsellers.length} bestselling products`}
-              />
+              <Box padding="800">
+                <div style={{ textAlign: 'center' }}>
+                  <Text as="p" variant="bodyMd">
+                    {searchQuery 
+                      ? `No products found matching "${searchQuery}".` 
+                      : 'No products found to calculate bestsellers.'
+                    }
+                  </Text>
+                  {searchQuery && (
+                    <Box paddingBlockStart="200">
+                      <Button onClick={() => setSearchQuery('')}>
+                        Clear search
+                      </Button>
+                    </Box>
+                  )}
+                </div>
+              </Box>
             )}
           </Card>
+
+          {/* Statistics Footer */}
+          <Box padding="400">
+            <InlineStack align="space-between" blockAlign="center">
+              <Text as="p" tone="subdued" variant="bodySm">
+                <strong>Statistics as of:</strong> {getCurrentDateTime()}
+              </Text>
+              <Text as="p" tone="subdued" variant="bodySm">
+                Page {currentPage} • {productsCount} products per page • {selectedPeriod}-day period
+              </Text>
+            </InlineStack>
+          </Box>
         </Layout.Section>
       </Layout>
     </Page>

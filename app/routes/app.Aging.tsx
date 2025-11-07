@@ -1,3 +1,4 @@
+// app/routes/app.Aging.tsx
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -8,12 +9,18 @@ import {
   Badge,
   Thumbnail,
   Select,
-  Button,
-  Spinner,
   Box,
   InlineStack,
   BlockStack,
+  TextField,
+  Pagination,
+  Button,
+  Icon,
 } from '@shopify/polaris';
+import { useLoaderData, useSubmit, useNavigate, type LoaderFunctionArgs } from "react-router";
+import { authenticate } from "../shopify.server";
+import { fetchAgingProducts } from "../lib/shopify";
+import { SearchIcon } from '@shopify/polaris-icons';
 
 interface AgingProduct {
   id: string;
@@ -24,91 +31,199 @@ interface AgingProduct {
   isNew: boolean;
   inStock: number;
   created: string;
+  vendor: string;
+  status: string;
 }
 
-// Mock function to simulate API call
-const fetchAgingProducts = async (first: number = 25): Promise<any> => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
+interface LoaderData {
+  agingProducts: AgingProduct[];
+  totalProducts: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  productsCount: number;
+  searchQuery: string;
+}
+
+// Helper function to check if a product is "new" (created in the last 30 days)
+const isProductNew = (createdAt: string): boolean => {
+  const createdDate = new Date(createdAt);
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  return createdDate > thirtyDaysAgo;
+};
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { admin } = await authenticate.admin(request);
+  const url = new URL(request.url);
   
-  return {
-    products: {
-      edges: []
+  const productsCount = parseInt(url.searchParams.get("count") || "250");
+  const page = parseInt(url.searchParams.get("page") || "1");
+  const searchQuery = url.searchParams.get("search") || "";
+  const after = url.searchParams.get("after") || null;
+
+  try {
+    const agingData = await fetchAgingProducts(admin, productsCount, after);
+    
+    if (agingData?.data?.products && agingData.data.products.edges.length > 0) {
+      const allProducts = agingData.data.products.edges.map((edge: any) => edge.node);
+      
+      console.log(`Found ${allProducts.length} products for page ${page}.`);
+
+      // Filter products by search query if provided
+      let filteredProducts = allProducts;
+      if (searchQuery) {
+        filteredProducts = allProducts.filter((product: any) =>
+          product.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+
+      const transformedData = filteredProducts.map((product: any, index: number) => {
+        const mainVariant = product.variants?.edges[0]?.node;
+        const price = mainVariant?.price || '0.00';
+        const basePrice = parseFloat(price);
+        const inventory = product.totalInventory || 0;
+        
+        return {
+          id: product.id,
+          position: index + 1 + ((page - 1) * productsCount),
+          image: product.featuredImage?.url || '',
+          title: product.title,
+          price: `$${basePrice.toFixed(2)}`,
+          isNew: isProductNew(product.createdAt),
+          inStock: inventory,
+          created: new Date(product.createdAt).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+          }).replace(',', ''),
+          vendor: product.vendor || 'Unknown',
+          status: product.status || 'ACTIVE',
+        };
+      });
+
+      return {
+        agingProducts: transformedData,
+        totalProducts: filteredProducts.length,
+        currentPage: page,
+        hasNextPage: agingData.data.products.pageInfo?.hasNextPage || false,
+        hasPreviousPage: agingData.data.products.pageInfo?.hasPreviousPage || false,
+        productsCount,
+        searchQuery,
+        endCursor: agingData.data.products.pageInfo?.endCursor,
+      };
     }
-  };
+    
+    console.log("No products found in the store.");
+    return { 
+      agingProducts: [], 
+      totalProducts: 0,
+      currentPage: page,
+      hasNextPage: false,
+      hasPreviousPage: false,
+      productsCount,
+      searchQuery,
+    };
+
+  } catch (error) {
+    console.error('Error in Aging loader:', error);
+    return { 
+      agingProducts: [], 
+      totalProducts: 0,
+      currentPage: page,
+      hasNextPage: false,
+      hasPreviousPage: false,
+      productsCount,
+      searchQuery,
+    };
+  }
 };
 
 export default function AgingPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState('90');
-  const [agingProducts, setAgingProducts] = useState<AgingProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [productsCount, setProductsCount] = useState(25);
+  const { 
+    agingProducts = [], 
+    totalProducts,
+    currentPage: initialPage,
+    hasNextPage,
+    hasPreviousPage,
+    productsCount: initialCount,
+    searchQuery: initialSearch
+  } = useLoaderData<LoaderData>();
+  
+  const submit = useSubmit();
+  const navigate = useNavigate();
+  
+  const [productsCount, setProductsCount] = useState(initialCount);
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [currentPage, setCurrentPage] = useState(initialPage);
 
-  const periodOptions = [
-    { label: '90 days', value: '90' },
-    { label: '180 days', value: '180' },
-    { label: '365 days', value: '365' },
-  ];
+  // Handle count change
+  const handleCountChange = (value: string) => {
+    const newCount = parseInt(value);
+    setProductsCount(newCount);
+    
+    const params = new URLSearchParams(window.location.search);
+    params.set("count", value);
+    params.set("page", "1"); // Reset to first page when count changes
+    
+    submit(params, { replace: true });
+  };
 
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", page.toString());
+    
+    navigate(`?${params.toString()}`, { replace: true });
+  };
+
+  // Handle search with debounce
   useEffect(() => {
-    loadAgingProducts();
-  }, [selectedPeriod, productsCount]);
-
-  const loadAgingProducts = async () => {
-    setLoading(true);
-    try {
-      const agingData = await fetchAgingProducts(productsCount);
-      
-      if (agingData?.products && agingData.products.edges.length > 0) {
-        const transformedData = transformProductsToAging(
-          agingData.products.edges.map((edge: any) => edge.node),
-          parseInt(selectedPeriod)
-        );
-        setAgingProducts(transformedData);
-      } else {
-        setAgingProducts([]);
+    const timer = setTimeout(() => {
+      if (searchQuery !== initialSearch) {
+        const params = new URLSearchParams(window.location.search);
+        if (searchQuery) {
+          params.set("search", searchQuery);
+        } else {
+          params.delete("search");
+        }
+        params.set("page", "1"); // Reset to first page when searching
+        
+        submit(params, { replace: true });
       }
-    } catch (error) {
-      console.error('Error loading aging products:', error);
-      setAgingProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    }, 500);
 
-  const transformProductsToAging = (products: any[], period: number): AgingProduct[] => {
-    return products.map((product, index) => {
-      const mainVariant = product.variants?.edges[0]?.node;
-      const price = mainVariant?.price || '0.00';
-      const inventory = product.totalInventory || 0;
-      const isNew = false; // Aging products are not new
-      
-      return {
-        id: product.id,
-        position: index + 1,
-        image: product.featuredImage?.url || '',
-        title: product.title,
-        price: `$${price}`,
-        isNew: isNew,
-        inStock: inventory,
-        created: formatDate(product.createdAt),
-      };
+    return () => clearTimeout(timer);
+  }, [searchQuery, submit]);
+
+  // Generate count options dynamically (1 to 500 with common increments)
+  const generateCountOptions = () => {
+    const options = [];
+    
+    // Add common increments
+    const commonIncrements = [1, 5, 10, 25, 50, 100, 250, 500];
+    
+    commonIncrements.forEach(count => {
+      options.push({
+        label: `${count} product${count !== 1 ? 's' : ''}`,
+        value: count.toString()
+      });
     });
-  };
-
-  const formatDate = (dateString: string): string => {
-    if (!dateString) return '';
-    try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      }).replace(',', '');
-    } catch (error) {
-      return '';
+    
+    // Add current count if it's not in common increments
+    if (!commonIncrements.includes(productsCount)) {
+      options.push({
+        label: `${productsCount} products`,
+        value: productsCount.toString()
+      });
     }
+    
+    // Sort by value
+    return options.sort((a, b) => parseInt(a.value) - parseInt(b.value));
   };
 
   const getCurrentDateTime = (): string => {
@@ -123,7 +238,7 @@ export default function AgingPage() {
     }) + ' GMT - 05:00)';
   };
 
-  const rows = agingProducts.map((product) => [
+  const rows = agingProducts.map((product: AgingProduct) => [
     <Text as="span" key="position">{product.position.toString()}</Text>,
     product.image ? (
       <Thumbnail source={product.image} alt={product.title} size="small" key="image" />
@@ -144,81 +259,145 @@ export default function AgingPage() {
 
   return (
     <Page
-      title="Aging Inventory within 90 days"
-      subtitle="Store-wide statistics for products identified as 'aging.' Aging inventory refers to products with no sales for an extended period."
+      title="Oldest Store Inventory"
+      subtitle="Products in your store, shown from oldest to newest."
     >
       <Layout>
         <Layout.Section>
           <Card>
+            {/* Search and Controls Section */}
             <Box padding="400" borderBlockEndWidth="025" borderColor="border">
-              <InlineStack align="space-between" blockAlign="center">
-                <BlockStack gap="200">
-                  <Select
-                    label=""
-                    options={periodOptions}
-                    onChange={setSelectedPeriod}
-                    value={selectedPeriod}
-                  />
-                  <Text as="p" tone="subdued" variant="bodySm">
-                    The lookback period is {selectedPeriod} days from today.
-                  </Text>
-                </BlockStack>
-                <InlineStack gap="200">
-                  <Select
-                    label=""
-                    options={[
-                      { label: '25 products', value: '25' },
-                      { label: '50 products', value: '50' },
-                      { label: '100 products', value: '100' },
-                    ]}
-                    onChange={(value) => setProductsCount(parseInt(value))}
-                    value={productsCount.toString()}
-                  />
-                  <Button onClick={loadAgingProducts} disabled={loading}>
-                    Refresh
-                  </Button>
+              <BlockStack gap="400">
+                {/* Top Row: Search and Count */}
+                <InlineStack align="space-between" blockAlign="center">
+                  <div style={{ width: '320px' }}>
+                    <TextField
+                      label="Search products"
+                      labelHidden
+                      placeholder="Search by product title..."
+                      value={searchQuery}
+                      onChange={setSearchQuery}
+                      autoComplete="off"
+                      prefix={<Icon source={SearchIcon} />}
+                      clearButton
+                      onClearButtonClick={() => setSearchQuery('')}
+                    />
+                  </div>
+                  
+                  <InlineStack gap="200" blockAlign="center">
+                    <Text as="span" variant="bodyMd" tone="subdued">
+                      Show:
+                    </Text>
+                    <div style={{ width: '180px' }}>
+                      <Select
+                        label="Products per page"
+                        labelHidden
+                        options={generateCountOptions()}
+                        onChange={handleCountChange}
+                        value={productsCount.toString()}
+                      />
+                    </div>
+                  </InlineStack>
                 </InlineStack>
-              </InlineStack>
+
+                {/* Middle Row: Information */}
+                <InlineStack align="space-between" blockAlign="center">
+                  <BlockStack gap="100">
+                    <Text as="p" variant="bodyMd">
+                      This view shows the oldest products in your store. The "New" badge indicates if a product was created in the last 30 days.
+                    </Text>
+                    {searchQuery && (
+                      <Text as="p" variant="bodySm" tone="subdued">
+                        Searching for: "{searchQuery}" • Found {totalProducts} matching products
+                      </Text>
+                    )}
+                  </BlockStack>
+                  
+                  {/* Pagination Controls */}
+                  {(hasNextPage || hasPreviousPage) && (
+                    <div style={{
+                      backgroundColor: '#f6f6f7',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      border: '1px solid #e1e3e5'
+                    }}>
+                      <Pagination
+                        hasPrevious={hasPreviousPage}
+                        onPrevious={() => handlePageChange(currentPage - 1)}
+                        hasNext={hasNextPage}
+                        onNext={() => handlePageChange(currentPage + 1)}
+                        label={`Page ${currentPage}`}
+                      />
+                    </div>
+                  )}
+                </InlineStack>
+              </BlockStack>
             </Box>
 
-            {loading ? (
-              <Box padding="800">
-                <div style={{ textAlign: 'center' }}>
-                  <Spinner size="large" />
-                  <Text as="p" tone="subdued" variant="bodyMd">
-                    Loading aging inventory...
-                  </Text>
-                </div>
-              </Box>
-            ) : agingProducts.length > 0 ? (
-              <DataTable
-                columnContentTypes={[
-                  'numeric',
-                  'text',
-                  'text',
-                  'numeric',
-                  'text',
-                  'numeric',
-                  'text',
-                ]}
-                headings={[
-                  '#',
-                  'Image',
-                  'Title',
-                  'Price',
-                  'New',
-                  'In Stock',
-                  'Created'
-                ]}
-                rows={rows}
-                footerContent={`Showing ${agingProducts.length} aging products`}
-              />
+            {/* Data Table */}
+            {agingProducts.length > 0 ? (
+              <>
+                <DataTable
+                  columnContentTypes={[
+                    'numeric',
+                    'text',
+                    'text',
+                    'numeric',
+                    'text',
+                    'numeric',
+                    'text',
+                  ]}
+                  headings={[
+                    '#',
+                    'Image',
+                    'Title',
+                    'Price',
+                    'New',
+                    'In Stock',
+                    'Created'
+                  ]}
+                  rows={rows}
+                  footerContent={`Showing ${agingProducts.length} of ${totalProducts} oldest products${searchQuery ? ' matching search' : ''}`}
+                />
+
+                {/* Bottom Pagination */}
+                {(hasNextPage || hasPreviousPage) && (
+                  <Box padding="400">
+                    <InlineStack align="center">
+                      <div style={{
+                        backgroundColor: '#f6f6f7',
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        border: '1px solid #e1e3e5'
+                      }}>
+                        <Pagination
+                          hasPrevious={hasPreviousPage}
+                          onPrevious={() => handlePageChange(currentPage - 1)}
+                          hasNext={hasNextPage}
+                          onNext={() => handlePageChange(currentPage + 1)}
+                          label={`Page ${currentPage}`}
+                        />
+                      </div>
+                    </InlineStack>
+                  </Box>
+                )}
+              </>
             ) : (
               <Box padding="800">
                 <div style={{ textAlign: 'center' }}>
                   <Text as="p" variant="bodyMd">
-                    No data for the lookback period yet.
+                    {searchQuery 
+                      ? `No products found matching "${searchQuery}".` 
+                      : 'No products found in your store.'
+                    }
                   </Text>
+                  {searchQuery && (
+                    <Box paddingBlockStart="200">
+                      <Button onClick={() => setSearchQuery('')}>
+                        Clear search
+                      </Button>
+                    </Box>
+                  )}
                 </div>
               </Box>
             )}
@@ -226,9 +405,14 @@ export default function AgingPage() {
 
           {/* Statistics Footer */}
           <Box padding="400">
-            <Text as="p" tone="subdued" variant="bodySm">
-              <strong>Statistics as of:</strong> {getCurrentDateTime()}
-            </Text>
+            <InlineStack align="space-between" blockAlign="center">
+              <Text as="p" tone="subdued" variant="bodySm">
+                <strong>Statistics as of:</strong> {getCurrentDateTime()}
+              </Text>
+              <Text as="p" tone="subdued" variant="bodySm">
+                Page {currentPage} • {productsCount} products per page
+              </Text>
+            </InlineStack>
           </Box>
         </Layout.Section>
       </Layout>

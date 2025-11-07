@@ -28,6 +28,7 @@ import {
   LegacyCard,
   Modal,
   Toast,
+  Pagination,
 } from "@shopify/polaris";
 import {
   SearchIcon,
@@ -91,9 +92,14 @@ interface LoaderData {
 
 // GraphQL Queries
 const GET_COLLECTION_PRODUCTS = `#graphql
-  query GetCollectionProducts($id: ID!, $first: Int!) {
+  query GetCollectionProducts($id: ID!, $first: Int!, $after: String) {
     collection(id: $id) {
-      products(first: $first) {
+      products(first: $first, after: $after) {
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+          endCursor
+        }
         edges {
           node {
             id
@@ -200,6 +206,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     // Construct the full GID from the numeric ID
     const gid = constructGid(collectionId);
     
+    // Get URL parameters for pagination
+    const url = new URL(request.url);
+    const productsPage = parseInt(url.searchParams.get("productsPage") || "1");
+    const featuredPage = parseInt(url.searchParams.get("featuredPage") || "1");
+    const productsCount = parseInt(url.searchParams.get("productsCount") || "250");
+    const searchQuery = url.searchParams.get("search") || "";
+    const after = url.searchParams.get("after") || null;
+
     // Get collection details
     const collectionResponse = await admin.graphql(GET_COLLECTION, {
       variables: { id: gid }
@@ -211,9 +225,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       throw new Response("Collection not found", { status: 404 });
     }
 
-    // Get collection products
+    // Build search query if provided
+    let finalQuery = '';
+    if (searchQuery) {
+      finalQuery = `title:*${searchQuery}*`;
+    }
+
+    // Get collection products with pagination
     const productsResponse = await admin.graphql(GET_COLLECTION_PRODUCTS, {
-      variables: { id: gid, first: 50 }
+      variables: { 
+        id: gid, 
+        first: productsCount,
+        after: after
+      }
     });
     
     const productsData = await productsResponse.json() as any;
@@ -304,6 +328,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         featuredSettings: featuredSettingsFromDb || {},
         productBehaviorRules: productBehaviorRulesFromDb || {},
         tagRules
+      },
+      pagination: {
+        productsPage,
+        featuredPage,
+        productsCount,
+        searchQuery,
+        hasNextPage: productsData.data?.collection?.products?.pageInfo?.hasNextPage || false,
+        hasPreviousPage: productsData.data?.collection?.products?.pageInfo?.hasPreviousPage || false,
+        endCursor: productsData.data?.collection?.products?.pageInfo?.endCursor,
       }
     };
   } catch (error) {
@@ -977,7 +1010,7 @@ const reorder = (list: Product[], startIndex: number, endIndex: number): Product
 };
 
 const CollectionSort = () => {
-  const { collection, products, shopDomain, savedData } = useLoaderData() as LoaderData;
+  const { collection, products, shopDomain, savedData, pagination } = useLoaderData() as LoaderData & { pagination: any };
   const { collectionId } = useParams();
   const navigate = useNavigate();
   const submit = useSubmit();
@@ -989,7 +1022,7 @@ const CollectionSort = () => {
   
   // State
   const [selectedTab, setSelectedTab] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(pagination.searchQuery || "");
   const [showDropdown, setShowDropdown] = useState(false);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>(savedData.featuredProducts);
   const [isSaving, setIsSaving] = useState(false);
@@ -1001,6 +1034,15 @@ const CollectionSort = () => {
   const [resortMessage, setResortMessage] = useState<string>("");
   const [actionMessage, setActionMessage] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
+  // NEW: Featured products search state
+  const [featuredSearchQuery, setFeaturedSearchQuery] = useState("");
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(pagination.productsPage || 1);
+  const [productsPerPage, setProductsPerPage] = useState(pagination.productsCount || 250);
+  const [hasNextPage, setHasNextPage] = useState(pagination.hasNextPage || false);
+  const [hasPreviousPage, setHasPreviousPage] = useState(pagination.hasPreviousPage || false);
   
   // NEW STATE: For manual position selection after import
   const [showPositionModal, setShowPositionModal] = useState(false);
@@ -1033,6 +1075,94 @@ const CollectionSort = () => {
   const [tagName, setTagName] = useState("");
   const [tagPosition, setTagPosition] = useState("top");
   const [tagRules, setTagRules] = useState<TagRule[]>(savedData.tagRules);
+
+  // Handle search with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery !== pagination.searchQuery) {
+        const params = new URLSearchParams(window.location.search);
+        if (searchQuery) {
+          params.set("search", searchQuery);
+        } else {
+          params.delete("search");
+        }
+        params.set("productsPage", "1");
+        params.set("productsCount", productsPerPage.toString());
+        
+        navigate(`?${params.toString()}`, { replace: true });
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, navigate]);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    
+    const params = new URLSearchParams(window.location.search);
+    params.set("productsPage", page.toString());
+    params.set("productsCount", productsPerPage.toString());
+    if (searchQuery) {
+      params.set("search", searchQuery);
+    }
+    
+    navigate(`?${params.toString()}`, { replace: true });
+  };
+
+  // Handle products per page change
+  const handleProductsPerPageChange = (value: string) => {
+    const newCount = parseInt(value);
+    setProductsPerPage(newCount);
+    
+    const params = new URLSearchParams(window.location.search);
+    params.set("productsCount", value);
+    params.set("productsPage", "1");
+    if (searchQuery) {
+      params.set("search", searchQuery);
+    }
+    
+    navigate(`?${params.toString()}`, { replace: true });
+  };
+
+  // Generate products per page options
+  const generateProductsPerPageOptions = () => {
+    const options = [];
+    
+    const commonIncrements = [50, 100, 250, 500];
+    
+    commonIncrements.forEach(count => {
+      options.push({
+        label: `${count} products`,
+        value: count.toString()
+      });
+    });
+    
+    if (!commonIncrements.includes(productsPerPage)) {
+      options.push({
+        label: `${productsPerPage} products`,
+        value: productsPerPage.toString()
+      });
+    }
+    
+    return options.sort((a, b) => parseInt(a.value) - parseInt(b.value));
+  };
+
+  // Filter available products based on search and pagination
+  const filteredProducts = products.filter((p: Product) => 
+    p.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    !featuredProducts.find((fp: Product) => fp.id === p.id)
+  );
+
+  // NEW: Filter featured products based on search
+  const filteredFeaturedProducts = featuredProducts.filter((p: Product) => 
+    p.title.toLowerCase().includes(featuredSearchQuery.toLowerCase())
+  );
+
+  // Calculate paginated products
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
 
   // Options
   const collectionOptions = [
@@ -1106,12 +1236,6 @@ const CollectionSort = () => {
     opacity: 0.5,
     pointerEvents: "none" as const,
   };
-
-  // Filter available products
-  const filteredProducts = products.filter((p: Product) => 
-    p.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    !featuredProducts.find((fp: Product) => fp.id === p.id)
-  );
 
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1790,84 +1914,152 @@ const CollectionSort = () => {
                       </BlockStack>
                     </Card>
 
-                    {/* Rest of the Featured Products Tab content remains the same */}
-                    {/* Search Section */}
-                    <BlockStack gap="400">
-                      
-                      <Text as="p" tone="subdued">
-                        Move products up/down in the list by dragging them. Schedule products by choosing a start date and the number of days when the product will be featured.
-                        At the end of this period a product will be removed from featured automatically.
-                      </Text>
-                      
-                      <div style={{ position: 'relative' }}>
-                        <TextField
-                          label="Search products"
-                          labelHidden
-                          placeholder="Search and select products"
-                          value={searchQuery}
-                          onChange={setSearchQuery}
-                          onFocus={() => setShowDropdown(true)}
-                          prefix={<Icon source={SearchIcon} />}
-                          autoComplete="off"
-                        />
-                        
-                        {showDropdown && (
-                          <div style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            right: 0,
-                            backgroundColor: 'var(--p-color-bg)',
-                            border: '1px solid var(--p-color-border)',
-                            borderRadius: 'var(--p-border-radius-200)',
-                            boxShadow: 'var(--p-shadow-200)',
-                            zIndex: 1000,
-                            maxHeight: '300px',
-                            overflowY: 'auto'
-                          }}>
-                            {filteredProducts.length > 0 ? (
-                              <List>
-                                {filteredProducts.map((product: Product) => (
-                                  <List.Item key={product.id}>
-                                    <div
-                                      onClick={() => handleAddProduct(product)}
-                                      style={{ 
-                                        width: '100%', 
-                                        cursor: 'pointer', 
-                                        padding: 'var(--p-space-300)',
-                                        borderBottom: '1px solid var(--p-color-border-subdued)'
-                                      }}
-                                    >
-                                      <InlineStack gap="300" align="start">
-                                        <Thumbnail
-                                          source={product.featuredImage?.url || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product_small.png"}
-                                          alt={product.featuredImage?.altText || product.title}
-                                          size="small"
-                                        />
-                                        <BlockStack gap="100">
-                                          <Text as="span" variant="bodyMd">
-                                            {product.title}
-                                          </Text>
-                                          <Text as="span" variant="bodySm" tone="subdued">
-                                            {product.handle}
-                                          </Text>
-                                        </BlockStack>
-                                      </InlineStack>
-                                    </div>
-                                  </List.Item>
-                                ))}
-                              </List>
-                            ) : (
-                              <Box padding="400">
-                                <Text as="p" tone="subdued" alignment="center">
-                                  {searchQuery ? "No products found" : "Type to search products"}
-                                </Text>
-                              </Box>
-                            )}
+                    {/* Search and Pagination Controls */}
+                    <Card>
+                      <BlockStack gap="400">
+                        {/* Search and Products Per Page */}
+                        <InlineStack align="space-between" blockAlign="center">
+                          <div style={{ width: '320px' }}>
+                            <TextField
+                              label="Search products"
+                              labelHidden
+                              placeholder="Search and select products"
+                              value={searchQuery}
+                              onChange={setSearchQuery}
+                              onFocus={() => setShowDropdown(true)}
+                              prefix={<Icon source={SearchIcon} />}
+                              autoComplete="off"
+                            />
                           </div>
+                          
+                          <InlineStack gap="200" blockAlign="center">
+                            <Text as="span" variant="bodyMd" tone="subdued">
+                              Show:
+                            </Text>
+                            <div style={{ width: '180px' }}>
+                              <Select
+                                label="Products per page"
+                                labelHidden
+                                options={generateProductsPerPageOptions()}
+                                onChange={handleProductsPerPageChange}
+                                value={productsPerPage.toString()}
+                              />
+                            </div>
+                          </InlineStack>
+                        </InlineStack>
+
+                        {/* Pagination */}
+                        {filteredProducts.length > productsPerPage && (
+                          <InlineStack align="center">
+                            <Pagination
+                              hasPrevious={currentPage > 1}
+                              onPrevious={() => handlePageChange(currentPage - 1)}
+                              hasNext={endIndex < filteredProducts.length}
+                              onNext={() => handlePageChange(currentPage + 1)}
+                              label={`Page ${currentPage} of ${Math.ceil(filteredProducts.length / productsPerPage)}`}
+                            />
+                          </InlineStack>
+                        )}
+
+                        {/* Search Results Info */}
+                        <InlineStack align="space-between">
+                          <Text as="span" variant="bodySm" tone="subdued">
+                            {searchQuery ? (
+                              `Found ${filteredProducts.length} products matching "${searchQuery}"`
+                            ) : (
+                              `Showing ${Math.min(paginatedProducts.length, productsPerPage)} of ${filteredProducts.length} available products`
+                            )}
+                          </Text>
+                          <Text as="span" variant="bodySm" tone="subdued">
+                            Page {currentPage} • {productsPerPage} per page
+                          </Text>
+                        </InlineStack>
+                      </BlockStack>
+                    </Card>
+
+                    {/* Search Dropdown */}
+                    {showDropdown && (
+                      <div style={{
+                        position: 'relative',
+                        zIndex: 1000,
+                        maxHeight: '300px',
+                        overflowY: 'auto',
+                        border: '1px solid var(--p-color-border)',
+                        borderRadius: 'var(--p-border-radius-200)',
+                        backgroundColor: 'var(--p-color-bg)',
+                        boxShadow: 'var(--p-shadow-200)'
+                      }}>
+                        {paginatedProducts.length > 0 ? (
+                          <List>
+                            {paginatedProducts.map((product: Product) => (
+                              <List.Item key={product.id}>
+                                <div
+                                  onClick={() => handleAddProduct(product)}
+                                  style={{ 
+                                    width: '100%', 
+                                    cursor: 'pointer', 
+                                    padding: 'var(--p-space-300)',
+                                    borderBottom: '1px solid var(--p-color-border-subdued)'
+                                  }}
+                                >
+                                  <InlineStack gap="300" align="start">
+                                    <Thumbnail
+                                      source={product.featuredImage?.url || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product_small.png"}
+                                      alt={product.featuredImage?.altText || product.title}
+                                      size="small"
+                                    />
+                                    <BlockStack gap="100">
+                                      <Text as="span" variant="bodyMd">
+                                        {product.title}
+                                      </Text>
+                                      <Text as="span" variant="bodySm" tone="subdued">
+                                        {product.handle}
+                                      </Text>
+                                    </BlockStack>
+                                  </InlineStack>
+                                </div>
+                              </List.Item>
+                            ))}
+                          </List>
+                        ) : (
+                          <Box padding="400">
+                            <Text as="p" tone="subdued" alignment="center">
+                              {searchQuery ? "No products found" : "Type to search products"}
+                            </Text>
+                          </Box>
                         )}
                       </div>
-                    </BlockStack>
+                    )}
+
+                    <Text as="p" tone="subdued">
+                      Move products up/down in the list by dragging them. Schedule products by choosing a start date and the number of days when the product will be featured.
+                      At the end of this period a product will be removed from featured automatically.
+                    </Text>
+
+                    {/* NEW: Featured Products Search Bar */}
+                    <Card>
+                      <BlockStack gap="200">
+                        <Text as="h3" variant="headingSm">
+                          Search Featured Products
+                        </Text>
+                        <TextField
+                          label="Search featured products"
+                          labelHidden
+                          placeholder="Search featured products by title"
+                          value={featuredSearchQuery}
+                          onChange={setFeaturedSearchQuery}
+                          prefix={<Icon source={SearchIcon} />}
+                          autoComplete="off"
+                          clearButton
+                          onClearButtonClick={() => setFeaturedSearchQuery("")}
+                        />
+                        {featuredSearchQuery && (
+                          <Text as="span" variant="bodySm" tone="subdued">
+                            Found {filteredFeaturedProducts.length} featured products matching "{featuredSearchQuery}"
+                          </Text>
+                        )}
+                      </BlockStack>
+                    </Card>
 
                     {/* Featured Products List with Drag & Drop */}
                     <BlockStack gap="400">
@@ -1883,163 +2075,169 @@ const CollectionSort = () => {
                         </Box>
                       ) : (
                         <BlockStack gap="200">
-                          {featuredProducts.map((product, index) => (
-                            <div
-                              key={product.id}
-                              draggable
-                              onDragStart={(e) => handleDragStart(e, product.id)}
-                              onDragOver={handleDragOver}
-                              onDrop={(e) => handleDrop(e, product.id)}
-                              style={{
-                                cursor: 'grab',
-                                padding: '12px',
-                                border: '1px solid var(--p-color-border)',
-                                borderRadius: '8px',
-                                backgroundColor: draggedProduct === product.id ? 'var(--p-color-bg-surface-hover)' : 'var(--p-color-bg)',
-                                transition: 'background-color 0.2s ease',
-                              }}
-                            >
-                              <Card padding="200">
-                                <InlineStack align="space-between" blockAlign="center">
-                                  <InlineStack gap="400" blockAlign="center">
-                                    <Icon source={DragHandleIcon} />
-                                    <Thumbnail
-                                      source={product.featuredImage?.url || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product_small.png"}
-                                      alt={product.featuredImage?.altText || product.title}
-                                      size="small"
-                                    />
-                                    <BlockStack gap="100">
-                                      <Text as="span" variant="bodyMd" fontWeight="medium">
-                                        {product.title}
-                                      </Text>
-                                      <Text as="span" variant="bodySm" tone="subdued">
-                                        {product.handle}
-                                      </Text>
-                                    </BlockStack>
-                                  </InlineStack>
-                                  
-                                  <InlineStack gap="200" blockAlign="center">
-                                    {/* Badge for scheduled products */}
-                                    {product.featuredType === "scheduled" && (
-                                      <Badge tone="info">
-                                        Scheduled
-                                      </Badge>
-                                    )}
+                          {filteredFeaturedProducts.map((product, index) => {
+                            // Find the actual index in the full array for position display
+                            const actualIndex = featuredProducts.findIndex(p => p.id === product.id);
+                            
+                            return (
+                              <div
+                                key={product.id}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, product.id)}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, product.id)}
+                                style={{
+                                  cursor: 'grab',
+                                  padding: '12px',
+                                  border: '1px solid var(--p-color-border)',
+                                  borderRadius: '8px',
+                                  backgroundColor: draggedProduct === product.id ? 'var(--p-color-bg-surface-hover)' : 'var(--p-color-bg)',
+                                  transition: 'background-color 0.2s ease',
+                                }}
+                              >
+                                <Card padding="200">
+                                  <InlineStack align="space-between" blockAlign="center">
+                                    <InlineStack gap="400" blockAlign="center">
+                                      <Icon source={DragHandleIcon} />
+                                      <Thumbnail
+                                        source={product.featuredImage?.url || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product_small.png"}
+                                        alt={product.featuredImage?.altText || product.title}
+                                        size="small"
+                                      />
+                                      <BlockStack gap="100">
+                                        <Text as="span" variant="bodyMd" fontWeight="medium">
+                                          {product.title}
+                                        </Text>
+                                        <Text as="span" variant="bodySm" tone="subdued">
+                                          {product.handle}
+                                        </Text>
+                                      </BlockStack>
+                                    </InlineStack>
                                     
-                                   {/* Position indicator */}
+                                    <InlineStack gap="200" blockAlign="center">
+                                      {/* Badge for scheduled products */}
+                                      {product.featuredType === "scheduled" && (
+                                        <Badge tone="info">
+                                          Scheduled
+                                        </Badge>
+                                      )}
+                                     
+                                      {/* Position indicator */}
                                       <Badge>
-                                        {`Position: ${index + 1}`}
+                                        {`Position: ${actualIndex + 1}`}
                                       </Badge>
-                                    {/* Radio Options */}
-                                    <ChoiceList
-                                      title="Feature type"
-                                      titleHidden
-                                      choices={[
-                                        {
-                                          label: "Manual",
-                                          value: "manual",
-                                        },
-                                        {
-                                          label: "Schedule",
-                                          value: "scheduled",
-                                        },
-                                      ]}
-                                      selected={[product.featuredType]}
-                                      onChange={(value) => 
-                                        updateProduct(product.id, { 
-                                          featuredType: value[0] as "manual" | "scheduled",
-                                          ...(value[0] === "manual" && { 
-                                            daysToFeature: undefined, 
-                                            startDate: undefined,
-                                            scheduleApplied: false
+                                      
+                                      {/* Radio Options */}
+                                      <ChoiceList
+                                        title="Feature type"
+                                        titleHidden
+                                        choices={[
+                                          {
+                                            label: "Manual",
+                                            value: "manual",
+                                          },
+                                          {
+                                            label: "Schedule",
+                                            value: "scheduled",
+                                          },
+                                        ]}
+                                        selected={[product.featuredType]}
+                                        onChange={(value) => 
+                                          updateProduct(product.id, { 
+                                            featuredType: value[0] as "manual" | "scheduled",
+                                            ...(value[0] === "manual" && { 
+                                              daysToFeature: undefined, 
+                                              startDate: undefined,
+                                              scheduleApplied: false
+                                            })
                                           })
-                                        })
-                                      }
-                                    />
-                                    
-                                    {/* Schedule Section */}
-                                    {product.featuredType === "scheduled" && (
-                                      <InlineStack gap="200">
-                                        {!product.scheduleApplied ? (
-                                          // Show date details form
-                                          <Collapsible
-                                            open={showDateDetails[product.id]}
-                                            id={`date-details-${product.id}`}
-                                          >
-                                            <InlineStack gap="200">
-                                              <TextField
-                                                label="Days"
-                                                type="number"
-                                                value={product.daysToFeature?.toString() || ""}
-                                                onChange={(value) => updateProduct(product.id, { 
-                                                  daysToFeature: parseInt(value) || 0 
-                                                })}
-                                                autoComplete="off"
-                                                min={1}
-                                                placeholder="# of days"
-                                              />
-                                              <TextField
-                                                label="Start date"
-                                                type="date"
-                                                value={product.startDate || ""}
-                                                onChange={(value) => updateProduct(product.id, { 
-                                                  startDate: value 
-                                                })}
-                                                autoComplete="off"
-                                              />
-                                              <Button 
+                                        }
+                                      />
+                                      
+                                      {/* Schedule Section */}
+                                      {product.featuredType === "scheduled" && (
+                                        <InlineStack gap="200">
+                                          {!product.scheduleApplied ? (
+                                            // Show date details form
+                                            <Collapsible
+                                              open={showDateDetails[product.id]}
+                                              id={`date-details-${product.id}`}
+                                            >
+                                              <InlineStack gap="200">
+                                                <TextField
+                                                  label="Days"
+                                                  type="number"
+                                                  value={product.daysToFeature?.toString() || ""}
+                                                  onChange={(value) => updateProduct(product.id, { 
+                                                    daysToFeature: parseInt(value) || 0 
+                                                  })}
+                                                  autoComplete="off"
+                                                  min={1}
+                                                  placeholder="# of days"
+                                                />
+                                                <TextField
+                                                  label="Start date"
+                                                  type="date"
+                                                  value={product.startDate || ""}
+                                                  onChange={(value) => updateProduct(product.id, { 
+                                                    startDate: value 
+                                                  })}
+                                                  autoComplete="off"
+                                                />
+                                                <Button 
+                                                  size="slim"
+                                                  variant="primary" 
+                                                  onClick={() => applySchedule(product.id)}
+                                                >
+                                                  Apply
+                                                </Button>
+                                              </InlineStack>
+                                            </Collapsible>
+                                          ) : (
+                                            // Show applied schedule with edit button
+                                            <InlineStack gap="100" blockAlign="center">
+                                              <Icon source={CalendarIcon} />
+                                              <Text as="span" variant="bodyXs">
+                                                {product.daysToFeature} days from {product.startDate}
+                                              </Text>
+                                              <Button
                                                 size="slim"
-                                                variant="primary" 
-                                                onClick={() => applySchedule(product.id)}
-                                              >
-                                                Apply
-                                              </Button>
+                                                variant="plain"
+                                                icon={EditIcon}
+                                                onClick={() => editSchedule(product.id)}
+                                              />
                                             </InlineStack>
-                                          </Collapsible>
-                                        ) : (
-                                          // Show applied schedule with edit button
-                                          <InlineStack gap="100" blockAlign="center">
-                                            <Icon source={CalendarIcon} />
-                                            <Text as="span" variant="bodyXs">
-                                              {product.daysToFeature} days from {product.startDate}
-                                            </Text>
+                                          )}
+                                          
+                                          {/* Toggle button for date details */}
+                                          {!product.scheduleApplied && (
                                             <Button
                                               size="slim"
                                               variant="plain"
-                                              icon={EditIcon}
-                                              onClick={() => editSchedule(product.id)}
-                                            />
-                                          </InlineStack>
-                                        )}
-                                        
-                                        {/* Toggle button for date details */}
-                                        {!product.scheduleApplied && (
-                                          <Button
-                                            size="slim"
-                                            variant="plain"
-                                            onClick={() => toggleDateDetails(product.id)}
-                                          >
-                                            {showDateDetails[product.id] ? "Hide" : "Show"} dates
-                                          </Button>
-                                        )}
-                                      </InlineStack>
-                                    )}
-                                    
-                                    {/* Remove Button */}
-                                    <Button
-                                      size="slim"
-                                      icon={DeleteIcon}
-                                      variant="plain"
-                                      tone="critical"
-                                      onClick={() => handleRemoveProduct(product.id)}
-                                    >
-                                      Remove
-                                    </Button>
+                                              onClick={() => toggleDateDetails(product.id)}
+                                            >
+                                              {showDateDetails[product.id] ? "Hide" : "Show"} dates
+                                            </Button>
+                                          )}
+                                        </InlineStack>
+                                      )}
+                                      
+                                      {/* Remove Button */}
+                                      <Button
+                                        size="slim"
+                                        icon={DeleteIcon}
+                                        variant="plain"
+                                        tone="critical"
+                                        onClick={() => handleRemoveProduct(product.id)}
+                                      >
+                                        Remove
+                                      </Button>
+                                    </InlineStack>
                                   </InlineStack>
-                                </InlineStack>
-                              </Card>
-                            </div>
-                          ))}
+                                </Card>
+                              </div>
+                            );
+                          })}
                         </BlockStack>
                       )}
                     </BlockStack>
@@ -2544,21 +2742,21 @@ const CollectionSort = () => {
       </Modal>
 
       {/* NEW: Position Selection Modal */}
-<Modal
-  open={showPositionModal}
-  onClose={() => setShowPositionModal(false)}
-  title="Set Product Positions"
-  primaryAction={{
-    content: "Apply Positions",
-    onAction: handleApplyPositions,
-    loading: importLoading,
-  }}
-  secondaryActions={[{
-    content: "Cancel",
-    onAction: () => setShowPositionModal(false),
-  }]}
-  size="large"
->
+      <Modal
+        open={showPositionModal}
+        onClose={() => setShowPositionModal(false)}
+        title="Set Product Positions"
+        primaryAction={{
+          content: "Apply Positions",
+          onAction: handleApplyPositions,
+          loading: importLoading,
+        }}
+        secondaryActions={[{
+          content: "Cancel",
+          onAction: () => setShowPositionModal(false),
+        }]}
+        size="large"
+      >
         <Modal.Section>
           <BlockStack gap="400">
             <Text as="p">

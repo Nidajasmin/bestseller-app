@@ -239,3 +239,65 @@ export const GET_NEW_ARRIVALS = `#graphql
     }
   }
 `;
+
+// Add this to your existing queries.ts file
+export const GET_AGING_PRODUCTS = `#graphql
+  query GetAgingProducts($first: Int!, $query: String) {
+    products(first: $first, query: $query, sortKey: CREATED_AT, reverse: false) {
+      edges {
+        node {
+          id
+          title
+          handle
+          featuredImage {
+            url
+            altText
+          }
+          variants(first: 1) {
+            edges {
+              node {
+                price
+                inventoryQuantity
+              }
+            }
+          }
+          totalInventory
+          createdAt
+          publishedAt
+          status
+          vendor
+        }
+      }
+    }
+  }
+`;
+export const GET_ORDERS_WITH_LINE_ITEMS = `#graphql
+  query GetOrdersWithLineItems($first: Int!, $query: String!, $after: String) {
+    orders(first: $first, query: $query, after: $after) {
+      edges {
+        node {
+          id
+          lineItems(first: 50) {
+            edges {
+              node {
+                product {
+                  id
+                }
+                quantity
+                discountedUnitPriceSet {
+                  shopMoney {
+                    amount
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`;
