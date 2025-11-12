@@ -1,6 +1,7 @@
+// app/routes/app.collections_list.tsx
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
 import { useLoaderData, useNavigate, useSubmit, useFetcher } from "react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import prisma from "../db.server";
 import {
   Page,
@@ -20,7 +21,9 @@ import {
   TextField,
   Select,
   Box,
-  Pagination,
+  Badge,
+  Listbox,
+  AutoSelection,
 } from "@shopify/polaris";
 import {
   ViewIcon,
@@ -45,30 +48,45 @@ interface LoaderData {
   collections: Collection[];
   shopifyDomain: string;
   totalCollections: number;
-  currentPage: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
+  searchQuery?: string;
+  statusFilter?: string;
 }
 
-// Define types for Prisma models based on your schema
-interface Shop {
-  shopifyDomain: string;
-  accessToken: string;
-  createdAt: Date;
-  updatedAt: Date;
+interface ShopifyCollectionResponse {
+  data?: {
+    collections?: {
+      edges: Array<{
+        node: {
+          id: string;
+          title: string;
+          handle: string;
+          image?: { url: string };
+          productsCount: { count: number };
+        };
+        cursor: string;
+      }>;
+      pageInfo: {
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+        startCursor?: string;
+        endCursor?: string;
+      };
+    };
+  };
+  errors?: Array<{ message: string }>;
 }
 
 interface AppCollection {
-  id: number;
-  shopifyDomain: string;
   collectionId: string;
   enabled: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
-// --- Custom Toggle Component ---
-const CustomToggle = ({ checked, onChange, id }: { checked: boolean; onChange: (id: string, value: boolean) => void; id: string }) => {
+// --- Optimized Custom Toggle Component - INSTANT TOGGLE ---
+const CustomToggle = ({ checked, onChange, id }: { 
+  checked: boolean; 
+  onChange: (id: string, value: boolean) => void; 
+  id: string;
+}) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <button
@@ -82,7 +100,7 @@ const CustomToggle = ({ checked, onChange, id }: { checked: boolean; onChange: (
           cursor: 'pointer',
           border: 'none',
           padding: 0,
-          transition: 'background-color 0.2s ease',
+          transition: 'background-color 0.1s ease',
         }}
       >
         <div
@@ -94,7 +112,7 @@ const CustomToggle = ({ checked, onChange, id }: { checked: boolean; onChange: (
             position: 'absolute',
             top: '2px',
             left: checked ? '22px' : '2px',
-            transition: 'left 0.2s ease',
+            transition: 'left 0.1s ease',
             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
           }}
         />
@@ -106,122 +124,181 @@ const CustomToggle = ({ checked, onChange, id }: { checked: boolean; onChange: (
   );
 };
 
-// --- LOADER: Server-side data fetching with pagination ---
-export async function loader({ request }: LoaderFunctionArgs) {
-  try {
-    console.log("🔍 Loader started...");
-    const { admin, session } = await authenticate.admin(request);
-    const shopifyDomain = session.shop;
+// --- UPDATED: Helper function to fetch ALL collections ---
+async function fetchAllCollections(admin: any, searchQuery: string = '') {
+  console.log(`🔄 Fetching ALL collections with search: "${searchQuery}"`);
+  
+  let allCollections: any[] = [];
+  let hasNextPage = true;
+  let afterCursor: string | null = null;
+  const BATCH_SIZE = 250;
 
-    // Get URL parameters for pagination
-    const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get('page') || '1');
-    const limit = 250; // Fetch 250 collections per page
-    const after = url.searchParams.get('after') || null;
-
-    console.log("🛍️ Fetching collections for shop:", shopifyDomain, "Page:", page);
-
-    // 1. Fetch collections from Shopify with pagination
-    let graphqlQuery = `#graphql
-      query getCollections($first: Int!, $after: String) {
-        collections(first: $first, after: $after) {
-          pageInfo {
-            hasNextPage
-            hasPreviousPage
-            startCursor
-            endCursor
-          }
-          edges {
-            cursor
-            node {
-              id
-              title
-              handle
-              image {
-                url
-              }
-              productsCount {
-                count
-              }
+  const graphqlQuery = `#graphql
+    query getCollections($first: Int!, $after: String, $query: String) {
+      collections(first: $first, after: $after, query: $query, sortKey: TITLE) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          node {
+            id
+            title
+            handle
+            image {
+              url
+            }
+            productsCount {
+              count
             }
           }
         }
-      }`;
-
-    const response = await admin.graphql(graphqlQuery, {
-      variables: {
-        first: limit,
-        after: after
       }
-    });
-    
-    const shopifyData = await response.json();
-    
-    console.log("📦 Shopify API response:", shopifyData);
-    
-    if (!shopifyData.data?.collections?.edges) {
-      console.error("❌ Invalid response from Shopify API");
-      throw new Error('Invalid response from Shopify API');
+    }`;
+
+  try {
+    while (hasNextPage) {
+      const variables: any = { first: BATCH_SIZE };
+      
+      if (afterCursor) {
+        variables.after = afterCursor;
+      }
+      
+      if (searchQuery && searchQuery.trim() !== '') {
+        variables.query = `title:${searchQuery}*`;
+      }
+
+      const response = await admin.graphql(graphqlQuery, { variables });
+      const shopifyData: ShopifyCollectionResponse = await response.json();
+      
+      if (shopifyData.errors) {
+        console.error("🚨 GraphQL Errors:", shopifyData.errors);
+        throw new Error(`GraphQL Error: ${shopifyData.errors[0]?.message || 'Unknown error'}`);
+      }
+      
+      if (!shopifyData.data?.collections?.edges) {
+        console.error("❌ Invalid response from Shopify API");
+        break;
+      }
+
+      const collectionsData = shopifyData.data.collections;
+      const collections = collectionsData.edges.map((edge: any) => ({
+        ...edge.node,
+      }));
+
+      allCollections = [...allCollections, ...collections];
+      hasNextPage = collectionsData.pageInfo?.hasNextPage || false;
+      afterCursor = collectionsData.pageInfo?.endCursor || null;
+
+      console.log(`📦 Fetched ${collections.length} collections in this batch. Total so far: ${allCollections.length}`);
+      
+      // Break if we have too many collections for performance
+      if (allCollections.length > 1000) {
+        console.log("⚠️ Stopping at 1000 collections for performance");
+        break;
+      }
+
+      // Break if no more pages
+      if (!hasNextPage) {
+        break;
+      }
     }
-    
-    const collectionsData = shopifyData.data.collections;
-    const allCollections = collectionsData.edges.map((edge: any) => edge.node);
-    console.log(`📊 Found ${allCollections.length} collections from Shopify for page ${page}`);
 
-    // 2. Fetch enabled collections from our database for these specific collections
-    console.log("🗄️ Fetching enabled collections from database...");
-    const collectionIds = allCollections.map((col: any) => col.id);
+    console.log(`✅ Successfully fetched ${allCollections.length} total collections`);
+    return allCollections;
     
-    const enabledCollections = await prisma.appCollection.findMany({
-      where: { 
-        shopifyDomain,
-        collectionId: { in: collectionIds }
-      },
-      select: { collectionId: true, enabled: true },
+  } catch (error) {
+    console.error("❌ GraphQL request failed:", error);
+    throw error;
+  }
+}
+
+// --- UPDATED LOADER: Fetch ALL collections without pagination ---
+export async function loader({ request }: LoaderFunctionArgs) {
+  try {
+    console.log("🚀 === COLLECTIONS LOADER STARTED ===");
+    const { admin, session } = await authenticate.admin(request);
+    const shopifyDomain = session.shop;
+
+    // Get URL parameters
+    const url = new URL(request.url);
+    const searchQuery = url.searchParams.get('search') || '';
+    const statusFilter = url.searchParams.get('status') || 'all';
+
+    console.log("📋 LOADER PARAMETERS:", {
+      search: searchQuery,
+      status: statusFilter,
     });
 
-    console.log(`✅ Found ${enabledCollections.length} enabled collections in database for this page`);
+    // Fetch ALL collections from Shopify
+    const shopifyCollections = await fetchAllCollections(admin, searchQuery);
+    console.log(`📦 Raw Shopify collections: ${shopifyCollections.length}`);
 
-    // 3. Create a map of collectionId -> enabled status
+    // Fetch enabled collections from our database
+    let enabledCollections: AppCollection[] = [];
+    if (shopifyCollections.length > 0) {
+      const collectionIds = shopifyCollections.map((col: any) => col.id);
+      
+      enabledCollections = await prisma.appCollection.findMany({
+        where: { 
+          shopifyDomain,
+          collectionId: { in: collectionIds }
+        },
+        select: { collectionId: true, enabled: true },
+      });
+      
+      console.log(`🔧 Found ${enabledCollections.length} enabled collections in database`);
+    }
+
+    // Create a map of collectionId -> enabled status
     const collectionStatusMap = new Map();
-    enabledCollections.forEach((col: { collectionId: string; enabled: boolean }) => {
+    enabledCollections.forEach((col: AppCollection) => {
       collectionStatusMap.set(col.collectionId, col.enabled);
     });
 
-    // 4. Merge the data
-    const collectionsWithStatus = allCollections.map((collection: any) => ({
+    // Merge the data
+    let collectionsWithStatus = shopifyCollections.map((collection: any) => ({
       ...collection,
       enabled: collectionStatusMap.get(collection.id) || false,
     }));
 
-    console.log("🎉 Loader completed successfully");
+    console.log(`🎯 Applied enabled status to ${collectionsWithStatus.length} collections`);
+
+    // Apply status filter if provided
+    if (statusFilter !== "all") {
+      const filterEnabled = statusFilter === "enabled";
+      const beforeFilterCount = collectionsWithStatus.length;
+      collectionsWithStatus = collectionsWithStatus.filter((collection: Collection) => collection.enabled === filterEnabled);
+      console.log(`🔍 Status filter "${statusFilter}": ${beforeFilterCount} -> ${collectionsWithStatus.length} collections`);
+    }
+
+    console.log("📊 FINAL LOADER RESULTS:", {
+      collectionsCount: collectionsWithStatus.length,
+      searchQuery,
+      statusFilter
+    });
+    
+    console.log("✅ === LOADER COMPLETED ===\n");
     
     return { 
       collections: collectionsWithStatus, 
       shopifyDomain,
-      totalCollections: collectionsData.edges.length,
-      currentPage: page,
-      hasNextPage: collectionsData.pageInfo.hasNextPage,
-      hasPreviousPage: collectionsData.pageInfo.hasPreviousPage,
-      endCursor: collectionsData.pageInfo.endCursor,
-      startCursor: collectionsData.pageInfo.startCursor
+      totalCollections: collectionsWithStatus.length,
+      searchQuery: searchQuery || undefined,
+      statusFilter: statusFilter !== 'all' ? statusFilter : undefined,
     };
   } catch (error) {
-    console.error("❌ Loader failed:", error);
+    console.error("💥 LOADER FAILED:", error);
     
-    // Return empty collections if there's an error but don't crash the page
     return { 
       collections: [], 
       shopifyDomain: '',
       totalCollections: 0,
-      currentPage: 1,
-      hasNextPage: false,
-      hasPreviousPage: false
     };
   }
 }
 
-// --- ACTION: Server-side data mutation ---
+// --- ACTION: Server-side data mutation - OPTIMIZED for speed ---
 export async function action({ request }: ActionFunctionArgs) {
   console.log("🔄 ACTION FUNCTION CALLED - Processing toggle request");
   
@@ -249,31 +326,7 @@ export async function action({ request }: ActionFunctionArgs) {
       });
     }
 
-    console.log("🔍 Checking if shop exists...");
-    // Ensure the Shop exists
-    let shopExists = await prisma.shop.findUnique({
-      where: { shopifyDomain }
-    });
-
-    if (!shopExists) {
-      console.log('🏪 Creating shop record first...');
-      try {
-        shopExists = await prisma.shop.create({
-          data: {
-            shopifyDomain,
-            accessToken: session.accessToken || 'temp-access-token'
-          }
-        });
-        console.log('✅ Shop created with domain:', shopExists?.shopifyDomain);
-      } catch (shopError) {
-        console.error('❌ Failed to create shop:', shopError);
-        // Continue anyway - might already exist due to race condition
-      }
-    } else {
-      console.log('✅ Shop already exists with domain:', shopExists?.shopifyDomain);
-    }
-
-    console.log("💾 Upserting collection data...");
+    // OPTIMIZED: Direct database operation
     try {
       const result = await prisma.appCollection.upsert({
         where: {
@@ -288,10 +341,6 @@ export async function action({ request }: ActionFunctionArgs) {
       });
       
       console.log('✅ Database operation successful. AppCollection ID:', result.id);
-      console.log('💾 Updated collection:', { 
-        collectionId: result.collectionId, 
-        enabled: result.enabled 
-      });
 
       return new Response(JSON.stringify({ 
         success: true,
@@ -353,7 +402,7 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
         <Text as="p" variant="bodyMd">
-          Something went wrong. Please refresh the page.
+          Something went wrong. Please refresh page.
         </Text>
         <Button onClick={() => window.location.reload()}>Refresh Page</Button>
       </div>
@@ -363,31 +412,55 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Collection Row Component
+// Collection Row Component - INSTANT TOGGLE with optimistic updates
 function CollectionRow({ 
   collection, 
   shopifyDomain, 
   onToggleChange, 
-  position 
+  position,
+  serialNumber
 }: { 
   collection: Collection; 
   shopifyDomain: string;
   onToggleChange: (id: string, value: boolean) => void;
   position: number;
+  serialNumber: number;
 }) {
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const { id, title, handle, image, productsCount, enabled } = collection;
   const numericId = id.split('/').pop();
-  const isSubmitting = fetcher.state === 'submitting';
+  
+  // Use optimistic UI - immediately show the new state when toggling
+  const [optimisticEnabled, setOptimisticEnabled] = useState(enabled);
 
-  // Update the toggle state based on fetcher data
-  const currentEnabled = fetcher.formData 
-    ? fetcher.formData.get('enabled') === 'true'
-    : enabled;
+  // Reset optimistic state when collection prop changes
+  useEffect(() => {
+    setOptimisticEnabled(enabled);
+  }, [enabled]);
+
+  const handleToggle = (id: string, newValue: boolean) => {
+    // INSTANT UI update
+    setOptimisticEnabled(newValue);
+    
+    const formData = new FormData();
+    formData.append("id", id);
+    formData.append("enabled", newValue.toString());
+    
+    // Submit in background - no loading state
+    fetcher.submit(formData, {
+      method: "POST",
+      action: "/app/collections_list",
+    });
+  };
 
   return (
     <IndexTable.Row id={id} key={id} position={position}>
+      <IndexTable.Cell>
+        <Text as="span" variant="bodySm" fontWeight="medium" tone="subdued">
+          {serialNumber.toString()}
+        </Text>
+      </IndexTable.Cell>
       <IndexTable.Cell>
         <Thumbnail
           source={image?.url || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-collection_small.png"}
@@ -396,13 +469,11 @@ function CollectionRow({
         />
       </IndexTable.Cell>
       <IndexTable.Cell>
-        <div style={{ opacity: isSubmitting ? 0.6 : 1 }}>
-          <CustomToggle 
-            checked={currentEnabled} 
-            onChange={onToggleChange} 
-            id={id} 
-          />
-        </div>
+        <CustomToggle 
+          checked={optimisticEnabled} 
+          onChange={handleToggle} 
+          id={id}
+        />
       </IndexTable.Cell>
       <IndexTable.Cell>
         <BlockStack gap="200">
@@ -431,7 +502,7 @@ function CollectionRow({
               onClick={() => window.open(`https://${shopifyDomain}/collections/${handle}`, '_blank')}
             />
           </Tooltip>
-          {currentEnabled && (
+          {optimisticEnabled && (
             <Tooltip content="Resort Products">
               <Button
                 size="slim" 
@@ -448,7 +519,7 @@ function CollectionRow({
           size="slim"
           variant="plain"
           icon={SettingsIcon}
-          disabled={!currentEnabled}
+          disabled={!optimisticEnabled}
           onClick={() => navigate(`/app/collection-sort/${numericId}`)}
         />
       </IndexTable.Cell>
@@ -456,25 +527,242 @@ function CollectionRow({
   );
 }
 
-// Main Component
+// Custom TextField with keydown handler
+interface CustomTextFieldProps {
+  label: string;
+  labelHidden: boolean;
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+  onKeyDown: (event: React.KeyboardEvent) => void;
+  onBlur: () => void;
+  onFocus: () => void;
+  autoComplete: string;
+  prefix: React.ReactElement;
+  clearButton: boolean;
+  onClearButtonClick: () => void;
+}
+
+const CustomTextField: React.FC<CustomTextFieldProps> = ({
+  label,
+  labelHidden,
+  placeholder,
+  value,
+  onChange,
+  onKeyDown,
+  onBlur,
+  onFocus,
+  autoComplete,
+  prefix,
+  clearButton,
+  onClearButtonClick,
+}) => {
+  return (
+    <div onKeyDown={onKeyDown}>
+      <TextField
+        label={label}
+        labelHidden={labelHidden}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        autoComplete={autoComplete}
+        prefix={prefix}
+        clearButton={clearButton}
+        onClearButtonClick={onClearButtonClick}
+      />
+    </div>
+  );
+};
+
+// Custom Listbox Option with mouse events
+interface CustomOptionProps {
+  children: React.ReactNode;
+  key: string;
+  selected: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onClick: () => void;
+}
+
+const CustomOption: React.FC<CustomOptionProps> = ({
+  children,
+  key,
+  selected,
+  onMouseEnter,
+  onMouseLeave,
+  onClick,
+}) => {
+  return (
+    <div
+      key={key}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={onClick}
+      style={{
+        backgroundColor: selected ? '#f6f6f7' : 'transparent',
+        cursor: 'pointer',
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
+// Search with Suggestions Component
+function SearchWithSuggestions({ 
+  searchQuery, 
+  setSearchQuery, 
+  collections, 
+  onSearchSubmit 
+}: { 
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+  collections: Collection[];
+  onSearchSubmit: (query: string) => void;
+}) {
+  const [suggestions, setSuggestions] = useState<Collection[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+
+  // Generate search suggestions
+  useEffect(() => {
+    if (searchQuery.trim().length > 1) {
+      const filtered = collections
+        .filter(collection => 
+          collection.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          collection.handle.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .slice(0, 8); // Limit to 8 suggestions
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [searchQuery, collections]);
+
+  const handleInputChange = (value: string) => {
+    setSearchQuery(value);
+    setSelectedSuggestionIndex(-1);
+  };
+
+  const handleSuggestionSelect = (collection: Collection) => {
+    setSearchQuery(collection.title);
+    setShowSuggestions(false);
+    onSearchSubmit(collection.title);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      if (selectedSuggestionIndex >= 0 && suggestions[selectedSuggestionIndex]) {
+        handleSuggestionSelect(suggestions[selectedSuggestionIndex]);
+      } else {
+        onSearchSubmit(searchQuery);
+      }
+      setShowSuggestions(false);
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setSelectedSuggestionIndex(prev => 
+        prev < suggestions.length - 1 ? prev + 1 : prev
+      );
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setSelectedSuggestionIndex(prev => prev > 0 ? prev - 1 : -1);
+    } else if (event.key === 'Escape') {
+      setShowSuggestions(false);
+      setSelectedSuggestionIndex(-1);
+    }
+  };
+
+  const handleBlur = () => {
+    // Delay hiding to allow for click events
+    setTimeout(() => setShowSuggestions(false), 200);
+  };
+
+  return (
+    <div style={{ position: 'relative', width: '400px' }}>
+      <CustomTextField
+        label="Search collections"
+        labelHidden={true}
+        placeholder="Search by collection title or handle..."
+        value={searchQuery}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        onFocus={() => searchQuery.length > 1 && setShowSuggestions(true)}
+        autoComplete="off"
+        prefix={<Icon source={SearchIcon} />}
+        clearButton={true}
+        onClearButtonClick={() => {
+          setSearchQuery('');
+          setShowSuggestions(false);
+          onSearchSubmit('');
+        }}
+      />
+      
+      {showSuggestions && suggestions.length > 0 && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          backgroundColor: 'white',
+          border: '1px solid #e1e3e5',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+          zIndex: 1000,
+          maxHeight: '300px',
+          overflowY: 'auto',
+          marginTop: '4px'
+        }}>
+          <Listbox autoSelection={AutoSelection.None}>
+            {suggestions.map((collection, index) => (
+              <CustomOption
+                key={collection.id}
+                selected={index === selectedSuggestionIndex}
+                onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                onMouseLeave={() => setSelectedSuggestionIndex(-1)}
+                onClick={() => handleSuggestionSelect(collection)}
+              >
+                <div style={{ 
+                  padding: '12px', 
+                  cursor: 'pointer',
+                  backgroundColor: index === selectedSuggestionIndex ? '#f6f6f7' : 'transparent',
+                  borderBottom: index < suggestions.length - 1 ? '1px solid #f1f1f1' : 'none'
+                }}>
+                  <InlineStack align="space-between" blockAlign="center">
+                    <Text as="span" variant="bodyMd" fontWeight="medium">
+                      {collection.title}
+                    </Text>
+                    <Badge tone="info">
+                      {collection.productsCount.count.toString()} products
+                    </Badge>
+                  </InlineStack>
+                  <Text as="p" variant="bodySm" tone="subdued">
+                    {collection.handle}
+                  </Text>
+                </div>
+              </CustomOption>
+            ))}
+          </Listbox>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Main Component - UPDATED with fast search and no pagination
 function CollectionListPageContent() {
   const { 
     collections: initialCollections, 
     shopifyDomain, 
-    currentPage: initialPage,
-    hasNextPage,
-    hasPreviousPage
+    totalCollections,
+    searchQuery: initialSearchQuery,
+    statusFilter: initialStatusFilter,
   } = useLoaderData<LoaderData>();
   const navigate = useNavigate();
-  const submit = useSubmit();
-
-  console.log("🎬 Component rendered with:", {
-    initialCollectionsCount: initialCollections.length,
-    shopifyDomain,
-    currentPage: initialPage,
-    hasNextPage,
-    hasPreviousPage
-  });
 
   const [toastActive, setToastActive] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -484,30 +772,25 @@ function CollectionListPageContent() {
   // State for search and filter
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-  const [displayedCollections, setDisplayedCollections] = useState<Collection[]>(initialCollections);
-  const [currentPage, setCurrentPage] = useState<number>(initialPage);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  // Calculate paginated collections for the current view (not API pagination)
-  const startIndex = 0; // We're now paginating at API level, so start from 0
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedCollections = displayedCollections.slice(startIndex, endIndex);
-
-  // Update displayed collections when filters change
+  // Fix hydration issues
   useEffect(() => {
-    console.log("🔄 Filtering collections...", {
-      initialCount: initialCollections.length,
-      searchQuery,
-      statusFilter,
-      itemsPerPage
-    });
+    setIsHydrated(true);
+    setSearchQuery(initialSearchQuery || "");
+    setStatusFilter(initialStatusFilter || "all");
+  }, [initialSearchQuery, initialStatusFilter]);
 
+  // Client-side filtering for instant results
+  const filteredCollections = useMemo(() => {
     let filtered = initialCollections;
 
     // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(collection =>
-        collection.title.toLowerCase().includes(searchQuery.toLowerCase())
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(collection => 
+        collection.title.toLowerCase().includes(query) ||
+        collection.handle.toLowerCase().includes(query)
       );
     }
 
@@ -517,35 +800,43 @@ function CollectionListPageContent() {
       filtered = filtered.filter(collection => collection.enabled === filterEnabled);
     }
 
-    console.log(`📊 Filtered to ${filtered.length} collections`);
-    setDisplayedCollections(filtered);
+    return filtered;
   }, [initialCollections, searchQuery, statusFilter]);
 
-  // Handle page navigation for API pagination
-  const handlePageChange = (page: number) => {
-    console.log("📄 Changing to page:", page);
-    // Navigate to the same page with new page parameter
-    const url = new URL(window.location.href);
-    url.searchParams.set('page', page.toString());
-    navigate(url.pathname + url.search);
+  // Handle search submission
+  const handleSearchSubmit = (query: string = searchQuery) => {
+    const params = new URLSearchParams();
+    
+    if (query.trim()) {
+      params.set("search", query.trim());
+    } else {
+      params.delete("search");
+    }
+    
+    if (statusFilter !== "all") {
+      params.set("status", statusFilter);
+    } else {
+      params.delete("status");
+    }
+    
+    navigate(`?${params.toString()}`, { replace: true });
   };
 
-  const handleToggleChange = (id: string, value: boolean) => {
-    console.log("🔄 Toggle change requested:", { id, value });
+  // Handle status filter change
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value);
     
-    // Use submit to trigger the action
-    const formData = new FormData();
-    formData.append("id", id);
-    formData.append("enabled", value.toString());
+    const params = new URLSearchParams();
     
-    submit(formData, {
-      method: "POST",
-      action: "/app/collections_list",
-    });
-
-    // Show optimistic update message
-    setToastMessage(`Collection ${value ? 'enabled' : 'disabled'} successfully!`);
-    setToastActive(true);
+    if (value !== "all") {
+      params.set("status", value);
+    } else {
+      params.delete("status");
+    }
+    
+    if (searchQuery) params.set("search", searchQuery);
+    
+    navigate(`?${params.toString()}`, { replace: true });
   };
 
   const handleResortConfirm = async () => {
@@ -554,8 +845,6 @@ function CollectionListPageContent() {
     setResortModalActive(false);
     
     try {
-      console.log("🔄 Resorting collection:", selectedCollection);
-      // Call your resort API endpoint
       const response = await fetch('/app/api/resort-collection', {
         method: 'POST',
         headers: {
@@ -568,61 +857,61 @@ function CollectionListPageContent() {
       });
 
       if (response.ok) {
-        console.log("✅ Collection re-sorted successfully");
         setToastMessage("Collection re-sorted successfully!");
         setToastActive(true);
       } else {
-        console.error("❌ Failed to re-sort collection");
         setToastMessage("Failed to re-sort collection");
         setToastActive(true);
       }
     } catch (error) {
-      console.error('🔴 Resort error:', error);
       setToastMessage("Error re-sorting collection");
       setToastActive(true);
     }
   };
 
-  // Status filter options
-  const statusOptions = [
-    { label: 'All statuses', value: 'all' },
-    { label: 'Enabled', value: 'enabled' },
-    { label: 'Disabled', value: 'disabled' },
-  ];
-
-  // Items per page options for UI pagination
-  const pageSizeOptions = [
-    { label: '5 items', value: '5' },
-    { label: '10 items', value: '10' },
-    { label: '20 items', value: '20' },
-    { label: '50 items', value: '50' },
-    { label: 'All on page', value: '250' },
-  ];
-
-  const rows = paginatedCollections.map((collection, index) => (
+  // Calculate serial numbers
+  const rows = filteredCollections.map((collection, index) => (
     <CollectionRow
       key={collection.id}
       collection={collection}
       shopifyDomain={shopifyDomain}
-      onToggleChange={handleToggleChange}
-      position={index + 1}
+      onToggleChange={() => {}} // Empty function since handled in CollectionRow
+      position={index}
+      serialNumber={index + 1}
     />
   ));
 
   const toastMarkup = toastActive ? (
-    <Toast content={toastMessage} onDismiss={() => setToastActive(false)} />
+    <Toast content={toastMessage} onDismiss={() => setToastActive(false)} duration={3000} />
   ) : null;
+
+  if (!isHydrated) {
+    return (
+      <Frame>
+        <Page title="Collections">
+          <Layout>
+            <Layout.Section>
+              <Card>
+                <div style={{ padding: '40px', textAlign: 'center' }}>
+                  <Text as="p" variant="bodyMd">Loading collections...</Text>
+                </div>
+              </Card>
+            </Layout.Section>
+          </Layout>
+        </Page>
+      </Frame>
+    );
+  }
 
   return (
     <Frame>
       <Page 
         title="Collections" 
-        subtitle="Manage which collections are sorted by the app."
+        subtitle="Manage which collections are sorted by app."
         primaryAction={{
           content: 'Refresh',
           icon: RefreshIcon,
           onAction: () => {
-            console.log("🔄 Manual refresh requested");
             window.location.reload();
           },
         }}
@@ -630,97 +919,80 @@ function CollectionListPageContent() {
         <Layout>
           <Layout.Section>
             <Card>
-              {/* Search and Filter Section */}
-              <Box padding="400">
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: '1fr auto', 
-                  gap: '16px', 
-                  alignItems: 'center',
-                  marginBottom: '16px'
-                }}>
-                  {/* Left side: Search and Filters */}
-                  <div style={{ 
-                    display: 'flex', 
-                    gap: '16px', 
-                    alignItems: 'center',
-                    flexWrap: 'wrap'
-                  }}>
-                    <div style={{ width: '300px', minWidth: '250px' }}>
-                      <TextField
-                        label="Search collections"
-                        labelHidden
-                        placeholder="Search by collection title..."
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        autoComplete="off"
-                        prefix={<Icon source={SearchIcon} />}
+              {/* Search and Controls Section */}
+              <Box padding="400" borderBlockEndWidth="025" borderColor="border">
+                <BlockStack gap="300">
+                  {/* Top Row: Search and Controls */}
+                  <InlineStack align="space-between" blockAlign="center" gap="400">
+                    {/* Search with Suggestions */}
+                    <InlineStack gap="200" blockAlign="center">
+                      <SearchWithSuggestions
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        collections={initialCollections}
+                        onSearchSubmit={handleSearchSubmit}
                       />
-                    </div>
-                    <div style={{ width: '180px', minWidth: '150px' }}>
-                      <Select
-                        label="Filter by status"
-                        labelHidden
-                        options={statusOptions}
-                        value={statusFilter}
-                        onChange={setStatusFilter}
-                      />
-                    </div>
-                    <div style={{ width: '160px', minWidth: '140px' }}>
-                      <Select
-                        label="Items per page"
-                        labelHidden
-                        options={pageSizeOptions}
-                        value={itemsPerPage.toString()}
-                        onChange={(value) => setItemsPerPage(parseInt(value))}
-                      />
-                    </div>
-                  </div>
+                      <Button onClick={() => handleSearchSubmit()}>
+                        Search
+                      </Button>
+                    </InlineStack>
+                    
+                    {/* Controls Group */}
+                    <InlineStack gap="300" blockAlign="center">
+                      {/* Status filter */}
+                      <InlineStack gap="100" blockAlign="center">
+                        <Text as="span" variant="bodySm" tone="subdued">
+                          Status:
+                        </Text>
+                        <div style={{ width: '130px' }}>
+                          <Select
+                            label="Filter by status"
+                            labelHidden
+                            options={[
+                              { label: 'All statuses', value: 'all' },
+                              { label: 'Enabled', value: 'enabled' },
+                              { label: 'Disabled', value: 'disabled' },
+                            ]}
+                            onChange={handleStatusChange}
+                            value={statusFilter}
+                          />
+                        </div>
+                      </InlineStack>
 
-                  {/* Right side: Pagination */}
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'flex-end',
-                    minWidth: '300px'
-                  }}>
-                    <div style={{
-                      backgroundColor: '#f6f6f7',
-                      padding: '8px 16px',
-                      borderRadius: '8px',
-                      border: '1px solid #e1e3e5'
-                    }}>
-                      <Pagination
-                        hasPrevious={hasPreviousPage}
-                        onPrevious={() => handlePageChange(currentPage - 1)}
-                        hasNext={hasNextPage}
-                        onNext={() => handlePageChange(currentPage + 1)}
-                        label={`Page ${currentPage}`}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Collection Count Info */}
-                <Box paddingBlockStart="200">
-                  <InlineStack align="space-between" blockAlign="center">
-                    <Text as="span" variant="bodyMd" tone="subdued">
-                      Showing {paginatedCollections.length} of {displayedCollections.length} collections 
-                      {displayedCollections.length !== initialCollections.length && ' (filtered)'}
-                    </Text>
-                    {displayedCollections.length > itemsPerPage && (
-                      <Text as="span" variant="bodySm" tone="subdued">
-                        Viewing {Math.min(itemsPerPage, displayedCollections.length)} per page
-                      </Text>
-                    )}
+                      {/* Collection count badge */}
+                      <InlineStack gap="200" blockAlign="center">
+                        <Badge tone="info">
+                          {filteredCollections.length.toString()} of {initialCollections.length.toString()} collections
+                        </Badge>
+                      </InlineStack>
+                    </InlineStack>
                   </InlineStack>
-                </Box>
+
+                  {/* Information Row */}
+                  <InlineStack align="space-between" blockAlign="center">
+                    <Text as="p" variant="bodySm" tone="subdued">
+                      {searchQuery && `Search: "${searchQuery}" • `}
+                      {statusFilter !== "all" && `Filter: ${statusFilter} • `}
+                      Showing {filteredCollections.length} collections
+                      {filteredCollections.length !== initialCollections.length && 
+                        ` (filtered from ${initialCollections.length} total)`
+                      }
+                    </Text>
+                    
+                    {/* Performance info */}
+                    <Text as="span" variant="bodySm" tone="subdued">
+                      All {initialCollections.length} collections loaded • Instant search
+                    </Text>
+                  </InlineStack>
+                </BlockStack>
               </Box>
 
               <IndexTable
                 resourceName={{ singular: "collection", plural: "collections" }}
-                itemCount={paginatedCollections.length}
+                itemCount={filteredCollections.length}
                 selectable={false}
                 headings={[
+                  { title: "S.No" },
                   { title: "Image" },
                   { title: "Status" },
                   { title: "Collection" },
@@ -731,14 +1003,18 @@ function CollectionListPageContent() {
                 emptyState={
                   <div style={{ padding: '40px', textAlign: 'center' }}>
                     <Text as="p" variant="bodyMd">
-                      {initialCollections.length === 0 
-                        ? "No collections found in your store." 
-                        : "No collections found matching your search criteria."}
+                      {searchQuery || statusFilter !== "all" 
+                        ? "No collections match your current filters." 
+                        : "No collections found in your store."}
                     </Text>
-                    {initialCollections.length === 0 && hasNextPage && (
+                    {(searchQuery || statusFilter !== "all") && (
                       <Box paddingBlockStart="400">
-                        <Button onClick={() => handlePageChange(1)}>
-                          Load Collections
+                        <Button onClick={() => {
+                          setSearchQuery('');
+                          setStatusFilter('all');
+                          handleSearchSubmit('');
+                        }}>
+                          Clear filters
                         </Button>
                       </Box>
                     )}
@@ -748,49 +1024,19 @@ function CollectionListPageContent() {
                 {rows}
               </IndexTable>
 
-              {/* Bottom Section with Pagination */}
-              <Box padding="400">
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: '1fr auto 1fr', 
-                  gap: '16px', 
-                  alignItems: 'center'
-                }}>
-                  {/* Left side - Page info */}
-                  <div>
-                    <Text as="span" variant="bodySm" tone="subdued">
-                      Page {currentPage} • {initialCollections.length} collections on this page
+              {/* Statistics Footer */}
+              {filteredCollections.length > 0 && (
+                <Box padding="400" borderBlockStartWidth="025" borderColor="border">
+                  <InlineStack align="space-between" blockAlign="center">
+                    <Text as="p" tone="subdued" variant="bodySm">
+                      <strong>Last updated:</strong> {new Date().toLocaleString()}
                     </Text>
-                  </div>
-
-                  {/* Center - Pagination */}
-                  <div>
-                    {(hasNextPage || hasPreviousPage) && (
-                      <div style={{
-                        backgroundColor: '#f6f6f7',
-                        padding: '8px 16px',
-                        borderRadius: '8px',
-                        border: '1px solid #e1e3e5'
-                      }}>
-                        <Pagination
-                          hasPrevious={hasPreviousPage}
-                          onPrevious={() => handlePageChange(currentPage - 1)}
-                          hasNext={hasNextPage}
-                          onNext={() => handlePageChange(currentPage + 1)}
-                          label={`Page ${currentPage}`}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right side - Items per page info */}
-                  <div style={{ textAlign: 'right' }}>
-                    <Text as="span" variant="bodySm" tone="subdued">
-                      {itemsPerPage === 250 ? 'Showing all collections' : `${itemsPerPage} items per page`}
+                    <Text as="p" tone="subdued" variant="bodySm">
+                      {filteredCollections.length.toString()} collections • {initialCollections.length.toString()} total loaded • Instant filtering
                     </Text>
-                  </div>
-                </div>
-              </Box>
+                  </InlineStack>
+                </Box>
+              )}
             </Card>
           </Layout.Section>
         </Layout>

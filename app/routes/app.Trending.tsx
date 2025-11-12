@@ -19,18 +19,15 @@ import {
 } from '@shopify/polaris';
 import { useLoaderData, useSubmit, useNavigate, type LoaderFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
-import { fetchAllProducts, fetchProductSalesData } from "../lib/shopify";
 import { SearchIcon } from '@shopify/polaris-icons';
 
 interface TrendingProduct {
   id: string;
   position: number;
-  previousPosition: number;
   trend: string;
   image: string;
   title: string;
   price: string;
-  orders: number;
   sales: number;
   revenue: string;
   isNew: boolean;
@@ -38,122 +35,662 @@ interface TrendingProduct {
   created: string;
 }
 
+interface LoaderData {
+  trendingProducts: TrendingProduct[];
+  totalProducts: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  productsCount: number;
+  searchQuery: string;
+  endCursor?: string;
+  startCursor?: string;
+}
+
+// Interface for sales data
 interface SalesData {
   sales: number;
   revenue: number;
 }
 
-interface LoaderData {
-  products: any[];
-  trendingData: {
-    currentPeriod: Map<string, SalesData>;
-    previousPeriod: Map<string, SalesData>;
-  } | null;
-  productsCount: number;
-  currentPage: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  searchQuery: string;
+// Interface for GraphQL response
+interface GraphQLResponse<T = any> {
+  data?: T;
+  errors?: Array<{
+    message: string;
+    locations?: Array<{ line: number; column: number }>;
+    path?: string[];
+  }>;
 }
 
-// Loader function to fetch real data with pagination
+// Interface for order data
+interface OrderNode {
+  node: {
+    id: string;
+    lineItems: {
+      edges: Array<{
+        node: {
+          product: {
+            id: string;
+          };
+          quantity: number;
+          originalTotalSet: {
+            shopMoney: {
+              amount: string;
+              currencyCode: string;
+            };
+          };
+        };
+      }>;
+    };
+  };
+}
+
+interface OrdersResponse {
+  orders: {
+    edges: OrderNode[];
+    pageInfo: {
+      hasNextPage: boolean;
+      endCursor: string | null;
+    };
+  };
+}
+
+// Interface for product data
+interface ProductNode {
+  id: string;
+  title: string;
+  handle: string;
+  featuredImage: {
+    url: string;
+    altText: string;
+  } | null;
+  variants: {
+    edges: Array<{
+      node: {
+        price: string;
+        inventoryQuantity: number;
+      };
+    }>;
+  };
+  totalInventory: number;
+  createdAt: string;
+  publishedAt: string;
+  status: string;
+  vendor: string;
+}
+
+// Fixed 7 days period - no other options
+const SALES_PERIOD = 7;
+
+// GraphQL query to fetch ALL products with pagination
+const GET_ALL_PRODUCTS = `#graphql
+  query GetAllProducts($first: Int!, $after: String) {
+    products(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        endCursor
+        startCursor
+      }
+      edges {
+        node {
+          id
+          title
+          handle
+          featuredImage {
+            url
+            altText
+          }
+          variants(first: 1) {
+            edges {
+              node {
+                price
+                inventoryQuantity
+              }
+            }
+          }
+          totalInventory
+          createdAt
+          publishedAt
+          status
+          vendor
+        }
+      }
+    }
+  }
+`;
+
+// GraphQL query to fetch specific products by their IDs
+const GET_PRODUCTS_BY_IDS = `#graphql
+  query GetProductsByIds($ids: [ID!]!) {
+    nodes(ids: $ids) {
+      ... on Product {
+        id
+        title
+        handle
+        featuredImage {
+          url
+          altText
+        }
+        variants(first: 1) {
+          edges {
+            node {
+              price
+              inventoryQuantity
+            }
+          }
+        }
+        totalInventory
+        createdAt
+        publishedAt
+        status
+        vendor
+      }
+    }
+  }
+`;
+
+// GraphQL query to fetch orders with line items for sales calculation
+const GET_ORDERS_WITH_PRODUCTS = `#graphql
+  query GetOrdersWithProducts($first: Int!, $query: String!, $after: String) {
+    orders(first: $first, query: $query, after: $after) {
+      edges {
+        node {
+          id
+          lineItems(first: 100) {
+            edges {
+              node {
+                product {
+                  id
+                }
+                quantity
+                originalTotalSet {
+                  shopMoney {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`;
+
+// Function to calculate date range for orders query
+const getDateRangeQuery = (days: number): string => {
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - days);
+  
+  const formatDate = (date: Date) => date.toISOString().split('T')[0];
+  
+  return `financial_status:paid processed_at:>=${formatDate(startDate)} processed_at:<=${formatDate(endDate)}`;
+};
+
+// Function to fetch ALL sales data from orders with pagination
+async function fetchSalesData(admin: any, days: number): Promise<Map<string, SalesData>> {
+  try {
+    console.log(`🛒 Fetching sales data for last ${days} days`);
+    
+    const salesMap = new Map<string, SalesData>();
+    const dateQuery = getDateRangeQuery(days);
+    let hasNextPage = true;
+    let after: string | null = null;
+    let totalOrders = 0;
+
+    // Fetch all orders with pagination
+    while (hasNextPage) {
+      const response = await admin.graphql(GET_ORDERS_WITH_PRODUCTS, {
+        variables: {
+          first: 100,
+          query: dateQuery,
+          after: after
+        }
+      });
+      
+      // Add proper type annotation for the response
+      const data: GraphQLResponse<OrdersResponse> = await response.json();
+      
+      if (data.errors) {
+        console.error('❌ GraphQL errors in orders query:', data.errors);
+        break;
+      }
+
+      if (!data.data?.orders?.edges) {
+        console.log('📦 No orders found for the period');
+        break;
+      }
+
+      const orders = data.data.orders.edges;
+      totalOrders += orders.length;
+      
+      console.log(`📊 Processing ${orders.length} orders...`);
+
+      // Process each order and its line items
+      orders.forEach((order: OrderNode) => {
+        if (order.node.lineItems?.edges) {
+          order.node.lineItems.edges.forEach((lineItem: any) => {
+            if (lineItem.node.product && lineItem.node.product.id) {
+              const productId = lineItem.node.product.id;
+              const quantity = lineItem.node.quantity || 0;
+              const revenue = parseFloat(lineItem.node.originalTotalSet.shopMoney.amount) || 0;
+              
+              if (salesMap.has(productId)) {
+                const existing = salesMap.get(productId)!;
+                salesMap.set(productId, {
+                  sales: existing.sales + quantity,
+                  revenue: existing.revenue + revenue
+                });
+              } else {
+                salesMap.set(productId, {
+                  sales: quantity,
+                  revenue: revenue
+                });
+              }
+            }
+          });
+        }
+      });
+
+      // Check pagination
+      hasNextPage = data.data.orders.pageInfo?.hasNextPage || false;
+      after = data.data.orders.pageInfo?.endCursor || null;
+      
+      if (hasNextPage) {
+        console.log('🔄 Fetching next page of orders...');
+      }
+    }
+    
+    console.log(`✅ Processed ${totalOrders} orders, found ${salesMap.size} products with sales`);
+    
+    return salesMap;
+    
+  } catch (error) {
+    console.error('💥 Error fetching sales data:', error);
+    return new Map();
+  }
+}
+
+// Function to fetch products with pagination
+async function fetchProductsWithPagination(admin: any, first: number, after: string | null = null): Promise<{
+  products: ProductNode[];
+  hasNextPage: boolean;
+  endCursor: string | null;
+  startCursor: string | null;
+}> {
+  try {
+    console.log(`🔍 Fetching ${first} products${after ? ' with cursor' : ''}`);
+    
+    const response = await admin.graphql(GET_ALL_PRODUCTS, {
+      variables: {
+        first,
+        after
+      }
+    });
+    
+    // Add proper type annotation for the response
+    const data: GraphQLResponse<{
+      products: {
+        edges: Array<{ node: ProductNode }>;
+        pageInfo: {
+          hasNextPage: boolean;
+          hasPreviousPage: boolean;
+          endCursor: string | null;
+          startCursor: string | null;
+        };
+      };
+    }> = await response.json();
+    
+    if (data.errors) {
+      console.error('❌ GraphQL errors in products query:', data.errors);
+      return { products: [], hasNextPage: false, endCursor: null, startCursor: null };
+    }
+
+    if (!data.data?.products?.edges) {
+      console.log('📦 No products found');
+      return { products: [], hasNextPage: false, endCursor: null, startCursor: null };
+    }
+
+    const products = data.data.products.edges.map(edge => edge.node);
+    const pageInfo = data.data.products.pageInfo;
+    
+    console.log(`✅ Found ${products.length} products, hasNextPage: ${pageInfo.hasNextPage}`);
+    
+    return {
+      products,
+      hasNextPage: pageInfo.hasNextPage,
+      endCursor: pageInfo.endCursor,
+      startCursor: pageInfo.startCursor
+    };
+    
+  } catch (error) {
+    console.error('💥 Error fetching products with pagination:', error);
+    return { products: [], hasNextPage: false, endCursor: null, startCursor: null };
+  }
+}
+
+// Function to fetch products by their IDs
+async function fetchProductsByIds(admin: any, productIds: string[]): Promise<Map<string, ProductNode>> {
+  if (productIds.length === 0) {
+    return new Map();
+  }
+
+  try {
+    console.log(`🔍 Fetching ${productIds.length} products by their IDs`);
+    
+    const productDetails = new Map<string, ProductNode>();
+    
+    // Fetch products in batches to handle API limits
+    for (let i = 0; i < productIds.length; i += 50) {
+      const batchIds = productIds.slice(i, i + 50);
+      
+      const response = await admin.graphql(GET_PRODUCTS_BY_IDS, {
+        variables: {
+          ids: batchIds
+        }
+      });
+      
+      const data: GraphQLResponse<{ nodes: (ProductNode | null)[] }> = await response.json();
+      
+      if (data.errors) {
+        console.error('❌ GraphQL errors in products by IDs query:', data.errors);
+        continue;
+      }
+      
+      if (data.data?.nodes) {
+        data.data.nodes.forEach(node => {
+          if (node) {
+            productDetails.set(node.id, node);
+          }
+        });
+      }
+    }
+    
+    console.log(`✅ Found ${productDetails.size} products from the IDs`);
+    
+    return productDetails;
+    
+  } catch (error) {
+    console.error('💥 Error fetching products by IDs:', error);
+    return new Map();
+  }
+}
+
+// UPDATED loader function with PROPER server-side pagination for 10,000+ products
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
   const url = new URL(request.url);
   
-  const selectedPeriod = 7; // Fixed to 7 days
   const productsCount = parseInt(url.searchParams.get("count") || "250");
   const page = parseInt(url.searchParams.get("page") || "1");
   const searchQuery = url.searchParams.get("search") || "";
   const after = url.searchParams.get("after") || null;
 
+  console.log("🚀 Starting Trending loader with server-side pagination for 10,000+ products");
+  console.log("📊 Parameters:", {
+    productsCount,
+    page,
+    searchQuery,
+    after
+  });
+
   try {
-    // Fetch products with pagination and sales data for current period (last 7 days)
-    const [productsData, currentSalesData] = await Promise.all([
-      fetchAllProducts(admin, productsCount, after),
-      fetchProductSalesData(admin, selectedPeriod)
-    ]);
+    // STEP 1: Fetch sales data from orders for the last 7 days
+    console.log("🔄 Fetching sales data for the last 7 days...");
+    const salesData = await fetchSalesData(admin, SALES_PERIOD);
+    
+    console.log(`📈 Sales data: ${salesData.size} products`);
 
-    // Fetch sales data for previous period (7-14 days ago) for trend comparison
-    const previousSalesData = await fetchProductSalesData(admin, selectedPeriod * 2);
-
-    if (productsData?.data?.products && productsData.data.products.edges.length > 0) {
-      const products = productsData.data.products.edges.map((edge: any) => edge.node);
-
-      return {
-        products,
-        trendingData: {
-          currentPeriod: currentSalesData,
-          previousPeriod: previousSalesData
-        },
-        productsCount,
+    // If no sales data found, return empty results
+    if (salesData.size === 0) {
+      console.log("❌ No products with sales found for the last 7 days");
+      return { 
+        trendingProducts: [], 
+        totalProducts: 0,
         currentPage: page,
-        hasNextPage: productsData.data.products.pageInfo?.hasNextPage || false,
-        hasPreviousPage: productsData.data.products.pageInfo?.hasPreviousPage || false,
+        hasNextPage: false,
+        hasPreviousPage: false,
+        productsCount,
         searchQuery,
-        endCursor: productsData.data.products.pageInfo?.endCursor,
       };
     }
+
+    // STEP 2: NEW APPROACH - Create a sorted list of product IDs based on sales
+    console.log("🔍 Creating sorted list of products by sales...");
     
-    return { 
-      products: [], 
-      trendingData: null, 
-      productsCount,
+    // Create an array of products with sales data
+    const productsWithSalesData: Array<{
+      id: string;
+      sales: number;
+      revenue: number;
+    }> = [];
+    
+    salesData.forEach((salesData, productId) => {
+      productsWithSalesData.push({
+        id: productId,
+        sales: salesData.sales,
+        revenue: salesData.revenue
+      });
+    });
+    
+    // Sort by sales (highest first)
+    productsWithSalesData.sort((a, b) => b.sales - a.sales);
+    
+    console.log(`📊 Total products with sales: ${productsWithSalesData.length}`);
+    
+    // Apply search filter if provided to the sorted list
+    let filteredProductIds = productsWithSalesData;
+    if (searchQuery) {
+      // For search, we need to fetch product titles to match
+      console.log(`🔍 Applying search filter for "${searchQuery}"...`);
+      
+      // We'll need to fetch all products to check titles, but we'll do it in batches
+      const matchedProductIds: Array<{
+        id: string;
+        sales: number;
+        revenue: number;
+      }> = [];
+      
+      let productsAfter: string | null = null;
+      let hasMoreProducts = true;
+      let totalProductsFetched = 0;
+      
+      // Fetch all products in batches to find matches
+      while (hasMoreProducts) {
+        const { products, hasNextPage, endCursor } = await fetchProductsWithPagination(
+          admin, 
+          250, // Fetch in batches of 250
+          productsAfter
+        );
+        
+        totalProductsFetched += products.length;
+        
+        // Filter products that have sales and match the search query
+        products.forEach(product => {
+          const salesData = salesData.get(product.id);
+          if (salesData && salesData.sales > 0) {
+            if (product.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+              matchedProductIds.push({
+                id: product.id,
+                sales: salesData.sales,
+                revenue: salesData.revenue
+              });
+            }
+          }
+        });
+        
+        hasMoreProducts = hasNextPage && endCursor !== null;
+        productsAfter = endCursor;
+        
+        console.log(`📦 Batch: ${products.length} products checked, ${matchedProductIds.length} match search`);
+      }
+      
+      // Sort the matched products by sales
+      matchedProductIds.sort((a, b) => b.sales - a.sales);
+      filteredProductIds = matchedProductIds;
+      
+      console.log(`🔍 After search filter: ${filteredProductIds.length} products match "${searchQuery}"`);
+    }
+    
+    // Calculate total products for pagination
+    const totalProductsCount = filteredProductIds.length;
+    
+    // Apply pagination to the sorted list
+    const startIndex = (page - 1) * productsCount;
+    const endIndex = startIndex + productsCount;
+    const paginatedProductIds = filteredProductIds.slice(startIndex, endIndex);
+    
+    console.log(`📄 Fetching product details for page ${page} (${startIndex + 1}-${endIndex})`);
+    
+    // STEP 3: Fetch the actual product details for the current page
+    const productIds = paginatedProductIds.map(p => p.id);
+    const productDetails = await fetchProductsByIds(admin, productIds);
+    
+    // STEP 4: Transform the products with sales data
+    const trendingProducts: TrendingProduct[] = [];
+    
+    paginatedProductIds.forEach((productData, index) => {
+      const productDetail = productDetails.get(productData.id);
+      
+      if (!productDetail) {
+        console.warn(`⚠️ Product details not found for ID: ${productData.id}`);
+        return;
+      }
+      
+      const mainVariant = productDetail.variants?.edges[0]?.node;
+      const price = mainVariant?.price || '0.00';
+      const basePrice = parseFloat(price);
+      const inventory = productDetail.totalInventory || 0;
+      
+      const sales = productData.sales;
+      const revenue = productData.revenue;
+      const isNew = isProductNew(productDetail.createdAt);
+      
+      // Trend calculation based on actual sales performance
+      let trend = '↗'; // Default for some sales
+      if (sales > 10) trend = '🚀'; // High sales
+      else if (sales > 5) trend = '↑'; // Good sales
+
+      const trendingProduct: TrendingProduct = {
+        id: productDetail.id,
+        position: startIndex + index + 1, // Correct position based on overall ranking
+        trend,
+        image: productDetail.featuredImage?.url || '',
+        title: productDetail.title,
+        price: `$${basePrice.toFixed(2)}`,
+        sales,
+        revenue: `$${revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        isNew,
+        inStock: inventory,
+        created: new Date(productDetail.createdAt).toLocaleDateString('en-US', {
+          year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
+        }).replace(',', ''),
+      };
+
+      trendingProducts.push(trendingProduct);
+    });
+
+    console.log(`✅ Final results: ${trendingProducts.length} products on page ${page}`);
+    console.log(`💰 Total products with sales: ${totalProductsCount}`);
+    
+    // Calculate pagination info
+    const hasPreviousPage = page > 1;
+    const hasNextPage = endIndex < totalProductsCount;
+
+    // Calculate cursors for next/prev navigation
+    let nextCursor = null;
+    let prevCursor = null;
+    
+    if (hasNextPage && trendingProducts.length > 0) {
+      // For next page, we'll use the position-based approach
+      nextCursor = (page + 1).toString();
+    }
+    
+    if (hasPreviousPage) {
+      // For previous page, we'll use the position-based approach
+      prevCursor = (page - 1).toString();
+    }
+
+    return {
+      trendingProducts,
+      totalProducts: totalProductsCount,
       currentPage: page,
-      hasNextPage: false,
-      hasPreviousPage: false,
+      hasNextPage,
+      hasPreviousPage,
+      productsCount,
       searchQuery,
+      endCursor: nextCursor,
+      startCursor: prevCursor,
     };
 
-  } catch (error) {
-    console.error('Error in Trending loader:', error);
+  } catch (error: any) {
+    console.error('💥 Error in Trending loader:', error);
     return { 
-      products: [], 
-      trendingData: null, 
-      productsCount,
+      trendingProducts: [], 
+      totalProducts: 0,
       currentPage: page,
       hasNextPage: false,
       hasPreviousPage: false,
+      productsCount,
       searchQuery,
     };
   }
 };
 
+// Helper function to check if product is new (created in last 7 days)
+const isProductNew = (createdAt: string): boolean => {
+  const createdDate = new Date(createdAt);
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  return createdDate > sevenDaysAgo;
+};
+
 export default function TrendingPage() {
   const { 
-    products = [], 
-    trendingData, 
-    productsCount: initialCount = 250,
+    trendingProducts = [], 
+    totalProducts,
     currentPage: initialPage,
     hasNextPage,
     hasPreviousPage,
-    searchQuery: initialSearch
+    productsCount: initialCount = 250,
+    searchQuery: initialSearch,
+    endCursor,
+    startCursor,
   } = useLoaderData<LoaderData>();
   
   const submit = useSubmit();
   const navigate = useNavigate();
   
-  const [trendingProducts, setTrendingProducts] = useState<TrendingProduct[]>([]);
-  const [loading, setLoading] = useState(false);
   const [productsCount, setProductsCount] = useState(initialCount);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [loading, setLoading] = useState(false);
 
+  // Reset loading state when new data is loaded
   useEffect(() => {
-    processTrendingData();
-  }, [products, trendingData, productsCount, currentPage, searchQuery]);
+    setLoading(false);
+  }, [trendingProducts]);
 
   // Handle search with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchQuery !== initialSearch) {
+        setLoading(true);
         const params = new URLSearchParams(window.location.search);
         if (searchQuery) {
           params.set("search", searchQuery);
         } else {
           params.delete("search");
         }
-        params.set("page", "1"); // Reset to first page when searching
+        params.set("page", "1");
         params.set("count", productsCount.toString());
         
         submit(params, { replace: true });
@@ -161,122 +698,7 @@ export default function TrendingPage() {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, submit]);
-
-  const processTrendingData = () => {
-    if (!trendingData || products.length === 0) {
-      setTrendingProducts([]);
-      return;
-    }
-
-    const trendingProductsData: TrendingProduct[] = [];
-
-    products.forEach((product: any) => {
-      const mainVariant = product.variants?.edges[0]?.node;
-      const price = mainVariant?.price || '0.00';
-      const basePrice = parseFloat(price);
-      const inventory = product.totalInventory || 0;
-      
-      // Get current period sales data
-      const currentData = trendingData.currentPeriod.get(product.id) || { sales: 0, revenue: 0 };
-      const previousData = trendingData.previousPeriod.get(product.id) || { sales: 0, revenue: 0 };
-
-      // Skip products with no sales in current period
-      if (currentData.sales === 0) {
-        return;
-      }
-
-      // Filter by search query if provided
-      if (searchQuery && !product.title.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return;
-      }
-
-      // Calculate orders (estimate orders from sales)
-      const orders = Math.ceil(currentData.sales / 2); // Assuming average 2 items per order
-
-      const isNew = isProductNew(product.createdAt, 7);
-      
-      // Calculate trend based on sales comparison with previous period
-      let trend = '→'; // neutral
-      let previousPosition = 0;
-
-      if (currentData.sales > previousData.sales * 1.2) {
-        trend = '↑'; // trending up
-      } else if (currentData.sales < previousData.sales * 0.8) {
-        trend = '↓'; // trending down
-      }
-
-      trendingProductsData.push({
-        id: product.id,
-        position: 0, // Will be set after sorting
-        previousPosition: 0, // Will be calculated based on previous period ranking
-        trend,
-        image: product.featuredImage?.url || '',
-        title: product.title,
-        price: `$${basePrice.toFixed(2)}`,
-        orders,
-        sales: currentData.sales,
-        revenue: `$${currentData.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-        isNew,
-        inStock: inventory,
-        created: new Date(product.createdAt).toLocaleDateString('en-US', {
-          year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
-        }).replace(',', ''),
-      });
-    });
-
-    // Sort by sales in descending order and assign positions
-    const sortedProducts = trendingProductsData.sort((a, b) => b.sales - a.sales);
-
-    // FIXED: Proper position calculation without NaN
-    const finalProducts = sortedProducts.map((product, index) => {
-      // Calculate position starting from 1 for the current page
-      const position = index + 1;
-      
-      // Calculate previous position
-      const previousPosition = calculatePreviousPosition(product.id, sortedProducts, trendingData.previousPeriod);
-      
-      return {
-        ...product,
-        position: position,
-        previousPosition: previousPosition
-      };
-    });
-
-    console.log('Processed trending products:', finalProducts); // Debug log
-    setTrendingProducts(finalProducts);
-    setLoading(false);
-  };
-
-  const calculatePreviousPosition = (productId: string, allProducts: TrendingProduct[], previousSalesData: Map<string, SalesData>): number => {
-    if (!previousSalesData) return 0;
-    
-    // Create array of all products with their previous period sales
-    const productsWithPreviousSales = allProducts.map(product => ({
-      id: product.id,
-      sales: previousSalesData.get(product.id)?.sales || 0
-    }));
-
-    // Filter out products with no previous sales
-    const productsWithSales = productsWithPreviousSales.filter(product => product.sales > 0);
-    
-    if (productsWithSales.length === 0) return 0;
-
-    // Sort by previous period sales in descending order
-    const sortedByPreviousSales = productsWithSales.sort((a, b) => b.sales - a.sales);
-    
-    // Find position in previous period (1-based index)
-    const previousIndex = sortedByPreviousSales.findIndex(product => product.id === productId);
-    
-    return previousIndex >= 0 ? previousIndex + 1 : 0;
-  };
-
-  const isProductNew = (createdAt: string, period: number): boolean => {
-    const createdDate = new Date(createdAt);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - period);
-    return createdDate > cutoffDate;
-  };
+  }, [searchQuery, productsCount, submit, initialSearch]);
 
   const handleCountChange = (value: string) => {
     const newCount = parseInt(value);
@@ -285,7 +707,7 @@ export default function TrendingPage() {
     
     const params = new URLSearchParams(window.location.search);
     params.set("count", value);
-    params.set("page", "1"); // Reset to first page when count changes
+    params.set("page", "1");
     
     submit(params, { replace: true });
   };
@@ -296,29 +718,24 @@ export default function TrendingPage() {
     
     const params = new URLSearchParams(window.location.search);
     params.set("page", page.toString());
+    params.set("count", productsCount.toString());
     
     navigate(`?${params.toString()}`, { replace: true });
   };
 
   const refreshData = () => {
     setLoading(true);
-    // Force reload by submitting current parameters
     const params = new URLSearchParams(window.location.search);
-    params.set("count", productsCount.toString());
-    params.set("page", currentPage.toString());
     submit(params, { replace: true });
   };
 
   const downloadCSV = () => {
-    const headers = ['Trend', 'Position', 'Previous Position', 'Image', 'Title', 'Price', '# of Orders', '# of Sales', 'Revenue', 'New', 'In Stock', 'Created'];
+    const headers = ['Position', 'Trend', 'Title', 'Price', '7-Day Sales', '7-Day Revenue', 'New', 'In Stock', 'Created'];
     const csvData = trendingProducts.map(product => [
-      product.trend,
       product.position,
-      product.previousPosition > 0 ? product.previousPosition.toString() : '--',
-      '',
-      product.title,
+      product.trend,
+      `"${product.title}"`,
       product.price.replace('$', ''),
-      product.orders,
       product.sales,
       product.revenue.replace('$', '').replace(',', ''),
       product.isNew ? 'yes' : 'no',
@@ -335,7 +752,7 @@ export default function TrendingPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `trending-products-7days.csv`;
+    a.download = `trending-products-7days-page-${currentPage}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -343,9 +760,7 @@ export default function TrendingPage() {
   // Generate count options dynamically
   const generateCountOptions = () => {
     const options = [];
-    
-    // Add common increments
-    const commonIncrements = [25, 50, 100, 250, 500];
+    const commonIncrements = [50, 100, 250, 500];
     
     commonIncrements.forEach(count => {
       options.push({
@@ -354,7 +769,6 @@ export default function TrendingPage() {
       });
     });
     
-    // Add current count if it's not in common increments
     if (!commonIncrements.includes(productsCount)) {
       options.push({
         label: `${productsCount} products`,
@@ -362,14 +776,12 @@ export default function TrendingPage() {
       });
     }
     
-    // Sort by value
     return options.sort((a, b) => parseInt(a.value) - parseInt(b.value));
   };
 
   const rows = trendingProducts.map((product) => [
     <Text as="span" fontWeight="bold" key="trend">{product.trend}</Text>,
     <Text as="span" key="position">{product.position}</Text>,
-    <Text as="span" key="previous">{product.previousPosition > 0 ? product.previousPosition.toString() : '--'}</Text>,
     product.image ? (
       <Thumbnail source={product.image} alt={product.title} size="small" key="image" />
     ) : (
@@ -382,21 +794,28 @@ export default function TrendingPage() {
     ),
     <Text as="span" fontWeight="medium" key="title">{product.title}</Text>,
     <Text as="span" key="price">{product.price}</Text>,
-    <Text as="span" key="orders">{product.orders}</Text>,
-    <Text as="span" key="sales">{product.sales}</Text>,
+    <Text as="span" fontWeight="bold" key="sales">{product.sales}</Text>,
     <Text as="span" fontWeight="bold" key="revenue">{product.revenue}</Text>,
     <Badge tone={product.isNew ? 'success' : 'info'} key="new">{product.isNew ? 'yes' : 'no'}</Badge>,
     <Text as="span" key="stock">{product.inStock}</Text>,
     <Text as="span" key="created">{product.created}</Text>,
   ]);
 
-  // Always show pagination when there are products
-  const showPagination = trendingProducts.length > 0;
+  // Calculate statistics for current page
+  const totalSales = trendingProducts.reduce((sum, p) => sum + p.sales, 0);
+  const totalRevenue = trendingProducts.reduce((sum, p) => sum + parseFloat(p.revenue.replace('$', '').replace(',', '')), 0);
+  
+  // Calculate position range for current page
+  const startPosition = trendingProducts.length > 0 ? ((currentPage - 1) * productsCount) + 1 : 0;
+  const endPosition = trendingProducts.length > 0 ? startPosition + trendingProducts.length - 1 : 0;
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalProducts / productsCount);
 
   return (
     <Page
-      title="Trending within 7 days"
-      subtitle="Store-wide statistics for products identified as 'trending.' Trending products are those with the highest order frequency over a short period."
+      title="Trending Products (Last 7 Days)"
+      subtitle="Products with actual sales in the last 7 days - ranked by sales performance"
     >
       <Layout>
         <Layout.Section>
@@ -410,7 +829,7 @@ export default function TrendingPage() {
                     <TextField
                       label="Search products"
                       labelHidden
-                      placeholder="Search by product title..."
+                      placeholder="Search trending products..."
                       value={searchQuery}
                       onChange={setSearchQuery}
                       autoComplete="off"
@@ -437,51 +856,75 @@ export default function TrendingPage() {
                       </div>
                     </InlineStack>
 
-                    {/* Pagination - ALWAYS SHOW IN TOP RIGHT */}
-                    {showPagination && (
-                      <div style={{
-                        backgroundColor: '#f6f6f7',
-                        padding: '6px 12px',
-                        borderRadius: '6px',
-                        border: '1px solid #e1e3e5',
-                        minWidth: '200px'
-                      }}>
-                        <Pagination
-                          hasPrevious={hasPreviousPage}
-                          onPrevious={() => handlePageChange(currentPage - 1)}
-                          hasNext={hasNextPage}
-                          onNext={() => handlePageChange(currentPage + 1)}
-                          label={`Page ${currentPage}`}
-                        />
-                      </div>
-                    )}
+                    {/* Pagination */}
+                    <div style={{
+                      backgroundColor: '#f6f6f7',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      border: '1px solid #e1e3e5',
+                      minWidth: '220px'
+                    }}>
+                      <Pagination
+                        hasPrevious={hasPreviousPage}
+                        onPrevious={() => handlePageChange(currentPage - 1)}
+                        hasNext={hasNextPage}
+                        onNext={() => handlePageChange(currentPage + 1)}
+                        label={`Page ${currentPage} of ${totalPages}`}
+                      />
+                    </div>
                   </InlineStack>
                 </InlineStack>
 
-                {/* Middle Row: Information and Actions */}
+                {/* Middle Row: Period and Information */}
                 <InlineStack align="space-between" blockAlign="center">
                   <BlockStack gap="100">
-                    <Text as="p" variant="bodyMd" fontWeight="medium">
-                      Lookback period: 7 days
+                    <Text as="span" variant="bodyMd">
+                      Sales Period: Fixed 7 Days
                     </Text>
-                    <Text as="p" tone="subdued" variant="bodySm">
-                      Showing trending products based on sales in the last 7 days.
+                    <Text as="span" tone="subdued" variant="bodySm">
+                      Only products with actual sales in the last 7 days are shown.
+                      Products are ranked by number of units sold (highest first).
                     </Text>
-                    {searchQuery && (
-                      <Text as="p" variant="bodySm" tone="subdued">
-                        Searching for: "{searchQuery}" • Found {trendingProducts.length} matching products
-                      </Text>
-                    )}
                   </BlockStack>
                   
-                  <InlineStack gap="200">
-                    <Button onClick={refreshData} disabled={loading}>
-                      Refresh
-                    </Button>
-                    <Button onClick={downloadCSV} disabled={trendingProducts.length === 0}>
-                      Download (CSV)
-                    </Button>
-                  </InlineStack>
+                  {searchQuery && (
+                    <Text as="p" variant="bodySm" tone="subdued">
+                      Searching for: "{searchQuery}"
+                    </Text>
+                  )}
+                  
+                  <BlockStack gap="100" align="end">
+                    <Text as="span" variant="bodySm" tone="subdued">
+                      Positions {startPosition} - {endPosition} displayed
+                    </Text>
+                    <Text as="span" variant="bodySm" tone="success">
+                      {trendingProducts.length} products with sales on this page
+                    </Text>
+                    <Text as="span" variant="bodySm" tone="subdued">
+                      Total: {totalProducts} products with sales
+                    </Text>
+                  </BlockStack>
+                </InlineStack>
+              </BlockStack>
+            </Box>
+
+            {/* Information Section */}
+            <Box padding="400">
+              <BlockStack gap="200">
+                <Text as="h3" variant="headingSm">Trend Indicators</Text>
+                <Text as="p" tone="subdued" variant="bodySm">
+                  <strong>🚀</strong> High sales (10+ units) • <strong>↑</strong> Good sales (5-9 units) • <strong>↗</strong> Some sales (1-4 units)
+                </Text>
+                <InlineStack gap="400">
+                  <Text as="p" variant="bodySm" fontWeight="medium">
+                    Page Products: <Text as="span" tone="success">{trendingProducts.length}</Text>
+                  </Text>
+                  <Text as="p" variant="bodySm" fontWeight="medium">
+                    Page Sales: <Text as="span" tone="success">{totalSales} units</Text>
+                  </Text>
+                  <Text as="p" variant="bodySm" fontWeight="medium">
+                    Page Revenue: <Text as="span" tone="success">${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+                  </Text>
                 </InlineStack>
               </BlockStack>
             </Box>
@@ -501,10 +944,8 @@ export default function TrendingPage() {
                   columnContentTypes={[
                     'text',
                     'numeric',
-                    'numeric',
                     'text',
                     'text',
-                    'numeric',
                     'numeric',
                     'numeric',
                     'numeric',
@@ -515,59 +956,97 @@ export default function TrendingPage() {
                   headings={[
                     'Trend',
                     'Position',
-                    '7 days ago',
                     'Image',
                     'Title',
                     'Price',
-                    '# of Orders',
-                    '# of Sales',
-                    'Revenue',
+                    '7-Day Sales',
+                    '7-Day Revenue',
                     'New',
                     'In Stock',
                     'Created'
                   ]}
                   rows={rows}
-                  footerContent={`Showing ${trendingProducts.length} trending products with sales in the last 7 days${searchQuery ? ' matching search' : ''}`}
+                  footerContent={`Showing positions ${startPosition} - ${endPosition} • ${trendingProducts.length} products with sales • ${totalSales} units sold • $${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} revenue`}
                 />
 
                 {/* Bottom Pagination */}
-                {showPagination && (
-                  <Box padding="400">
-                    <InlineStack align="center">
-                      <div style={{
-                        backgroundColor: '#f6f6f7',
-                        padding: '8px 16px',
-                        borderRadius: '8px',
-                        border: '1px solid #e1e3e5'
-                      }}>
-                        <Pagination
-                          hasPrevious={hasPreviousPage}
-                          onPrevious={() => handlePageChange(currentPage - 1)}
-                          hasNext={hasNextPage}
-                          onNext={() => handlePageChange(currentPage + 1)}
-                          label={`Page ${currentPage}`}
+                <Box padding="400">
+                  <InlineStack align="center" gap="400">
+                    <div style={{
+                      backgroundColor: '#f6f6f7',
+                      padding: '12px 20px',
+                      borderRadius: '8px',
+                      border: '1px solid #e1e3e5'
+                    }}>
+                      <Pagination
+                        hasPrevious={hasPreviousPage}
+                        onPrevious={() => handlePageChange(currentPage - 1)}
+                        hasNext={hasNextPage}
+                        onNext={() => handlePageChange(currentPage + 1)}
+                        label={`Page ${currentPage} of ${totalPages}`}
+                      />
+                    </div>
+                    
+                    {/* Page Navigation */}
+                    <InlineStack gap="200">
+                      <Text as="span" variant="bodySm" tone="subdued">
+                        Go to page:
+                      </Text>
+                      <div style={{ width: '80px' }}>
+                        <TextField
+                          label="Page number"
+                          labelHidden
+                          type="number"
+                          min={1}
+                          max={totalPages}
+                          value={currentPage.toString()}
+                          onChange={(value) => {
+                            const pageNum = parseInt(value);
+                            if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+                              handlePageChange(pageNum);
+                            }
+                          }}
+                          autoComplete='off'
                         />
                       </div>
                     </InlineStack>
-                  </Box>
-                )}
+                    
+                    <Button onClick={refreshData} disabled={loading}>
+                      {loading ? 'Refreshing...' : 'Refresh'}
+                    </Button>
+                    
+                    <Button onClick={downloadCSV} disabled={trendingProducts.length === 0 || loading}>
+                      Download CSV
+                    </Button>
+                  </InlineStack>
+                </Box>
               </>
             ) : (
               <Box padding="800">
                 <div style={{ textAlign: 'center' }}>
-                  <Text as="p" variant="bodyMd">
-                    {searchQuery 
-                      ? `No trending products found matching "${searchQuery}".` 
-                      : 'No products with sales found in the last 7 days.'
-                    }
+                  <Text as="p" variant="bodyMd" fontWeight="medium">
+                    No trending products found
                   </Text>
+                  <Box paddingBlockStart="200">
+                    <Text as="p" variant="bodySm" tone="subdued">
+                      {searchQuery 
+                        ? `No products with sales found matching "${searchQuery}" in the last 7 days.`
+                        : `No products with sales found in the last 7 days.`
+                      }
+                    </Text>
+                  </Box>
                   {searchQuery && (
                     <Box paddingBlockStart="200">
-                      <Button onClick={() => setSearchQuery('')}>
+                      <Button onClick={() => setSearchQuery('')} disabled={loading}>
                         Clear search
                       </Button>
                     </Box>
                   )}
+                  <Box paddingBlockStart="200">
+                    <Button onClick={refreshData} disabled={loading}>
+                      {loading ? 'Refreshing...' : 'Refresh'}
+                    </Button>
+                  </Box>
                 </div>
               </Box>
             )}
@@ -577,10 +1056,10 @@ export default function TrendingPage() {
           <Box padding="400">
             <InlineStack align="space-between" blockAlign="center">
               <Text as="p" tone="subdued" variant="bodySm">
-                <strong>Statistics as of:</strong> {new Date().toLocaleDateString('en-GB')} ({new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} GMT - 05:00)
+                <strong>Statistics as of:</strong> {new Date().toLocaleDateString('en-GB')} ({new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })})
               </Text>
               <Text as="p" tone="subdued" variant="bodySm">
-                Page {currentPage} • {productsCount} products per page • 7-day period
+                Page {currentPage} of {totalPages} • {productsCount} products per page • Fixed 7-day period
               </Text>
             </InlineStack>
           </Box>

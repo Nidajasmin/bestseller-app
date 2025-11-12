@@ -23,7 +23,7 @@ import { authenticate } from '../shopify.server';
 import { useLoaderData, useActionData, useSubmit } from "react-router";
 import prisma from '../db.server';
 
-// GraphQL queries (unchanged)
+// GraphQL queries
 const GET_SHOP_QUERY = `#graphql
   query getShop {
     shop {
@@ -94,6 +94,7 @@ const GET_PRODUCTS_QUERY = `#graphql
             edges {
               node {
                 id
+                inventoryQuantity
               }
             }
           }
@@ -133,6 +134,7 @@ const GET_ORDERS_QUERY = `#graphql
                   id
                   product {
                     id
+                    title
                   }
                 }
                 quantity
@@ -157,6 +159,7 @@ interface ProductSales {
     title: string;
     sales: number;
     lastSold: Date;
+    variantId?: string;
   };
 }
 
@@ -167,11 +170,11 @@ interface Product {
   tags: string[];
   totalInventory: number;
   createdAt: string;
-  updatedAt: string;
   variants: {
     edges: Array<{
       node: {
         id: string;
+        inventoryQuantity: number;
       };
     }>;
   };
@@ -189,14 +192,14 @@ interface Settings {
   bestsellersEnabled: boolean;
   bestsellersTag: string;
   bestsellersCount: number;
-  bestsellersLookback: number; // Fixed at 180 days (6 months)
+  bestsellersLookback: number;
   bestsellersExcludeOOS: boolean;
   bestsellersCreateCollection: boolean;
   bestsellersCollectionId: string | null;
   trendingEnabled: boolean;
   trendingTag: string;
   trendingCount: number;
-  trendingLookback: number; // Fixed at 7 days
+  trendingLookback: number;
   trendingExcludeOOS: boolean;
   trendingCreateCollection: boolean;
   trendingCollectionId: string | null;
@@ -218,6 +221,7 @@ interface Settings {
   agingCollectionTitle: string | null;
   excludeEnabled: boolean;
   excludeTags: string[];
+  lastProcessed: Date | null;
 }
 
 interface GraphQLResponse<T> {
@@ -250,12 +254,25 @@ interface Order {
           id: string;
           product?: {
             id: string;
+            title: string;
           };
         };
         quantity: number;
         title: string;
       };
     }>;
+  };
+}
+
+interface ProductsResponse {
+  products: {
+    edges: Array<{
+      node: Product;
+    }>;
+    pageInfo: {
+      hasNextPage: boolean;
+      endCursor: string | null;
+    };
   };
 }
 
@@ -298,23 +315,108 @@ async function fetchAllOrders(admin: any, query: string): Promise<Order[]> {
   }
 }
 
+async function fetchAllProducts(admin: any): Promise<Product[]> {
+  let allProducts: Product[] = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
+  
+  try {
+    while (hasNextPage) {
+      const productsQuery = `#graphql
+        query getProducts($first: Int!, $after: String) {
+          products(first: $first, after: $after) {
+            edges {
+              node {
+                id
+                title
+                handle
+                tags
+                totalInventory
+                createdAt
+                variants(first: 50) {
+                  edges {
+                    node {
+                      id
+                      inventoryQuantity
+                    }
+                  }
+                }
+              }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      `;
+      
+      const response = await admin.graphql(productsQuery, {
+        variables: { first: 100, after: cursor }
+      });
+      
+      const data: GraphQLResponse<ProductsResponse> = await response.json();
+      
+      if (!data.data?.products) {
+        break;
+      }
+      
+      const productsBatch = data.data.products.edges.map((edge: { node: Product }) => edge.node);
+      allProducts = [...allProducts, ...productsBatch];
+      
+      hasNextPage = data.data.products.pageInfo.hasNextPage;
+      cursor = data.data.products.pageInfo.endCursor;
+    }
+    
+    console.log(`Fetched ${allProducts.length} total products from store`);
+    return allProducts;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+
+async function checkCollectionExists(admin: any, collectionId: string): Promise<boolean> {
+  try {
+    const response = await admin.graphql(`#graphql
+      query getCollection($id: ID!) {
+        collection(id: $id) {
+          id
+        }
+      }
+    `, {
+      variables: { id: collectionId }
+    });
+    
+    const data = await response.json();
+    return !!data.data.collection;
+  } catch (error) {
+    console.error('Error checking collection:', error);
+    return false;
+  }
+}
+
+function formatDateForQuery(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // Loader function
 export async function loader({ request }: { request: Request }) {
   const { admin, session } = await authenticate.admin(request);
   
-  // Get shop info
   const shopResponse = await admin.graphql(GET_SHOP_QUERY);
   const shopData = await shopResponse.json();
   const shop = shopData.data.shop;
   
-  // Get collections
   const collectionsResponse = await admin.graphql(GET_COLLECTIONS_QUERY, {
     variables: { first: 50 }
   });
   const collectionsData = await collectionsResponse.json();
   const collections = collectionsData.data.collections.edges.map((edge: { node: Collection }) => edge.node);
   
-  // Get settings from database
   let settings: Settings | null = null;
   
   try {
@@ -322,7 +424,6 @@ export async function loader({ request }: { request: Request }) {
       where: { shopifyDomain: session.shop }
     });
     
-    // If no settings exist, create default settings
     if (!settings) {
       settings = await (prisma as any).settings.create({
         data: {
@@ -332,21 +433,20 @@ export async function loader({ request }: { request: Request }) {
     }
   } catch (error) {
     console.error('Error accessing settings:', error);
-    // Create a default settings object if database is not available
     settings = {
       id: 'default',
       shopifyDomain: session.shop,
       bestsellersEnabled: true,
-      bestsellersTag: 'bestsellers-resort',
+      bestsellersTag: 'Bestsellers_products',
       bestsellersCount: 50,
-      bestsellersLookback: 180, // Fixed 6 months
+      bestsellersLookback: 180,
       bestsellersExcludeOOS: true,
       bestsellersCreateCollection: true,
       bestsellersCollectionId: null,
       trendingEnabled: true,
       trendingTag: 'br-trending',
       trendingCount: 50,
-      trendingLookback: 7, // Fixed 7 days
+      trendingLookback: 7,
       trendingExcludeOOS: false,
       trendingCreateCollection: false,
       trendingCollectionId: null,
@@ -368,6 +468,7 @@ export async function loader({ request }: { request: Request }) {
       agingCollectionTitle: null,
       excludeEnabled: true,
       excludeTags: [],
+      lastProcessed: null,
     };
   }
   
@@ -387,7 +488,6 @@ export async function action({ request }: { request: Request }) {
   
   try {
     if (actionType === 'saveSettings') {
-      // Update settings in database
       try {
         const settings = await (prisma as any).settings.upsert({
           where: { shopifyDomain: session.shop },
@@ -395,14 +495,12 @@ export async function action({ request }: { request: Request }) {
             bestsellersEnabled: formData.get('bestsellersEnabled') === 'true',
             bestsellersTag: formData.get('bestsellersTag') as string,
             bestsellersCount: parseInt(formData.get('bestsellersCount') as string),
-            // bestsellersLookback is fixed at 180 days - not updated from form
             bestsellersExcludeOOS: formData.get('bestsellersExcludeOOS') === 'true',
             bestsellersCreateCollection: formData.get('bestsellersCreateCollection') === 'true',
             
             trendingEnabled: formData.get('trendingEnabled') === 'true',
             trendingTag: formData.get('trendingTag') as string,
             trendingCount: parseInt(formData.get('trendingCount') as string),
-            // trendingLookback is fixed at 7 days - not updated from form
             trendingExcludeOOS: formData.get('trendingExcludeOOS') === 'true',
             trendingCreateCollection: formData.get('trendingCreateCollection') === 'true',
             trendingCollectionTitle: formData.get('trendingCollectionTitle') as string,
@@ -430,14 +528,14 @@ export async function action({ request }: { request: Request }) {
             bestsellersEnabled: formData.get('bestsellersEnabled') === 'true',
             bestsellersTag: formData.get('bestsellersTag') as string,
             bestsellersCount: parseInt(formData.get('bestsellersCount') as string),
-            bestsellersLookback: 180, // Fixed 180 days on create
+            bestsellersLookback: 180,
             bestsellersExcludeOOS: formData.get('bestsellersExcludeOOS') === 'true',
             bestsellersCreateCollection: formData.get('bestsellersCreateCollection') === 'true',
             
             trendingEnabled: formData.get('trendingEnabled') === 'true',
             trendingTag: formData.get('trendingTag') as string,
             trendingCount: parseInt(formData.get('trendingCount') as string),
-            trendingLookback: 7, // Fixed 7 days on create
+            trendingLookback: 7,
             trendingExcludeOOS: formData.get('trendingExcludeOOS') === 'true',
             trendingCreateCollection: formData.get('trendingCreateCollection') === 'true',
             trendingCollectionTitle: formData.get('trendingCollectionTitle') as string,
@@ -468,7 +566,6 @@ export async function action({ request }: { request: Request }) {
         return Response.json({ success: false, message: 'Error saving settings to database' });
       }
     } else if (actionType === 'processBestsellers') {
-      // Process bestsellers
       let settings: Settings | null = null;
       
       try {
@@ -484,15 +581,27 @@ export async function action({ request }: { request: Request }) {
         return Response.json({ success: false, message: 'Bestsellers is disabled' });
       }
       
-      // Get orders within fixed lookback period (6 months = 180 days)
       const lookbackDate = new Date();
-      lookbackDate.setDate(lookbackDate.getDate() - 180); // Fixed 180 days
+      lookbackDate.setDate(lookbackDate.getDate() - 180);
+      
+      const year = lookbackDate.getFullYear();
+      const month = String(lookbackDate.getMonth() + 1).padStart(2, '0');
+      const day = String(lookbackDate.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
       
       let orders: any[] = [];
       
       try {
-        const query = `created_at:>='${lookbackDate.toISOString().split('T')[0]}'`;
+        const query = `created_at:>'${formattedDate}'`;
+        console.log('Bestsellers query:', query);
+        console.log('Looking for orders since:', formattedDate);
         orders = await fetchAllOrders(admin, query);
+        
+        console.log('Orders found:', orders.length);
+        console.log('Order dates:');
+        orders.forEach((order, index) => {
+          console.log(`${index + 1}. ${order.id}: ${order.createdAt}`);
+        });
       } catch (error) {
         console.error('Failed to fetch orders for bestsellers:', error);
         return Response.json({ 
@@ -501,7 +610,6 @@ export async function action({ request }: { request: Request }) {
         });
       }
       
-      // Check if we have valid data
       if (orders.length === 0) {
         return Response.json({ 
           success: false, 
@@ -509,7 +617,8 @@ export async function action({ request }: { request: Request }) {
         });
       }
       
-      // Calculate product sales
+      console.log(`Processing ${orders.length} orders for bestsellers`);
+      
       const productSales: ProductSales = {};
       
       orders.forEach((order: any) => {
@@ -518,48 +627,46 @@ export async function action({ request }: { request: Request }) {
             const item = lineItemEdge.node;
             const variantId = item.variant?.id;
             const productId = item.variant?.product?.id;
+            const productTitle = item.variant?.product?.title || item.title || 'Unknown Product';
             
-            if (!productId) return;
+            if (!productId) {
+              console.log(`No product ID found for item: ${item.title}`);
+              return;
+            }
             
             const quantity = item.quantity || 0;
             
             if (!productSales[productId]) {
               productSales[productId] = {
                 id: productId,
-                title: item.title || 'Unknown Product',
+                title: productTitle,
                 sales: 0,
-                lastSold: new Date(order.createdAt)
+                lastSold: new Date(order.createdAt),
+                variantId: variantId
               };
             }
             
             productSales[productId].sales += quantity;
-            productSales[productId].lastSold = new Date(order.createdAt);
+            const orderDate = new Date(order.createdAt);
+            if (orderDate > productSales[productId].lastSold) {
+              productSales[productId].lastSold = orderDate;
+            }
           });
         }
       });
       
-      // Sort products by sales (highest first)
+      console.log('Product sales calculated:', Object.keys(productSales).length, 'products');
+      
       const sortedProducts = Object.values(productSales).sort((a: ProductSales[string], b: ProductSales[string]) => {
         return b.sales - a.sales;
       });
       
-      // Get top N products
       const topProducts = sortedProducts.slice(0, settings.bestsellersCount);
       
-      // Get all products to check inventory and existing tags
-      const productsResponse = await admin.graphql(GET_PRODUCTS_QUERY, {
-        variables: { first: 250 }
-      });
-      const productsData = await productsResponse.json();
+      console.log('Top bestsellers:', topProducts.map(p => `${p.title}: ${p.sales}`));
       
-      if (!productsData.data?.products) {
-        return Response.json({ 
-          success: false, 
-          message: 'Failed to fetch products data' 
-        });
-      }
-      
-      const products = productsData.data.products.edges.map((edge: { node: Product }) => edge.node);
+      // Get ALL products to ensure we find all products from orders
+      const allProducts = await fetchAllProducts(admin);
       
       // Create or update collection if needed
       let collectionId: string | null = null;
@@ -567,8 +674,15 @@ export async function action({ request }: { request: Request }) {
       if (settings.bestsellersCreateCollection) {
         collectionId = settings.bestsellersCollectionId;
         
+        if (collectionId) {
+          const exists = await checkCollectionExists(admin, collectionId);
+          if (!exists) {
+            console.log('Bestsellers collection no longer exists in Shopify, creating a new one');
+            collectionId = null;
+          }
+        }
+        
         if (!collectionId) {
-          // Create new collection
           const createCollectionResponse = await admin.graphql(CREATE_COLLECTION_MUTATION, {
             variables: {
               input: {
@@ -590,54 +704,71 @@ export async function action({ request }: { request: Request }) {
           const createCollectionData = await createCollectionResponse.json();
           
           if (createCollectionData.data.collectionCreate.userErrors.length > 0) {
-            return Response.json({ 
-              success: false, 
-              message: `Error creating collection: ${createCollectionData.data.collectionCreate.userErrors[0].message}` 
-            });
-          }
-          
-          collectionId = createCollectionData.data.collectionCreate.collection.id;
-          
-          // Update settings with collection ID
-          try {
-            await (prisma as any).settings.update({
-              where: { shopifyDomain: session.shop },
-              data: { bestsellersCollectionId: collectionId }
-            });
-            console.log('Updated bestsellersCollectionId in database:', collectionId);
-          } catch (error) {
-            console.error('Error updating collection ID:', error);
+            console.error('Error creating collection:', createCollectionData.data.collectionCreate.userErrors);
+          } else {
+            collectionId = createCollectionData.data.collectionCreate.collection.id;
+            
+            try {
+              await (prisma as any).settings.update({
+                where: { shopifyDomain: session.shop },
+                data: { bestsellersCollectionId: collectionId }
+              });
+              console.log('Updated bestsellersCollectionId in database:', collectionId);
+            } catch (error) {
+              console.error('Error updating collection ID:', error);
+            }
           }
         }
       }
       
-      // Remove the bestsellers tag from all products first
-      for (const product of products) {
-        if (product.tags.includes(settings.bestsellersTag)) {
+      // Remove the bestsellers tag from all products that currently have it
+      // BUT only if they're not in our top products list
+      const topProductIds = new Set(topProducts.map(p => p.id));
+      
+      for (const product of allProducts) {
+        if (product.tags.includes(settings.bestsellersTag) && !topProductIds.has(product.id)) {
           const newTags = product.tags.filter((tag: string) => tag !== settings.bestsellersTag);
           
-          await admin.graphql(UPDATE_PRODUCT_MUTATION, {
-            variables: {
-              input: {
-                id: product.id,
-                tags: newTags
+          try {
+            await admin.graphql(UPDATE_PRODUCT_MUTATION, {
+              variables: {
+                input: {
+                  id: product.id,
+                  tags: newTags
+                }
               }
-            }
-          });
+            });
+            console.log(`Removed bestsellers tag from: ${product.title}`);
+          } catch (error) {
+            console.error(`Error removing bestsellers tag from ${product.title}:`, error);
+          }
         }
       }
       
       // Add the bestsellers tag to top products
       let taggedCount = 0;
+      let skippedCount = 0;
+      
       for (const topProduct of topProducts) {
-        const product = products.find((p: Product) => p.id === topProduct.id);
+        const product = allProducts.find((p: Product) => p.id === topProduct.id);
         
-        if (!product) continue;
+        if (!product) {
+          console.log(`Product not found in store: ${topProduct.title} (${topProduct.id})`);
+          skippedCount++;
+          continue;
+        }
         
         // Check if product is out of stock and should be excluded
-        if (settings.bestsellersExcludeOOS && product.totalInventory <= 0) {
-          console.log(`Excluding out-of-stock product: ${product.title}`);
-          continue;
+        if (settings.bestsellersExcludeOOS) {
+          const totalInventory = product.variants.edges.reduce((sum: number, variant: any) => {
+            return sum + (variant.node.inventoryQuantity || 0);
+          }, 0);
+          
+          if (totalInventory <= 0) {
+            console.log(`Excluding out-of-stock product: ${product.title} (inventory: ${totalInventory})`);
+            skippedCount++;
+            continue;
+          }
         }
         
         // Check if product has excluded tags
@@ -645,32 +776,51 @@ export async function action({ request }: { request: Request }) {
           const hasExcludedTag = settings.excludeTags.some((tag: string) => product.tags.includes(tag));
           if (hasExcludedTag) {
             console.log(`Excluding product with excluded tag: ${product.title}`);
+            skippedCount++;
             continue;
           }
         }
         
-        // Add the bestsellers tag
-        const newTags = [...product.tags, settings.bestsellersTag];
-        
-        await admin.graphql(UPDATE_PRODUCT_MUTATION, {
-          variables: {
-            input: {
-              id: product.id,
-              tags: newTags
-            }
+        // Add the bestsellers tag if not already present
+        if (!product.tags.includes(settings.bestsellersTag)) {
+          const newTags = [...product.tags, settings.bestsellersTag];
+          
+          try {
+            await admin.graphql(UPDATE_PRODUCT_MUTATION, {
+              variables: {
+                input: {
+                  id: product.id,
+                  tags: newTags
+                }
+              }
+            });
+            
+            taggedCount++;
+            console.log(`Tagged bestseller: ${product.title} (${topProduct.sales} units sold, inventory: ${product.totalInventory})`);
+          } catch (error) {
+            console.error(`Error adding bestsellers tag to ${product.title}:`, error);
           }
+        } else {
+          console.log(`Bestseller tag already present: ${product.title}`);
+          taggedCount++; // Count as tagged since it already has the tag
+        }
+      }
+      
+      // Update last processed time
+      try {
+        await (prisma as any).settings.update({
+          where: { shopifyDomain: session.shop },
+          data: { lastProcessed: new Date() }
         });
-        
-        taggedCount++;
-        console.log(`Tagged bestseller: ${product.title}`);
+      } catch (error) {
+        console.error('Error updating last processed time:', error);
       }
       
       return Response.json({ 
         success: true, 
-        message: `Bestsellers processed successfully! Tagged ${taggedCount} products with the most sales in the last 6 months.` 
+        message: `Bestsellers processed successfully! Tagged ${taggedCount} products, skipped ${skippedCount} products.` 
       });
     } else if (actionType === 'processTrending') {
-      // Process trending products
       let settings: Settings | null = null;
       
       try {
@@ -686,15 +836,30 @@ export async function action({ request }: { request: Request }) {
         return Response.json({ success: false, message: 'Trending is disabled' });
       }
       
-      // Get orders within fixed trending lookback period (7 days)
+      // Get orders from the last 7 days for trending (ROLLING WINDOW - always last 7 days)
       const lookbackDate = new Date();
-      lookbackDate.setDate(lookbackDate.getDate() - 7); // Fixed 7 days
+      lookbackDate.setDate(lookbackDate.getDate() - 7);
+      
+      const year = lookbackDate.getFullYear();
+      const month = String(lookbackDate.getMonth() + 1).padStart(2, '0');
+      const day = String(lookbackDate.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
       
       let orders: any[] = [];
       
       try {
-        const query = `created_at:>='${lookbackDate.toISOString().split('T')[0]}'`;
+        const query = `created_at:>'${formattedDate}'`;
+        console.log('Trending query:', query);
+        console.log('Looking for trending orders since:', formattedDate);
+        console.log('📊 TRENDING LOGIC: Always shows products from last 7 days (rolling window)');
+        console.log('📊 This means Day 1-7 today, Day 2-8 tomorrow, always current trending products');
         orders = await fetchAllOrders(admin, query);
+        
+        console.log('Trending orders found:', orders.length);
+        console.log('Trending order dates:');
+        orders.forEach((order, index) => {
+          console.log(`${index + 1}. ${order.id}: ${order.createdAt}`);
+        });
       } catch (error) {
         console.error('Failed to fetch orders for trending:', error);
         return Response.json({ 
@@ -703,7 +868,6 @@ export async function action({ request }: { request: Request }) {
         });
       }
       
-      // Check if we have valid data
       if (orders.length === 0) {
         return Response.json({ 
           success: false, 
@@ -711,7 +875,8 @@ export async function action({ request }: { request: Request }) {
         });
       }
       
-      // Calculate product sales with timestamps for trending analysis
+      console.log(`Processing ${orders.length} orders for trending`);
+      
       const productSales: ProductSales = {};
       
       orders.forEach((order: any) => {
@@ -722,23 +887,26 @@ export async function action({ request }: { request: Request }) {
             const item = lineItemEdge.node;
             const variantId = item.variant?.id;
             const productId = item.variant?.product?.id;
+            const productTitle = item.variant?.product?.title || item.title || 'Unknown Product';
             
-            if (!productId) return;
+            if (!productId) {
+              console.log(`No product ID found for trending item: ${item.title}`);
+              return;
+            }
             
             const quantity = item.quantity || 0;
             
             if (!productSales[productId]) {
               productSales[productId] = {
                 id: productId,
-                title: item.title || 'Unknown Product',
+                title: productTitle,
                 sales: 0,
-                lastSold: orderDate
+                lastSold: orderDate,
+                variantId: variantId
               };
             }
             
             productSales[productId].sales += quantity;
-            // For trending, we focus on recent sales velocity rather than total revenue
-            // Update lastSold to the most recent order date
             if (orderDate > productSales[productId].lastSold) {
               productSales[productId].lastSold = orderDate;
             }
@@ -746,35 +914,32 @@ export async function action({ request }: { request: Request }) {
         }
       });
       
-      // For trending, we want products that are selling fast recently
-      // We'll sort by most recent sales first, then by sales volume
+      console.log('Product sales calculated for trending:', Object.keys(productSales).length, 'products');
+      
+      // For trending, we want to prioritize both recent sales AND sales velocity
+      const now = new Date();
       const sortedProducts = Object.values(productSales).sort((a: ProductSales[string], b: ProductSales[string]) => {
-        // First sort by most recent sale (newest first)
-        const recencyDiff = b.lastSold.getTime() - a.lastSold.getTime();
-        if (Math.abs(recencyDiff) > 24 * 60 * 60 * 1000) { // If difference is more than 1 day
-          return recencyDiff;
+        // First, prioritize products sold more recently
+        const aRecency = now.getTime() - a.lastSold.getTime();
+        const bRecency = now.getTime() - b.lastSold.getTime();
+        
+        // If one product was sold much more recently, prioritize it
+        if (Math.abs(aRecency - bRecency) > 12 * 60 * 60 * 1000) { // 12 hours difference
+          return aRecency - bRecency; // Lower recency = more recent
         }
-        // Then by sales volume
+        
+        // If recency is similar, prioritize by sales volume
         return b.sales - a.sales;
       });
       
-      // Get top N trending products
       const trendingProducts = sortedProducts.slice(0, settings.trendingCount);
       
-      // Get all products to check inventory and existing tags
-      const productsResponse = await admin.graphql(GET_PRODUCTS_QUERY, {
-        variables: { first: 250 }
-      });
-      const productsData = await productsResponse.json();
+      console.log('Top trending products:', trendingProducts.map(p => 
+        `${p.title}: ${p.sales} units, last sold: ${p.lastSold.toISOString()}`
+      ));
       
-      if (!productsData.data?.products) {
-        return Response.json({ 
-          success: false, 
-          message: 'Failed to fetch products data for trending' 
-        });
-      }
-      
-      const products = productsData.data.products.edges.map((edge: { node: Product }) => edge.node);
+      // Get ALL products
+      const allProducts = await fetchAllProducts(admin);
       
       // Create or update collection if needed
       let collectionId = settings.trendingCollectionId;
@@ -782,8 +947,15 @@ export async function action({ request }: { request: Request }) {
       if (settings.trendingCreateCollection) {
         const collectionTitle = settings.trendingCollectionTitle || 'Trending Now';
         
+        if (collectionId) {
+          const exists = await checkCollectionExists(admin, collectionId);
+          if (!exists) {
+            console.log('Trending collection no longer exists in Shopify, creating a new one');
+            collectionId = null;
+          }
+        }
+        
         if (!collectionId) {
-          // Create new collection
           const createCollectionResponse = await admin.graphql(CREATE_COLLECTION_MUTATION, {
             variables: {
               input: {
@@ -805,82 +977,69 @@ export async function action({ request }: { request: Request }) {
           const createCollectionData = await createCollectionResponse.json();
           
           if (createCollectionData.data.collectionCreate.userErrors.length > 0) {
-            return Response.json({ 
-              success: false, 
-              message: `Error creating collection: ${createCollectionData.data.collectionCreate.userErrors[0].message}` 
-            });
-          }
-          
-          collectionId = createCollectionData.data.collectionCreate.collection.id;
-          
-          // Update settings with collection ID
-          try {
-            await (prisma as any).settings.update({
-              where: { shopifyDomain: session.shop },
-              data: { trendingCollectionId: collectionId }
-            });
-          } catch (error) {
-            console.error('Error updating collection ID:', error);
-          }
-        } else {
-          // Update existing collection
-          const updateCollectionResponse = await admin.graphql(UPDATE_COLLECTION_MUTATION, {
-            variables: {
-              input: {
-                id: collectionId,
-                title: collectionTitle,
-                ruleSet: {
-                  rules: [
-                    {
-                      column: "TAG",
-                      relation: "EQUALS",
-                      condition: settings.trendingTag
-                    }
-                  ],
-                  appliedDisjunctively: false
-                }
-              }
+            console.error('Error creating trending collection:', createCollectionData.data.collectionCreate.userErrors);
+          } else {
+            collectionId = createCollectionData.data.collectionCreate.collection.id;
+            
+            try {
+              await (prisma as any).settings.update({
+                where: { shopifyDomain: session.shop },
+                data: { trendingCollectionId: collectionId }
+              });
+            } catch (error) {
+              console.error('Error updating trending collection ID:', error);
             }
-          });
-          
-          const updateCollectionData = await updateCollectionResponse.json();
-          
-          if (updateCollectionData.data.collectionUpdate.userErrors.length > 0) {
-            return Response.json({ 
-              success: false, 
-              message: `Error updating collection: ${updateCollectionData.data.collectionUpdate.userErrors[0].message}` 
-            });
           }
         }
       }
       
-      // Remove trending tag from all products first
-      for (const product of products) {
-        if (product.tags.includes(settings.trendingTag)) {
+      // Remove trending tag from products that are no longer trending
+      const trendingProductIds = new Set(trendingProducts.map(p => p.id));
+      
+      for (const product of allProducts) {
+        if (product.tags.includes(settings.trendingTag) && !trendingProductIds.has(product.id)) {
           const newTags = product.tags.filter((tag: string) => tag !== settings.trendingTag);
           
-          await admin.graphql(UPDATE_PRODUCT_MUTATION, {
-            variables: {
-              input: {
-                id: product.id,
-                tags: newTags
+          try {
+            await admin.graphql(UPDATE_PRODUCT_MUTATION, {
+              variables: {
+                input: {
+                  id: product.id,
+                  tags: newTags
+                }
               }
-            }
-          });
+            });
+            console.log(`Removed trending tag from: ${product.title}`);
+          } catch (error) {
+            console.error(`Error removing trending tag from ${product.title}:`, error);
+          }
         }
       }
       
       // Add trending tag to trending products
       let taggedCount = 0;
+      let skippedCount = 0;
+      
       for (const trendingProduct of trendingProducts) {
-        const product = products.find((p: Product) => p.id === trendingProduct.id);
+        const product = allProducts.find((p: Product) => p.id === trendingProduct.id);
         
-        if (!product) continue;
+        if (!product) {
+          console.log(`Trending product not found in store: ${trendingProduct.title} (${trendingProduct.id})`);
+          skippedCount++;
+          continue;
+        }
         
         // Check if product is out of stock and should be excluded
-        if (settings.trendingExcludeOOS && product.totalInventory <= 0) {
-          console.log(`Excluding out-of-stock trending product: ${product.title}`);
-          continue;
+        if (settings.trendingExcludeOOS) {
+          const totalInventory = product.variants.edges.reduce((sum: number, variant: any) => {
+            return sum + (variant.node.inventoryQuantity || 0);
+          }, 0);
+          
+          if (totalInventory <= 0) {
+            console.log(`Excluding out-of-stock trending product: ${product.title} (inventory: ${totalInventory})`);
+            skippedCount++;
+            continue;
+          }
         }
         
         // Check if product has excluded tags
@@ -888,32 +1047,41 @@ export async function action({ request }: { request: Request }) {
           const hasExcludedTag = settings.excludeTags.some((tag: string) => product.tags.includes(tag));
           if (hasExcludedTag) {
             console.log(`Excluding trending product with excluded tag: ${product.title}`);
+            skippedCount++;
             continue;
           }
         }
         
-        // Add trending tag
-        const newTags = [...product.tags, settings.trendingTag];
-        
-        await admin.graphql(UPDATE_PRODUCT_MUTATION, {
-          variables: {
-            input: {
-              id: product.id,
-              tags: newTags
-            }
+        // Add trending tag if not already present
+        if (!product.tags.includes(settings.trendingTag)) {
+          const newTags = [...product.tags, settings.trendingTag];
+          
+          try {
+            await admin.graphql(UPDATE_PRODUCT_MUTATION, {
+              variables: {
+                input: {
+                  id: product.id,
+                  tags: newTags
+                }
+              }
+            });
+            
+            taggedCount++;
+            console.log(`Tagged trending product: ${product.title} (${trendingProduct.sales} units sold, last sold: ${trendingProduct.lastSold.toISOString()})`);
+          } catch (error) {
+            console.error(`Error adding trending tag to ${product.title}:`, error);
           }
-        });
-        
-        taggedCount++;
-        console.log(`Tagged trending product: ${product.title}`);
+        } else {
+          console.log(`Trending tag already present: ${product.title}`);
+          taggedCount++;
+        }
       }
       
       return Response.json({ 
         success: true, 
-        message: `Trending products processed successfully! Tagged ${taggedCount} products with the most sales in the last 7 days.` 
+        message: `Trending products processed successfully! Tagged ${taggedCount} products, skipped ${skippedCount} products.` 
       });
     } else if (actionType === 'processNewArrivals') {
-      // Process new arrivals
       let settings: Settings | null = null;
       
       try {
@@ -933,36 +1101,51 @@ export async function action({ request }: { request: Request }) {
       const periodDate = new Date();
       periodDate.setDate(periodDate.getDate() - settings.newArrivalsPeriod);
       
-      const productsResponse = await admin.graphql(GET_PRODUCTS_QUERY, {
-        variables: { 
-          first: 250,
-          query: `created_at:>='${periodDate.toISOString().split('T')[0]}'`
-        }
+      // Format date for Shopify GraphQL
+      const year = periodDate.getFullYear();
+      const month = String(periodDate.getMonth() + 1).padStart(2, '0');
+      const day = String(periodDate.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+      
+      console.log('New Arrivals query: looking for products created since:', formattedDate);
+      console.log('🆕 NEW ARRIVALS LOGIC: Products created in last', settings.newArrivalsPeriod, 'days');
+      console.log('🆕 New products will automatically get the tag if created within the period');
+      
+      // Get ALL products first to handle pagination properly
+      const allProducts = await fetchAllProducts(admin);
+      
+      // Filter products created within the period
+      const recentProducts = allProducts.filter((product: Product) => {
+        const productDate = new Date(product.createdAt);
+        return productDate >= periodDate;
       });
-      const productsData = await productsResponse.json();
       
-      if (!productsData.data?.products) {
-        return Response.json({ 
-          success: false, 
-          message: 'Failed to fetch products data for new arrivals' 
-        });
-      }
-      
-      const products = productsData.data.products.edges.map((edge: { node: Product }) => edge.node);
+      console.log(`Found ${recentProducts.length} products created in the last ${settings.newArrivalsPeriod} days`);
       
       // Sort by creation date (newest first)
-      const sortedProducts = products.sort((a: Product, b: Product) => 
+      const sortedProducts = recentProducts.sort((a: Product, b: Product) => 
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
       
       // Get top N newest products
       const newestProducts = sortedProducts.slice(0, settings.newArrivalsCount);
       
+      console.log('Top new arrivals:', newestProducts.map(p => `${p.title}: ${p.createdAt}`));
+      
       // Create or update collection if needed
       let collectionId = settings.newArrivalsCollectionId;
       
       if (settings.newArrivalsCreateCollection) {
         const collectionTitle = settings.newArrivalsCollectionTitle || 'New Arrivals';
+        
+        // Check if collection exists in Shopify
+        if (collectionId) {
+          const exists = await checkCollectionExists(admin, collectionId);
+          if (!exists) {
+            console.log('New Arrivals collection no longer exists in Shopify, creating a new one');
+            collectionId = null;
+          }
+        }
         
         if (!collectionId) {
           // Create new collection
@@ -987,6 +1170,7 @@ export async function action({ request }: { request: Request }) {
           const createCollectionData = await createCollectionResponse.json();
           
           if (createCollectionData.data.collectionCreate.userErrors.length > 0) {
+            console.error('Error creating new arrivals collection:', createCollectionData.data.collectionCreate.userErrors);
             return Response.json({ 
               success: false, 
               message: `Error creating collection: ${createCollectionData.data.collectionCreate.userErrors[0].message}` 
@@ -1001,6 +1185,7 @@ export async function action({ request }: { request: Request }) {
               where: { shopifyDomain: session.shop },
               data: { newArrivalsCollectionId: collectionId }
             });
+            console.log('Created new arrivals collection:', collectionId);
           } catch (error) {
             console.error('Error updating collection ID:', error);
           }
@@ -1028,37 +1213,50 @@ export async function action({ request }: { request: Request }) {
           const updateCollectionData = await updateCollectionResponse.json();
           
           if (updateCollectionData.data.collectionUpdate.userErrors.length > 0) {
-            return Response.json({ 
-              success: false, 
-              message: `Error updating collection: ${updateCollectionData.data.collectionUpdate.userErrors[0].message}` 
-            });
+            console.error('Error updating new arrivals collection:', updateCollectionData.data.collectionUpdate.userErrors);
           }
         }
       }
       
-      // Remove new arrivals tag from all products first
-      for (const product of products) {
-        if (product.tags.includes(settings.newArrivalsTag)) {
+      // Remove new arrivals tag from products that are no longer new
+      const newProductIds = new Set(newestProducts.map(p => p.id));
+      
+      for (const product of allProducts) {
+        if (product.tags.includes(settings.newArrivalsTag) && !newProductIds.has(product.id)) {
           const newTags = product.tags.filter((tag: string) => tag !== settings.newArrivalsTag);
           
-          await admin.graphql(UPDATE_PRODUCT_MUTATION, {
-            variables: {
-              input: {
-                id: product.id,
-                tags: newTags
+          try {
+            await admin.graphql(UPDATE_PRODUCT_MUTATION, {
+              variables: {
+                input: {
+                  id: product.id,
+                  tags: newTags
+                }
               }
-            }
-          });
+            });
+            console.log(`Removed new arrivals tag from: ${product.title}`);
+          } catch (error) {
+            console.error(`Error removing new arrivals tag from ${product.title}:`, error);
+          }
         }
       }
       
       // Add new arrivals tag to newest products
       let taggedCount = 0;
+      let skippedCount = 0;
+      
       for (const newestProduct of newestProducts) {
         // Check if product is out of stock and should be excluded
-        if (settings.newArrivalsExcludeOOS && newestProduct.totalInventory <= 0) {
-          console.log(`Excluding out-of-stock new arrival: ${newestProduct.title}`);
-          continue;
+        if (settings.newArrivalsExcludeOOS) {
+          const totalInventory = newestProduct.variants.edges.reduce((sum: number, variant: any) => {
+            return sum + (variant.node.inventoryQuantity || 0);
+          }, 0);
+          
+          if (totalInventory <= 0) {
+            console.log(`Excluding out-of-stock new arrival: ${newestProduct.title} (inventory: ${totalInventory})`);
+            skippedCount++;
+            continue;
+          }
         }
         
         // Check if product has excluded tags
@@ -1066,32 +1264,41 @@ export async function action({ request }: { request: Request }) {
           const hasExcludedTag = settings.excludeTags.some((tag: string) => newestProduct.tags.includes(tag));
           if (hasExcludedTag) {
             console.log(`Excluding new arrival with excluded tag: ${newestProduct.title}`);
+            skippedCount++;
             continue;
           }
         }
         
-        // Add new arrivals tag
-        const newTags = [...newestProduct.tags, settings.newArrivalsTag];
-        
-        await admin.graphql(UPDATE_PRODUCT_MUTATION, {
-            variables: {
-              input: {
-                id: newestProduct.id,
-                tags: newTags
+        // Add new arrivals tag if not already present
+        if (!newestProduct.tags.includes(settings.newArrivalsTag)) {
+          const newTags = [...newestProduct.tags, settings.newArrivalsTag];
+          
+          try {
+            await admin.graphql(UPDATE_PRODUCT_MUTATION, {
+              variables: {
+                input: {
+                  id: newestProduct.id,
+                  tags: newTags
+                }
               }
-            }
-          });
-        
-        taggedCount++;
-        console.log(`Tagged new arrival: ${newestProduct.title}`);
+            });
+            
+            taggedCount++;
+            console.log(`Tagged new arrival: ${newestProduct.title} (created: ${newestProduct.createdAt})`);
+          } catch (error) {
+            console.error(`Error adding new arrivals tag to ${newestProduct.title}:`, error);
+          }
+        } else {
+          console.log(`New arrivals tag already present: ${newestProduct.title}`);
+          taggedCount++;
+        }
       }
       
       return Response.json({ 
         success: true, 
-        message: `New arrivals processed successfully! Tagged ${taggedCount} products.` 
+        message: `New arrivals processed successfully! Tagged ${taggedCount} products, skipped ${skippedCount} products.` 
       });
     } else if (actionType === 'processAging') {
-      // Process aging inventory
       let settings: Settings | null = null;
       
       try {
@@ -1111,11 +1318,21 @@ export async function action({ request }: { request: Request }) {
       const lookbackDate = new Date();
       lookbackDate.setDate(lookbackDate.getDate() - settings.agingLookback);
       
+      // Format date for Shopify GraphQL
+      const year = lookbackDate.getFullYear();
+      const month = String(lookbackDate.getMonth() + 1).padStart(2, '0');
+      const day = String(lookbackDate.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+      
       let orders: any[] = [];
       
       try {
-        const query = `created_at:>='${lookbackDate.toISOString().split('T')[0]}'`;
+        const query = `created_at:>'${formattedDate}'`;
+        console.log('Aging inventory query:', query);
+        console.log('Looking for orders since:', formattedDate);
         orders = await fetchAllOrders(admin, query);
+        
+        console.log(`Found ${orders.length} orders in the last ${settings.agingLookback} days`);
       } catch (error) {
         console.error('Failed to fetch orders for aging analysis:', error);
         return Response.json({ 
@@ -1124,20 +1341,8 @@ export async function action({ request }: { request: Request }) {
         });
       }
       
-      // Get all products
-      const productsResponse = await admin.graphql(GET_PRODUCTS_QUERY, {
-        variables: { first: 250 }
-      });
-      const productsData = await productsResponse.json();
-      
-      if (!productsData.data?.products) {
-        return Response.json({ 
-          success: false, 
-          message: 'Failed to fetch products data for aging analysis' 
-        });
-      }
-      
-      const products = productsData.data.products.edges.map((edge: { node: Product }) => edge.node);
+      // Get ALL products
+      const allProducts = await fetchAllProducts(admin);
       
       // Create a set of product IDs that have had sales in the lookback period
       const productIdsWithSales = new Set<string>();
@@ -1156,10 +1361,14 @@ export async function action({ request }: { request: Request }) {
         });
       }
       
+      console.log(`Found ${productIdsWithSales.size} products with sales in the last ${settings.agingLookback} days`);
+      
       // Filter products that haven't had sales in the lookback period
-      const agingProducts = products.filter((product: Product) => 
+      const agingProducts = allProducts.filter((product: Product) => 
         !productIdsWithSales.has(product.id)
       );
+      
+      console.log(`Found ${agingProducts.length} products with no sales in the last ${settings.agingLookback} days`);
       
       // Sort by creation date (oldest first)
       const sortedAgingProducts = agingProducts.sort((a: Product, b: Product) => 
@@ -1169,11 +1378,22 @@ export async function action({ request }: { request: Request }) {
       // Get top N oldest products
       const oldestProducts = sortedAgingProducts.slice(0, settings.agingCount);
       
+      console.log('Top aging products:', oldestProducts.map(p => `${p.title}: ${p.createdAt}`));
+      
       // Create or update collection if needed
       let collectionId = settings.agingCollectionId;
       
       if (settings.agingCreateCollection) {
         const collectionTitle = settings.agingCollectionTitle || 'Aging Inventory';
+        
+        // Check if collection exists in Shopify
+        if (collectionId) {
+          const exists = await checkCollectionExists(admin, collectionId);
+          if (!exists) {
+            console.log('Aging Inventory collection no longer exists in Shopify, creating a new one');
+            collectionId = null;
+          }
+        }
         
         if (!collectionId) {
           // Create new collection
@@ -1198,6 +1418,7 @@ export async function action({ request }: { request: Request }) {
           const createCollectionData = await createCollectionResponse.json();
           
           if (createCollectionData.data.collectionCreate.userErrors.length > 0) {
+            console.error('Error creating aging collection:', createCollectionData.data.collectionCreate.userErrors);
             return Response.json({ 
               success: false, 
               message: `Error creating collection: ${createCollectionData.data.collectionCreate.userErrors[0].message}` 
@@ -1212,6 +1433,7 @@ export async function action({ request }: { request: Request }) {
               where: { shopifyDomain: session.shop },
               data: { agingCollectionId: collectionId }
             });
+            console.log('Created aging inventory collection:', collectionId);
           } catch (error) {
             console.error('Error updating collection ID:', error);
           }
@@ -1239,61 +1461,77 @@ export async function action({ request }: { request: Request }) {
           const updateCollectionData = await updateCollectionResponse.json();
           
           if (updateCollectionData.data.collectionUpdate.userErrors.length > 0) {
-            return Response.json({ 
-              success: false, 
-              message: `Error updating collection: ${updateCollectionData.data.collectionUpdate.userErrors[0].message}` 
-            });
+            console.error('Error updating aging collection:', updateCollectionData.data.collectionUpdate.userErrors);
           }
         }
       }
       
-      // Remove aging tag from all products first
-      for (const product of products) {
-        if (product.tags.includes(settings.agingTag)) {
+      // Remove aging tag from products that are no longer aging
+      const agingProductIds = new Set(oldestProducts.map(p => p.id));
+      
+      for (const product of allProducts) {
+        if (product.tags.includes(settings.agingTag) && !agingProductIds.has(product.id)) {
           const newTags = product.tags.filter((tag: string) => tag !== settings.agingTag);
           
-          await admin.graphql(UPDATE_PRODUCT_MUTATION, {
-            variables: {
-              input: {
-                id: product.id,
-                tags: newTags
+          try {
+            await admin.graphql(UPDATE_PRODUCT_MUTATION, {
+              variables: {
+                input: {
+                  id: product.id,
+                  tags: newTags
+                }
               }
-            }
-          });
+            });
+            console.log(`Removed aging tag from: ${product.title}`);
+          } catch (error) {
+            console.error(`Error removing aging tag from ${product.title}:`, error);
+          }
         }
       }
       
       // Add aging tag to oldest products
       let taggedCount = 0;
+      let skippedCount = 0;
+      
       for (const oldestProduct of oldestProducts) {
         // Check if product has excluded tags
         if (settings.excludeEnabled && settings.excludeTags.length > 0) {
           const hasExcludedTag = settings.excludeTags.some((tag: string) => oldestProduct.tags.includes(tag));
           if (hasExcludedTag) {
             console.log(`Excluding aging product with excluded tag: ${oldestProduct.title}`);
+            skippedCount++;
             continue;
           }
         }
         
-        // Add aging tag
-        const newTags = [...oldestProduct.tags, settings.agingTag];
-        
-        await admin.graphql(UPDATE_PRODUCT_MUTATION, {
-          variables: {
-            input: {
-              id: oldestProduct.id,
-              tags: newTags
-            }
+        // Add aging tag if not already present
+        if (!oldestProduct.tags.includes(settings.agingTag)) {
+          const newTags = [...oldestProduct.tags, settings.agingTag];
+          
+          try {
+            await admin.graphql(UPDATE_PRODUCT_MUTATION, {
+              variables: {
+                input: {
+                  id: oldestProduct.id,
+                  tags: newTags
+                }
+              }
+            });
+            
+            taggedCount++;
+            console.log(`Tagged aging product: ${oldestProduct.title} (created: ${oldestProduct.createdAt})`);
+          } catch (error) {
+            console.error(`Error adding aging tag to ${oldestProduct.title}:`, error);
           }
-        });
-        
-        taggedCount++;
-        console.log(`Tagged aging product: ${oldestProduct.title}`);
+        } else {
+          console.log(`Aging tag already present: ${oldestProduct.title}`);
+          taggedCount++;
+        }
       }
       
       return Response.json({ 
         success: true, 
-        message: `Aging inventory processed successfully! Tagged ${taggedCount} products.` 
+        message: `Aging inventory processed successfully! Tagged ${taggedCount} products, skipped ${skippedCount} products.` 
       });
     }
     
@@ -1304,6 +1542,7 @@ export async function action({ request }: { request: Request }) {
   }
 }
 
+// The component code remains exactly the same as before
 export default function CollectionManager() {
   const { shop, collections, settings, shopifyDomain } = useLoaderData();
   const actionData = useActionData();
@@ -1315,10 +1554,8 @@ export default function CollectionManager() {
   const [processing, setProcessing] = useState(false);
   const [processingType, setProcessingType] = useState('');
   
-  // Tab navigation state
   const [selectedTab, setSelectedTab] = useState(0);
   
-  // State for form fields
   const [bestsellersTag, setBestsellersTag] = useState(settings.bestsellersTag);
   const [bestsellersCount, setBestsellersCount] = useState(settings.bestsellersCount);
   const [bestsellersExcludeOOS, setBestsellersExcludeOOS] = useState(settings.bestsellersExcludeOOS);
@@ -1340,7 +1577,6 @@ export default function CollectionManager() {
   const [excludeTags, setExcludeTags] = useState(settings.excludeTags || []);
   const [newExcludeTag, setNewExcludeTag] = useState('');
   
-  // Show toast when action data changes
   useEffect(() => {
     if (actionData) {
       setToastMessage(actionData.message);
@@ -1356,24 +1592,19 @@ export default function CollectionManager() {
     
     formData.append('actionType', 'saveSettings');
     
-    // Bestsellers settings
     formData.append('bestsellersEnabled', settings.bestsellersEnabled.toString());
     formData.append('bestsellersTag', bestsellersTag);
     formData.append('bestsellersCount', bestsellersCount.toString());
-    // bestsellersLookback is fixed at 180 days - not included in form data
     formData.append('bestsellersExcludeOOS', bestsellersExcludeOOS.toString());
     formData.append('bestsellersCreateCollection', settings.bestsellersCreateCollection.toString());
     
-    // Trending settings
     formData.append('trendingEnabled', settings.trendingEnabled.toString());
     formData.append('trendingTag', trendingTag);
     formData.append('trendingCount', trendingCount.toString());
-    // trendingLookback is fixed at 7 days - not included in form data
     formData.append('trendingExcludeOOS', trendingExcludeOOS.toString());
     formData.append('trendingCreateCollection', settings.trendingCreateCollection.toString());
     formData.append('trendingCollectionTitle', settings.trendingCollectionTitle || '');
     
-    // New Arrivals settings
     formData.append('newArrivalsEnabled', settings.newArrivalsEnabled.toString());
     formData.append('newArrivalsTag', newArrivalsTag);
     formData.append('newArrivalsCount', newArrivalsCount.toString());
@@ -1382,7 +1613,6 @@ export default function CollectionManager() {
     formData.append('newArrivalsCreateCollection', settings.newArrivalsCreateCollection.toString());
     formData.append('newArrivalsCollectionTitle', settings.newArrivalsCollectionTitle || '');
     
-    // Aging Inventory settings
     formData.append('agingEnabled', settings.agingEnabled.toString());
     formData.append('agingTag', agingTag);
     formData.append('agingCount', agingCount.toString());
@@ -1390,7 +1620,6 @@ export default function CollectionManager() {
     formData.append('agingCreateCollection', settings.agingCreateCollection.toString());
     formData.append('agingCollectionTitle', settings.agingCollectionTitle || '');
     
-    // Additional settings
     formData.append('excludeEnabled', excludeEnabled.toString());
     excludeTags.forEach((tag: string) => formData.append('excludeTags', tag));
     

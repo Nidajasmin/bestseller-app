@@ -69,6 +69,7 @@ interface CollectionDetails {
   productsCount: {
     count: number;
   };
+  sortOrder?: string; // Add sortOrder to track collection's current sort order
 }
 
 interface TagRule {
@@ -122,8 +123,25 @@ const GET_COLLECTION = `#graphql
       id
       title
       handle
+      sortOrder
       productsCount {
         count
+      }
+    }
+  }
+`;
+
+const UPDATE_COLLECTION_SORT_ORDER = `#graphql
+  mutation collectionUpdate($input: CollectionInput!) {
+    collectionUpdate(input: $input) {
+      collection {
+        id
+        title
+        sortOrder
+      }
+      userErrors {
+        field
+        message
       }
     }
   }
@@ -360,6 +378,61 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   try {
     switch (intent) {
+      case "update-collection-sort-order": {
+        const manualSortOrder = formData.get("manualSortOrder") === "true";
+        
+        try {
+          const response = await admin.graphql(UPDATE_COLLECTION_SORT_ORDER, {
+            variables: {
+              input: {
+                id: gid,
+                sortOrder: manualSortOrder ? "MANUAL" : "AUTOMATIC"
+              }
+            }
+          });
+          
+          const data = await response.json() as any;
+          
+          if (data.errors || data.data?.collectionUpdate?.userErrors?.length > 0) {
+            const errorMessage = data.errors?.[0]?.message || 
+                                data.data?.collectionUpdate?.userErrors?.[0]?.message || 
+                                "Failed to update collection sort order";
+            return { success: false, error: errorMessage };
+          }
+          
+          // Update the database
+          await prisma.featuredSettings.upsert({
+            where: {
+              shopifyDomain_collectionId: {
+                shopifyDomain: session.shop,
+                collectionId: gid
+              }
+            },
+            update: { manualSortOrder },
+            create: {
+              shopifyDomain: session.shop,
+              collectionId: gid,
+              sortOrder: "manual",
+              limitFeatured: 0,
+              manualSortOrder
+            }
+          });
+          
+          return { 
+            success: true, 
+            message: manualSortOrder ? 
+              "Collection sort order updated to Manual. You can now organize products manually." : 
+              "Collection sort order updated to Automatic." 
+          };
+        } catch (error) {
+          console.error("Failed to update collection sort order:", error);
+          return { 
+            success: false, 
+            error: error instanceof Error ? error.message : "Failed to update collection sort order" 
+          };
+        }
+      }
+
       case "save-featured-products": {
         const featuredProducts = JSON.parse(formData.get("featuredProducts") as string);
         const featuredSettings = JSON.parse(formData.get("featuredSettings") as string);
@@ -1055,6 +1128,12 @@ const CollectionSort = () => {
     savedData.featuredSettings?.limitFeatured ? savedData.featuredSettings.limitFeatured.toString() : "0"
   );
   
+  // NEW: Manual sort order state
+  const [manualSortOrder, setManualSortOrder] = useState(
+    savedData.featuredSettings?.manualSortOrder || 
+    collection.sortOrder === "MANUAL"
+  );
+  
   // Collection Settings State
   const [loadFromCollection, setLoadFromCollection] = useState("");
   const [useCustomSorting, setUseCustomSorting] = useState(savedData.collectionSettings?.useCustomSorting || true);
@@ -1253,6 +1332,28 @@ const CollectionSort = () => {
     }
   };
 
+  // NEW: Handle sort order change
+  const handleSortOrderChange = async (value: boolean) => {
+    setManualSortOrder(value);
+    setActionMessage(value ? 
+      "Updating collection to Manual sort order..." : 
+      "Updating collection to Automatic sort order...");
+    
+    const formData = new FormData();
+    formData.append("intent", "update-collection-sort-order");
+    formData.append("manualSortOrder", value.toString());
+    
+    try {
+      submit(formData, { 
+        method: "POST",
+        replace: true 
+      });
+    } catch (error) {
+      console.error("Failed to update sort order:", error);
+      setActionMessage("Failed to update sort order");
+    }
+  };
+
   // NEW: Process imported products and show position modal
   const processImportedProducts = (products: Product[]) => {
     setImportedProducts(products);
@@ -1297,7 +1398,8 @@ const CollectionSort = () => {
       formData.append("featuredProducts", JSON.stringify(productsWithUpdatedPositions));
       formData.append("featuredSettings", JSON.stringify({
         sortOrder,
-        limitFeatured: parseInt(limitFeatured) || 0
+        limitFeatured: parseInt(limitFeatured) || 0,
+        manualSortOrder
       }));
 
       submit(formData, { 
@@ -1596,7 +1698,8 @@ const CollectionSort = () => {
     
     const featuredSettings = {
       sortOrder,
-      limitFeatured: parseInt(limitFeatured) || 0
+      limitFeatured: parseInt(limitFeatured) || 0,
+      manualSortOrder // Add this new field
     };
     
     const formData = new FormData();
@@ -1841,6 +1944,45 @@ const CollectionSort = () => {
                         Save Featured Products
                       </Button>
                     </InlineStack>
+
+                    {/* NEW: Sort Order Section */}
+                    <Card>
+                      <BlockStack gap="300">
+                        <Text as="h3" variant="headingSm">
+                          Sort Order
+                        </Text>
+                        <Text as="p" tone="subdued">
+                          Set this collection to Manual sort order to organize products manually. This is required for the app to properly organize products in your collection.
+                        </Text>
+                        <InlineStack align="space-between">
+                          <Checkbox
+                            label="Manual"
+                            checked={manualSortOrder}
+                            onChange={handleSortOrderChange}
+                          />
+                          <Button
+                            variant="plain"
+                            onClick={() => window.open(`https://${shopDomain}/admin/collections/${collectionId}`, '_blank')}
+                          >
+                            View in Shopify Admin
+                          </Button>
+                        </InlineStack>
+                        {manualSortOrder && (
+                          <Banner status="info">
+                            <Text as="p">
+                              This collection is set to Manual sort order. You can now organize products using this app.
+                            </Text>
+                          </Banner>
+                        )}
+                        {!manualSortOrder && (
+                          <Banner status="warning">
+                            <Text as="p">
+                              This collection is not set to Manual sort order. Check the "Manual" box above to enable manual organization of products.
+                            </Text>
+                          </Banner>
+                        )}
+                      </BlockStack>
+                    </Card>
 
                     {/* Import/Export Section for Featured Products */}
                     <Card>
