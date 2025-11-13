@@ -111,6 +111,9 @@ interface ProductNode {
       node: {
         price: string;
         inventoryQuantity: number;
+        inventoryItem: {
+          tracked: boolean;
+        };
       };
     }>;
   };
@@ -152,11 +155,14 @@ const GET_ALL_PRODUCTS = `#graphql
             url
             altText
           }
-          variants(first: 1) {
+          variants(first: 50) {
             edges {
               node {
                 price
                 inventoryQuantity
+                inventoryItem {
+                  tracked
+                }
               }
             }
           }
@@ -204,15 +210,25 @@ const GET_ORDERS_WITH_PRODUCTS = `#graphql
   }
 `;
 
-// Function to calculate date range for orders query
+// Function to calculate date range for orders query - FIXED to use consistent date field
 const getDateRangeQuery = (months: number): string => {
   const endDate = new Date();
   const startDate = new Date();
   startDate.setMonth(startDate.getMonth() - months);
   
-  const formatDate = (date: Date) => date.toISOString().split('T')[0];
+  // Use UTC dates to avoid timezone issues
+  const formatDate = (date: Date) => {
+    const utcDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+    return utcDate.toISOString().split('T')[0];
+  };
   
-  return `financial_status:paid processed_at:>=${formatDate(startDate)} processed_at:<=${formatDate(endDate)}`;
+  const startDateStr = formatDate(startDate);
+  const endDateStr = formatDate(endDate);
+  
+  console.log(`🗓️ Date range: ${startDateStr} to ${endDateStr}`);
+  
+  // Use created_at consistently for all queries and properly format the query string
+  return `financial_status:paid AND created_at:>=${startDateStr} AND created_at:<${endDateStr}`;
 };
 
 // Function to fetch ALL sales data from orders with pagination
@@ -222,12 +238,16 @@ async function fetchSalesData(admin: any, months: number): Promise<Map<string, S
     
     const salesMap = new Map<string, SalesData>();
     const dateQuery = getDateRangeQuery(months);
+    console.log(`🔍 Query string: ${dateQuery}`);
+    
     let hasNextPage = true;
     let after: string | null = null;
     let totalOrders = 0;
 
     // Fetch all orders with pagination
     while (hasNextPage) {
+      console.log(`📄 Fetching orders page with cursor: ${after || 'none'}`);
+      
       const response = await admin.graphql(GET_ORDERS_WITH_PRODUCTS, {
         variables: {
           first: 100,
@@ -252,7 +272,7 @@ async function fetchSalesData(admin: any, months: number): Promise<Map<string, S
       const orders = data.data.orders.edges;
       totalOrders += orders.length;
       
-      console.log(`📊 Processing ${orders.length} orders...`);
+      console.log(`📊 Processing ${orders.length} orders (total: ${totalOrders})...`);
 
       // Process each order and its line items
       orders.forEach((order: OrderNode) => {
@@ -261,7 +281,10 @@ async function fetchSalesData(admin: any, months: number): Promise<Map<string, S
             if (lineItem.node.product && lineItem.node.product.id) {
               const productId = lineItem.node.product.id;
               const quantity = lineItem.node.quantity || 0;
+              // Use originalTotalSet as it's the correct field in the API
               const revenue = parseFloat(lineItem.node.originalTotalSet.shopMoney.amount) || 0;
+              
+              console.log(`📦 Processing product ${productId}: ${quantity} units, $${revenue}`);
               
               if (salesMap.has(productId)) {
                 const existing = salesMap.get(productId)!;
@@ -269,11 +292,13 @@ async function fetchSalesData(admin: any, months: number): Promise<Map<string, S
                   sales: existing.sales + quantity,
                   revenue: existing.revenue + revenue
                 });
+                console.log(`📈 Updated product ${productId}: ${existing.sales + quantity} units, $${existing.revenue + revenue}`);
               } else {
                 salesMap.set(productId, {
                   sales: quantity,
                   revenue: revenue
                 });
+                console.log(`🆕 Added product ${productId}: ${quantity} units, $${revenue}`);
               }
             }
           });
@@ -290,6 +315,14 @@ async function fetchSalesData(admin: any, months: number): Promise<Map<string, S
     }
     
     console.log(`✅ Processed ${totalOrders} orders, found ${salesMap.size} products with sales`);
+    
+    // Log all products with sales
+    if (salesMap.size > 0) {
+      console.log('📊 Products with sales:');
+      salesMap.forEach((data, productId) => {
+        console.log(`   Product: ${productId}, Sales: ${data.sales}, Revenue: $${data.revenue}`);
+      });
+    }
     
     return salesMap;
     
@@ -314,12 +347,15 @@ async function fetchTodaysOrders(admin: any): Promise<Map<string, SalesData>> {
     tomorrow.setDate(tomorrow.getDate() + 1); // Start of tomorrow
     
     // Format dates for Shopify GraphQL (YYYY-MM-DD format)
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+    const formatDate = (date: Date) => {
+      const utcDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+      return utcDate.toISOString().split('T')[0];
+    };
     const todayFormatted = formatDate(today);
     const tomorrowFormatted = formatDate(tomorrow);
     
-    // Use created_at instead of processed_at for more accurate order timing
-    const todaysOrdersQuery = `financial_status:paid created_at:>=${todayFormatted} created_at:<${tomorrowFormatted}`;
+    // Use created_at for consistency with historical data and properly format the query string
+    const todaysOrdersQuery = `financial_status:paid AND created_at:>=${todayFormatted} AND created_at:<${tomorrowFormatted}`;
     
     console.log('📅 Today\'s date range:', {
       today: todayFormatted,
@@ -366,6 +402,7 @@ async function fetchTodaysOrders(admin: any): Promise<Map<string, SalesData>> {
             if (lineItem.node.product && lineItem.node.product.id) {
               const productId = lineItem.node.product.id;
               const quantity = lineItem.node.quantity || 0;
+              // Use originalTotalSet as it's the correct field in the API
               const revenue = parseFloat(lineItem.node.originalTotalSet.shopMoney.amount) || 0;
               
               // Debug log today's orders
@@ -436,12 +473,15 @@ async function fetchYesterdaysOrders(admin: any): Promise<Map<string, SalesData>
     today.setDate(today.getDate() + 1); // Start of today
     
     // Format dates for Shopify GraphQL (YYYY-MM-DD format)
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+    const formatDate = (date: Date) => {
+      const utcDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+      return utcDate.toISOString().split('T')[0];
+    };
     const yesterdayFormatted = formatDate(yesterday);
     const todayFormatted = formatDate(today);
     
-    // Use created_at for accurate order timing
-    const yesterdaysOrdersQuery = `financial_status:paid created_at:>=${yesterdayFormatted} created_at:<${todayFormatted}`;
+    // Use created_at for consistency with historical data and properly format the query string
+    const yesterdaysOrdersQuery = `financial_status:paid AND created_at:>=${yesterdayFormatted} AND created_at:<${todayFormatted}`;
     
     console.log('📅 Yesterday\'s date range:', {
       yesterday: yesterdayFormatted,
@@ -488,6 +528,7 @@ async function fetchYesterdaysOrders(admin: any): Promise<Map<string, SalesData>
             if (lineItem.node.product && lineItem.node.product.id) {
               const productId = lineItem.node.product.id;
               const quantity = lineItem.node.quantity || 0;
+              // Use originalTotalSet as it's the correct field in the API
               const revenue = parseFloat(lineItem.node.originalTotalSet.shopMoney.amount) || 0;
               
               // Debug log yesterday's orders
@@ -616,59 +657,38 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   });
 
   try {
-    // STEP 1: Fetch sales data from orders for the selected period, today's orders, and yesterday's orders
-    console.log("🔄 Fetching historical, today's, and yesterday's sales data...");
-    const [historicalSalesData, todaysSalesData, yesterdaysSalesData] = await Promise.all([
-      fetchSalesData(admin, selectedMonth),
-      fetchTodaysOrders(admin), // Always fetch today's orders
-      fetchYesterdaysOrders(admin) // Always fetch yesterday's orders
-    ]);
-
-    console.log(`📈 Historical sales data: ${historicalSalesData.size} products`);
-    console.log(`📈 Today's sales data: ${todaysSalesData.size} products`);
-    console.log(`📈 Yesterday's sales data: ${yesterdaysSalesData.size} products`);
-
-    // STEP 2: Combine all datasets - prioritize recent data
-    const combinedSalesData = new Map<string, SalesData>();
+    // STEP 1: Fetch sales data based on the selected period
+    console.log("🔄 Fetching sales data...");
     
-    // First add all historical data
-    historicalSalesData.forEach((salesData, productId) => {
-      combinedSalesData.set(productId, { ...salesData });
-    });
+    let salesData: Map<string, SalesData>;
     
-    // Then add/override with yesterday's data
-    yesterdaysSalesData.forEach((salesData, productId) => {
-      if (combinedSalesData.has(productId)) {
-        // If product exists in both, add yesterday's sales to historical
-        const existing = combinedSalesData.get(productId)!;
-        combinedSalesData.set(productId, {
-          sales: existing.sales + salesData.sales,
-          revenue: existing.revenue + salesData.revenue
-        });
-      } else {
-        // If product only exists in yesterday's data, add it
-        combinedSalesData.set(productId, { ...salesData });
-      }
-    });
+    // Special handling for "Today only" and "Yesterday only" options
+    if (selectedMonth === 0) { // Today only
+      salesData = await fetchTodaysOrders(admin);
+    } else if (selectedMonth === 0.1) { // Yesterday only
+      salesData = await fetchYesterdaysOrders(admin);
+    } else { // Historical data for selected period
+      salesData = await fetchSalesData(admin, selectedMonth);
+    }
     
-    // Finally add/override with today's data (most recent)
-    todaysSalesData.forEach((salesData, productId) => {
-      if (combinedSalesData.has(productId)) {
-        // If product exists in both, add today's sales to existing
-        const existing = combinedSalesData.get(productId)!;
-        combinedSalesData.set(productId, {
-          sales: existing.sales + salesData.sales,
-          revenue: existing.revenue + salesData.revenue
-        });
-      } else {
-        // If product only exists in today's data, add it
-        combinedSalesData.set(productId, { ...salesData });
-      }
-    });
+    console.log(`📈 Sales data: ${salesData.size} products`);
+    
+    // If no sales data, return early
+    if (salesData.size === 0) {
+      console.log('❌ No sales data found, returning empty results');
+      return {
+        bestsellers: [],
+        totalProducts: 0,
+        currentPage: page,
+        hasNextPage: false,
+        hasPreviousPage: false,
+        selectedMonth: selectedMonth.toString(),
+        productsCount,
+        searchQuery,
+      };
+    }
 
-    console.log(`📈 Combined sales data: ${combinedSalesData.size} products`);
-
-    // STEP 3: NEW APPROACH - Create a sorted list of product IDs based on sales
+    // STEP 2: Create a sorted list of product IDs based on sales
     console.log("🔍 Creating sorted list of products by sales...");
     
     // Create an array of products with sales data
@@ -678,11 +698,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       revenue: number;
     }> = [];
     
-    combinedSalesData.forEach((salesData, productId) => {
+    salesData.forEach((salesDataItem, productId) => {
       productsWithSalesData.push({
         id: productId,
-        sales: salesData.sales,
-        revenue: salesData.revenue
+        sales: salesDataItem.sales,
+        revenue: salesDataItem.revenue
       });
     });
     
@@ -720,13 +740,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         
         // Filter products that have sales and match the search query
         products.forEach(product => {
-          const salesData = combinedSalesData.get(product.id);
-          if (salesData && salesData.sales > 0) {
+          // Fixed: Use a different variable name to avoid conflict with Map
+          const productSalesData = salesData.get(product.id);
+          if (productSalesData && productSalesData.sales > 0) {
             if (product.title.toLowerCase().includes(searchQuery.toLowerCase())) {
               matchedProductIds.push({
                 id: product.id,
-                sales: salesData.sales,
-                revenue: salesData.revenue
+                sales: productSalesData.sales,
+                revenue: productSalesData.revenue
               });
             }
           }
@@ -755,7 +776,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     
     console.log(`📄 Fetching product details for page ${page} (${startIndex + 1}-${endIndex})`);
     
-    // STEP 4: Fetch the actual product details for the current page
+    // STEP 3: Fetch the actual product details for the current page
     const productIds = paginatedProductIds.map(p => p.id);
     const productDetails = new Map<string, ProductNode>();
     
@@ -775,11 +796,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
                 url
                 altText
               }
-              variants(first: 1) {
+              variants(first: 50) {
                 edges {
                   node {
                     price
                     inventoryQuantity
+                    inventoryItem {
+                      tracked
+                    }
                   }
                 }
               }
@@ -815,7 +839,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       }
     }
     
-    // STEP 5: Transform the products with sales data
+    console.log(`📦 Fetched details for ${productDetails.size} products`);
+    
+    // STEP 4: Transform the products with sales data
     const bestsellers: BestsellerProduct[] = [];
     
     paginatedProductIds.forEach((productData, index) => {
@@ -826,10 +852,26 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         return;
       }
       
+      // Calculate accurate inventory by summing all variant inventory
+      let totalInventory = 0;
+      if (productDetail.variants?.edges) {
+        productDetail.variants.edges.forEach(variantEdge => {
+          const variant = variantEdge.node;
+          // Only count inventory if it's tracked
+          if (variant.inventoryItem?.tracked) {
+            totalInventory += variant.inventoryQuantity || 0;
+          }
+        });
+      }
+      
+      // Fall back to totalInventory if we couldn't calculate from variants
+      if (totalInventory === 0) {
+        totalInventory = productDetail.totalInventory || 0;
+      }
+      
       const mainVariant = productDetail.variants?.edges[0]?.node;
       const price = mainVariant?.price || '0.00';
       const basePrice = parseFloat(price);
-      const inventory = productDetail.totalInventory || 0;
       
       const sales = productData.sales;
       const revenue = productData.revenue;
@@ -850,7 +892,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         sales,
         revenue: `$${revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         isNew,
-        inStock: inventory,
+        inStock: totalInventory,
         created: new Date(productDetail.createdAt).toLocaleDateString('en-US', {
           year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
         }).replace(',', ''),
@@ -1044,7 +1086,7 @@ export default function BestsellersPage() {
   return (
     <Page
       title={`Bestsellers (Last ${selectedMonth} Month${selectedMonth !== '1' ? 's' : ''})`}
-      subtitle="Products with actual sales - including today's and yesterday's orders - ranked by sales performance"
+      subtitle="Products with actual sales - ranked by sales performance"
     >
       <Layout>
         <Layout.Section>
@@ -1164,7 +1206,6 @@ export default function BestsellersPage() {
                 <Text as="p" tone="subdued" variant="bodySm">
                   <strong>Note:</strong> Only products with actual sales in the selected period are shown.
                   Products are ranked by number of units sold (highest first).
-                  <strong>Today's and yesterday's orders are always included</strong> regardless of the selected period.
                 </Text>
                 <InlineStack gap="400">
                   <Text as="p" variant="bodySm" fontWeight="medium">

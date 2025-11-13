@@ -1,7 +1,7 @@
 // app/routes/app.collections_list.tsx
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
 import { useLoaderData, useNavigate, useSubmit, useFetcher } from "react-router";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import prisma from "../db.server";
 import {
   Page,
@@ -124,14 +124,15 @@ const CustomToggle = ({ checked, onChange, id }: {
   );
 };
 
-// --- UPDATED: Helper function to fetch ALL collections ---
+// --- OPTIMIZED: Helper function to fetch up to 2500 collections ---
 async function fetchAllCollections(admin: any, searchQuery: string = '') {
-  console.log(`🔄 Fetching ALL collections with search: "${searchQuery}"`);
+  console.log(`🔄 Fetching collections with search: "${searchQuery}"`);
   
   let allCollections: any[] = [];
   let hasNextPage = true;
   let afterCursor: string | null = null;
   const BATCH_SIZE = 250;
+  const MAX_COLLECTIONS = 2500;
 
   const graphqlQuery = `#graphql
     query getCollections($first: Int!, $after: String, $query: String) {
@@ -157,7 +158,10 @@ async function fetchAllCollections(admin: any, searchQuery: string = '') {
     }`;
 
   try {
-    while (hasNextPage) {
+    let batchCount = 0;
+    
+    while (hasNextPage && allCollections.length < MAX_COLLECTIONS) {
+      batchCount++;
       const variables: any = { first: BATCH_SIZE };
       
       if (afterCursor) {
@@ -190,15 +194,14 @@ async function fetchAllCollections(admin: any, searchQuery: string = '') {
       hasNextPage = collectionsData.pageInfo?.hasNextPage || false;
       afterCursor = collectionsData.pageInfo?.endCursor || null;
 
-      console.log(`📦 Fetched ${collections.length} collections in this batch. Total so far: ${allCollections.length}`);
+      console.log(`📦 Batch ${batchCount}: Fetched ${collections.length} collections. Total: ${allCollections.length}`);
       
-      // Break if we have too many collections for performance
-      if (allCollections.length > 1000) {
-        console.log("⚠️ Stopping at 1000 collections for performance");
+      // Stop when we reach 2500 collections for optimal performance
+      if (allCollections.length >= MAX_COLLECTIONS) {
+        console.log(`✅ Reached ${MAX_COLLECTIONS} collections limit for optimal performance`);
         break;
       }
 
-      // Break if no more pages
       if (!hasNextPage) {
         break;
       }
@@ -213,7 +216,7 @@ async function fetchAllCollections(admin: any, searchQuery: string = '') {
   }
 }
 
-// --- UPDATED LOADER: Fetch ALL collections without pagination ---
+// --- OPTIMIZED LOADER: Fetch up to 2500 collections ---
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
     console.log("🚀 === COLLECTIONS LOADER STARTED ===");
@@ -230,22 +233,31 @@ export async function loader({ request }: LoaderFunctionArgs) {
       status: statusFilter,
     });
 
-    // Fetch ALL collections from Shopify
+    // Fetch collections from Shopify (up to 2500)
     const shopifyCollections = await fetchAllCollections(admin, searchQuery);
     console.log(`📦 Raw Shopify collections: ${shopifyCollections.length}`);
 
-    // Fetch enabled collections from our database
+    // Fetch enabled collections from our database - OPTIMIZED with chunking
     let enabledCollections: AppCollection[] = [];
     if (shopifyCollections.length > 0) {
-      const collectionIds = shopifyCollections.map((col: any) => col.id);
+      // Process in chunks to avoid SQL parameter limits
+      const chunkSize = 1000;
+      const collectionIdChunks = [];
       
-      enabledCollections = await prisma.appCollection.findMany({
-        where: { 
-          shopifyDomain,
-          collectionId: { in: collectionIds }
-        },
-        select: { collectionId: true, enabled: true },
-      });
+      for (let i = 0; i < shopifyCollections.length; i += chunkSize) {
+        collectionIdChunks.push(shopifyCollections.slice(i, i + chunkSize).map((col: any) => col.id));
+      }
+
+      for (const chunk of collectionIdChunks) {
+        const chunkResults = await prisma.appCollection.findMany({
+          where: { 
+            shopifyDomain,
+            collectionId: { in: chunk }
+          },
+          select: { collectionId: true, enabled: true },
+        });
+        enabledCollections = [...enabledCollections, ...chunkResults];
+      }
       
       console.log(`🔧 Found ${enabledCollections.length} enabled collections in database`);
     }
@@ -458,7 +470,7 @@ function CollectionRow({
     <IndexTable.Row id={id} key={id} position={position}>
       <IndexTable.Cell>
         <Text as="span" variant="bodySm" fontWeight="medium" tone="subdued">
-          {serialNumber.toString()}
+          {serialNumber}
         </Text>
       </IndexTable.Cell>
       <IndexTable.Cell>
@@ -527,90 +539,7 @@ function CollectionRow({
   );
 }
 
-// Custom TextField with keydown handler
-interface CustomTextFieldProps {
-  label: string;
-  labelHidden: boolean;
-  placeholder: string;
-  value: string;
-  onChange: (value: string) => void;
-  onKeyDown: (event: React.KeyboardEvent) => void;
-  onBlur: () => void;
-  onFocus: () => void;
-  autoComplete: string;
-  prefix: React.ReactElement;
-  clearButton: boolean;
-  onClearButtonClick: () => void;
-}
-
-const CustomTextField: React.FC<CustomTextFieldProps> = ({
-  label,
-  labelHidden,
-  placeholder,
-  value,
-  onChange,
-  onKeyDown,
-  onBlur,
-  onFocus,
-  autoComplete,
-  prefix,
-  clearButton,
-  onClearButtonClick,
-}) => {
-  return (
-    <div onKeyDown={onKeyDown}>
-      <TextField
-        label={label}
-        labelHidden={labelHidden}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        onBlur={onBlur}
-        onFocus={onFocus}
-        autoComplete={autoComplete}
-        prefix={prefix}
-        clearButton={clearButton}
-        onClearButtonClick={onClearButtonClick}
-      />
-    </div>
-  );
-};
-
-// Custom Listbox Option with mouse events
-interface CustomOptionProps {
-  children: React.ReactNode;
-  key: string;
-  selected: boolean;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-  onClick: () => void;
-}
-
-const CustomOption: React.FC<CustomOptionProps> = ({
-  children,
-  key,
-  selected,
-  onMouseEnter,
-  onMouseLeave,
-  onClick,
-}) => {
-  return (
-    <div
-      key={key}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onClick={onClick}
-      style={{
-        backgroundColor: selected ? '#f6f6f7' : 'transparent',
-        cursor: 'pointer',
-      }}
-    >
-      {children}
-    </div>
-  );
-};
-
-// Search with Suggestions Component
+// Search with Suggestions Component - OPTIMIZED for 2500+ collections
 function SearchWithSuggestions({ 
   searchQuery, 
   setSearchQuery, 
@@ -626,35 +555,48 @@ function SearchWithSuggestions({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
 
-  // Generate search suggestions
+  // OPTIMIZED search suggestions with debouncing
   useEffect(() => {
     if (searchQuery.trim().length > 1) {
-      const filtered = collections
-        .filter(collection => 
-          collection.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          collection.handle.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-        .slice(0, 8); // Limit to 8 suggestions
-      setSuggestions(filtered);
-      setShowSuggestions(true);
+      const timer = setTimeout(() => {
+        // Use efficient filtering for large datasets
+        const query = searchQuery.toLowerCase();
+        const filtered: Collection[] = [];
+        
+        // Early termination after 8 matches for performance
+        for (let i = 0; i < collections.length && filtered.length < 8; i++) {
+          const collection = collections[i];
+          if (
+            collection.title.toLowerCase().includes(query) ||
+            collection.handle.toLowerCase().includes(query)
+          ) {
+            filtered.push(collection);
+          }
+        }
+        
+        setSuggestions(filtered);
+        setShowSuggestions(true);
+      }, 30); // Minimal debounce for instant feel
+      
+      return () => clearTimeout(timer);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
     }
   }, [searchQuery, collections]);
 
-  const handleInputChange = (value: string) => {
+  const handleInputChange = useCallback((value: string) => {
     setSearchQuery(value);
     setSelectedSuggestionIndex(-1);
-  };
+  }, [setSearchQuery]);
 
-  const handleSuggestionSelect = (collection: Collection) => {
+  const handleSuggestionSelect = useCallback((collection: Collection) => {
     setSearchQuery(collection.title);
     setShowSuggestions(false);
     onSearchSubmit(collection.title);
-  };
+  }, [setSearchQuery, onSearchSubmit]);
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       if (selectedSuggestionIndex >= 0 && suggestions[selectedSuggestionIndex]) {
         handleSuggestionSelect(suggestions[selectedSuggestionIndex]);
@@ -674,33 +616,41 @@ function SearchWithSuggestions({
       setShowSuggestions(false);
       setSelectedSuggestionIndex(-1);
     }
-  };
+  }, [selectedSuggestionIndex, suggestions, handleSuggestionSelect, onSearchSubmit, searchQuery]);
 
-  const handleBlur = () => {
-    // Delay hiding to allow for click events
+  const handleBlur = useCallback(() => {
     setTimeout(() => setShowSuggestions(false), 200);
-  };
+  }, []);
+
+  const handleFocus = useCallback(() => {
+    if (searchQuery.length > 1) {
+      setShowSuggestions(true);
+    }
+  }, [searchQuery.length]);
+
+  const handleClear = useCallback(() => {
+    setSearchQuery('');
+    setShowSuggestions(false);
+    onSearchSubmit('');
+  }, [setSearchQuery, onSearchSubmit]);
 
   return (
     <div style={{ position: 'relative', width: '400px' }}>
-      <CustomTextField
-        label="Search collections"
-        labelHidden={true}
-        placeholder="Search by collection title or handle..."
-        value={searchQuery}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        onFocus={() => searchQuery.length > 1 && setShowSuggestions(true)}
-        autoComplete="off"
-        prefix={<Icon source={SearchIcon} />}
-        clearButton={true}
-        onClearButtonClick={() => {
-          setSearchQuery('');
-          setShowSuggestions(false);
-          onSearchSubmit('');
-        }}
-      />
+      <div onKeyDown={handleKeyDown}>
+        <TextField
+          label="Search collections"
+          labelHidden={true}
+          placeholder="Search by collection title or handle..."
+          value={searchQuery}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          onFocus={handleFocus}
+          autoComplete="off"
+          prefix={<Icon source={SearchIcon} />}
+          clearButton={true}
+          onClearButtonClick={handleClear}
+        />
+      </div>
       
       {showSuggestions && suggestions.length > 0 && (
         <div style={{
@@ -719,32 +669,35 @@ function SearchWithSuggestions({
         }}>
           <Listbox autoSelection={AutoSelection.None}>
             {suggestions.map((collection, index) => (
-              <CustomOption
+              <Listbox.Option
                 key={collection.id}
+                value={collection.id}
                 selected={index === selectedSuggestionIndex}
-                onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                onMouseLeave={() => setSelectedSuggestionIndex(-1)}
-                onClick={() => handleSuggestionSelect(collection)}
               >
-                <div style={{ 
-                  padding: '12px', 
-                  cursor: 'pointer',
-                  backgroundColor: index === selectedSuggestionIndex ? '#f6f6f7' : 'transparent',
-                  borderBottom: index < suggestions.length - 1 ? '1px solid #f1f1f1' : 'none'
-                }}>
+                <div
+                  onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                  onMouseLeave={() => setSelectedSuggestionIndex(-1)}
+                  onClick={() => handleSuggestionSelect(collection)}
+                  style={{ 
+                    padding: '12px', 
+                    cursor: 'pointer',
+                    backgroundColor: index === selectedSuggestionIndex ? '#f6f6f7' : 'transparent',
+                    borderBottom: index < suggestions.length - 1 ? '1px solid #f1f1f1' : 'none'
+                  }}
+                >
                   <InlineStack align="space-between" blockAlign="center">
                     <Text as="span" variant="bodyMd" fontWeight="medium">
                       {collection.title}
                     </Text>
-                    <Badge tone="info">
-                      {collection.productsCount.count.toString()} products
-                    </Badge>
+                   <Badge tone="info">
+                    {collection.productsCount.count.toString()} products
+                  </Badge>
                   </InlineStack>
                   <Text as="p" variant="bodySm" tone="subdued">
                     {collection.handle}
                   </Text>
                 </div>
-              </CustomOption>
+              </Listbox.Option>
             ))}
           </Listbox>
         </div>
@@ -753,7 +706,7 @@ function SearchWithSuggestions({
   );
 }
 
-// Main Component - UPDATED with fast search and no pagination
+// Main Component - OPTIMIZED for 2500+ collections
 function CollectionListPageContent() {
   const { 
     collections: initialCollections, 
@@ -781,11 +734,13 @@ function CollectionListPageContent() {
     setStatusFilter(initialStatusFilter || "all");
   }, [initialSearchQuery, initialStatusFilter]);
 
-  // Client-side filtering for instant results
+  // OPTIMIZED Client-side filtering with useMemo for 2500+ collections
   const filteredCollections = useMemo(() => {
+    if (!initialCollections.length) return [];
+
     let filtered = initialCollections;
 
-    // Apply search filter
+    // Apply search filter - optimized for large datasets
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(collection => 
@@ -804,7 +759,7 @@ function CollectionListPageContent() {
   }, [initialCollections, searchQuery, statusFilter]);
 
   // Handle search submission
-  const handleSearchSubmit = (query: string = searchQuery) => {
+  const handleSearchSubmit = useCallback((query: string = searchQuery) => {
     const params = new URLSearchParams();
     
     if (query.trim()) {
@@ -820,10 +775,10 @@ function CollectionListPageContent() {
     }
     
     navigate(`?${params.toString()}`, { replace: true });
-  };
+  }, [searchQuery, statusFilter, navigate]);
 
   // Handle status filter change
-  const handleStatusChange = (value: string) => {
+  const handleStatusChange = useCallback((value: string) => {
     setStatusFilter(value);
     
     const params = new URLSearchParams();
@@ -837,7 +792,7 @@ function CollectionListPageContent() {
     if (searchQuery) params.set("search", searchQuery);
     
     navigate(`?${params.toString()}`, { replace: true });
-  };
+  }, [searchQuery, navigate]);
 
   const handleResortConfirm = async () => {
     if (!selectedCollection) return;
@@ -981,7 +936,7 @@ function CollectionListPageContent() {
                     
                     {/* Performance info */}
                     <Text as="span" variant="bodySm" tone="subdued">
-                      All {initialCollections.length} collections loaded • Instant search
+                      {initialCollections.length} collections loaded • Instant search
                     </Text>
                   </InlineStack>
                 </BlockStack>
@@ -1032,7 +987,7 @@ function CollectionListPageContent() {
                       <strong>Last updated:</strong> {new Date().toLocaleString()}
                     </Text>
                     <Text as="p" tone="subdued" variant="bodySm">
-                      {filteredCollections.length.toString()} collections • {initialCollections.length.toString()} total loaded • Instant filtering
+                      {filteredCollections.length} collections • {initialCollections.length} total loaded • Instant filtering
                     </Text>
                   </InlineStack>
                 </Box>
