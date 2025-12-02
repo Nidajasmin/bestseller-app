@@ -1,0 +1,727 @@
+2025-11-17T08:07:38.520Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T08:07:38.521Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T08:13:39.284Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=d5b80cfc93850b67981faa66f89582a2405c0cca2f3acf9c4c1d6ff8ef8c0625&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3MjcxLCJuYmYiOjE3NjMzNjcyMTEsImlhdCI6MTc2MzM2NzIxMSwianRpIjoiNThjZDBmZTctM2JlMC00ODM3LWJhOWMtYzMxNDA0ZWU2NDFjIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZDNiOWQ2YjIwODNjNDc5ZjllODliZmRiODMyMWRhMjc3MzJjMWI0MjVhM2Q1MTVkYWVkMjdkNDNjMWQ0YjQxMyJ9.8VCdn55x_HtKo90dlVosqv3CNvt08H8dK-yn7zn907w&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367211
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T08:13:39.287Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=d5b80cfc93850b67981faa66f89582a2405c0cca2f3acf9c4c1d6ff8ef8c0625&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3MjcxLCJuYmYiOjE3NjMzNjcyMTEsImlhdCI6MTc2MzM2NzIxMSwianRpIjoiNThjZDBmZTctM2JlMC00ODM3LWJhOWMtYzMxNDA0ZWU2NDFjIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZDNiOWQ2YjIwODNjNDc5ZjllODliZmRiODMyMWRhMjc3MzJjMWI0MjVhM2Q1MTVkYWVkMjdkNDNjMWQ0YjQxMyJ9.8VCdn55x_HtKo90dlVosqv3CNvt08H8dK-yn7zn907w&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367211
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T08:13:39.285Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=d5b80cfc93850b67981faa66f89582a2405c0cca2f3acf9c4c1d6ff8ef8c0625&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3MjcxLCJuYmYiOjE3NjMzNjcyMTEsImlhdCI6MTc2MzM2NzIxMSwianRpIjoiNThjZDBmZTctM2JlMC00ODM3LWJhOWMtYzMxNDA0ZWU2NDFjIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZDNiOWQ2YjIwODNjNDc5ZjllODliZmRiODMyMWRhMjc3MzJjMWI0MjVhM2Q1MTVkYWVkMjdkNDNjMWQ0YjQxMyJ9.8VCdn55x_HtKo90dlVosqv3CNvt08H8dK-yn7zn907w&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367211
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T08:13:39.287Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=d5b80cfc93850b67981faa66f89582a2405c0cca2f3acf9c4c1d6ff8ef8c0625&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3MjcxLCJuYmYiOjE3NjMzNjcyMTEsImlhdCI6MTc2MzM2NzIxMSwianRpIjoiNThjZDBmZTctM2JlMC00ODM3LWJhOWMtYzMxNDA0ZWU2NDFjIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZDNiOWQ2YjIwODNjNDc5ZjllODliZmRiODMyMWRhMjc3MzJjMWI0MjVhM2Q1MTVkYWVkMjdkNDNjMWQ0YjQxMyJ9.8VCdn55x_HtKo90dlVosqv3CNvt08H8dK-yn7zn907w&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367211
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T08:23:00.204Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T08:23:00.197Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T08:23:00.196Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T08:23:00.202Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T08:23:33.749Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: APPLICATION: User performed test action
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "component": "TopNavbar",
+  "action": "test-all-button",
+  "userId": "user-67890",
+  "feature": "logging-test",
+  "result": "success",
+  "duration": "245ms"
+}
+----------------------------------------
+2025-11-17T09:22:53.377Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=0fd24a3caa318928edb6efb33d934140edeb6bb312eb0223dcacfa8baed9daac&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzcxNDI2LCJuYmYiOjE3NjMzNzEzNjYsImlhdCI6MTc2MzM3MTM2NiwianRpIjoiNDE0YjExM2ItYWY0ZS00YmRkLWIyN2EtOGIxZTZjNDY2ZWMzIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiYWI2NjU2NmIxZWY1YmYzYzUxZjliNDU1NDFkODkwNWI2NDA4NmE0YWU0NjE3M2U1NDNmY2VlMTY4YjcyYTg1ZiJ9.rRds3zKOSU2RVs8D5-u28wjc3rB0D3yIKSbWf69RF6k&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763371366
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T09:22:53.375Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=0fd24a3caa318928edb6efb33d934140edeb6bb312eb0223dcacfa8baed9daac&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzcxNDI2LCJuYmYiOjE3NjMzNzEzNjYsImlhdCI6MTc2MzM3MTM2NiwianRpIjoiNDE0YjExM2ItYWY0ZS00YmRkLWIyN2EtOGIxZTZjNDY2ZWMzIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiYWI2NjU2NmIxZWY1YmYzYzUxZjliNDU1NDFkODkwNWI2NDA4NmE0YWU0NjE3M2U1NDNmY2VlMTY4YjcyYTg1ZiJ9.rRds3zKOSU2RVs8D5-u28wjc3rB0D3yIKSbWf69RF6k&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763371366
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T09:22:53.377Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=0fd24a3caa318928edb6efb33d934140edeb6bb312eb0223dcacfa8baed9daac&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzcxNDI2LCJuYmYiOjE3NjMzNzEzNjYsImlhdCI6MTc2MzM3MTM2NiwianRpIjoiNDE0YjExM2ItYWY0ZS00YmRkLWIyN2EtOGIxZTZjNDY2ZWMzIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiYWI2NjU2NmIxZWY1YmYzYzUxZjliNDU1NDFkODkwNWI2NDA4NmE0YWU0NjE3M2U1NDNmY2VlMTY4YjcyYTg1ZiJ9.rRds3zKOSU2RVs8D5-u28wjc3rB0D3yIKSbWf69RF6k&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763371366
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T09:22:53.374Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=0fd24a3caa318928edb6efb33d934140edeb6bb312eb0223dcacfa8baed9daac&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzcxNDI2LCJuYmYiOjE3NjMzNzEzNjYsImlhdCI6MTc2MzM3MTM2NiwianRpIjoiNDE0YjExM2ItYWY0ZS00YmRkLWIyN2EtOGIxZTZjNDY2ZWMzIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiYWI2NjU2NmIxZWY1YmYzYzUxZjliNDU1NDFkODkwNWI2NDA4NmE0YWU0NjE3M2U1NDNmY2VlMTY4YjcyYTg1ZiJ9.rRds3zKOSU2RVs8D5-u28wjc3rB0D3yIKSbWf69RF6k&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763371366
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T09:23:07.658Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=0fd24a3caa318928edb6efb33d934140edeb6bb312eb0223dcacfa8baed9daac&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzcxNDI2LCJuYmYiOjE3NjMzNzEzNjYsImlhdCI6MTc2MzM3MTM2NiwianRpIjoiNDE0YjExM2ItYWY0ZS00YmRkLWIyN2EtOGIxZTZjNDY2ZWMzIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiYWI2NjU2NmIxZWY1YmYzYzUxZjliNDU1NDFkODkwNWI2NDA4NmE0YWU0NjE3M2U1NDNmY2VlMTY4YjcyYTg1ZiJ9.rRds3zKOSU2RVs8D5-u28wjc3rB0D3yIKSbWf69RF6k&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763371366
+Message: TopNavbar navigation triggered
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "from": "/app/collections_list",
+  "to": "/app/Tags-collection_Manager",
+  "section": "Dashboard",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0",
+  "timestamp": "2025-11-17T09:23:07.658Z"
+}
+----------------------------------------
+2025-11-17T09:23:14.341Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/Tags-collection_Manager
+Message: TopNavbar navigation triggered
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "from": "/app/Tags-collection_Manager",
+  "to": "/app/collections_list",
+  "section": "Tags & Collection Manager",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0",
+  "timestamp": "2025-11-17T09:23:14.341Z"
+}
+----------------------------------------
+2025-11-17T09:23:17.206Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T09:23:17.207Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T10:20:53.597Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=66fd461a8cce73ecea70a650aa1fd7b601ffd836a3b63cc4af7c8fd45dc51f01&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc0OTA5LCJuYmYiOjE3NjMzNzQ4NDksImlhdCI6MTc2MzM3NDg0OSwianRpIjoiMzY2ZTM1Y2UtMGFlNy00MTJjLWFjZjktYTkzYTgwZTMzZmE4Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMGY2NWIyY2E3ZjIyMTNlZGM1Mjk5MGI1OTQ0NmI4ODFlOGUwMzAzYjlhMWU0MjY3NGU1ZjA1N2ZjMWNkNTYzMCJ9.dxkCbypdplfv3Lr2vT-UR0zUSR8N_4iSgmSeszBxpl0&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763374849
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:20:53.604Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=66fd461a8cce73ecea70a650aa1fd7b601ffd836a3b63cc4af7c8fd45dc51f01&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc0OTA5LCJuYmYiOjE3NjMzNzQ4NDksImlhdCI6MTc2MzM3NDg0OSwianRpIjoiMzY2ZTM1Y2UtMGFlNy00MTJjLWFjZjktYTkzYTgwZTMzZmE4Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMGY2NWIyY2E3ZjIyMTNlZGM1Mjk5MGI1OTQ0NmI4ODFlOGUwMzAzYjlhMWU0MjY3NGU1ZjA1N2ZjMWNkNTYzMCJ9.dxkCbypdplfv3Lr2vT-UR0zUSR8N_4iSgmSeszBxpl0&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763374849
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:20:53.605Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=66fd461a8cce73ecea70a650aa1fd7b601ffd836a3b63cc4af7c8fd45dc51f01&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc0OTA5LCJuYmYiOjE3NjMzNzQ4NDksImlhdCI6MTc2MzM3NDg0OSwianRpIjoiMzY2ZTM1Y2UtMGFlNy00MTJjLWFjZjktYTkzYTgwZTMzZmE4Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMGY2NWIyY2E3ZjIyMTNlZGM1Mjk5MGI1OTQ0NmI4ODFlOGUwMzAzYjlhMWU0MjY3NGU1ZjA1N2ZjMWNkNTYzMCJ9.dxkCbypdplfv3Lr2vT-UR0zUSR8N_4iSgmSeszBxpl0&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763374849
+Message: Redirecting from /app to /app/collections_list
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T10:20:53.598Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=66fd461a8cce73ecea70a650aa1fd7b601ffd836a3b63cc4af7c8fd45dc51f01&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc0OTA5LCJuYmYiOjE3NjMzNzQ4NDksImlhdCI6MTc2MzM3NDg0OSwianRpIjoiMzY2ZTM1Y2UtMGFlNy00MTJjLWFjZjktYTkzYTgwZTMzZmE4Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMGY2NWIyY2E3ZjIyMTNlZGM1Mjk5MGI1OTQ0NmI4ODFlOGUwMzAzYjlhMWU0MjY3NGU1ZjA1N2ZjMWNkNTYzMCJ9.dxkCbypdplfv3Lr2vT-UR0zUSR8N_4iSgmSeszBxpl0&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763374849
+Message: Redirecting from /app to /app/collections_list
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T10:20:56.569Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T10:20:56.569Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T10:22:29.647Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: Collection toggle triggered
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302623621179",
+  "collectionTitle": "Accessories Refreshing",
+  "from": false,
+  "to": true
+}
+----------------------------------------
+2025-11-17T10:22:32.427Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: Manual refresh triggered
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T10:37:31.016Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=a0b88c7327f6e7569fdfbd2646ba528f61b72cf55e4e6d400976d503548af61b&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc1OTA2LCJuYmYiOjE3NjMzNzU4NDYsImlhdCI6MTc2MzM3NTg0NiwianRpIjoiZWFmZmQ0ODUtNzFiNS00ZTRkLWIwMWYtY2MyMGU5NTE4NGJiIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiYjVjNWY0ZTUxZmJkYzU5ZTFkMTgwMTYyN2VhZDMxOWI5MGE2M2M3MGVhYmZjYWJjY2FkY2JmYjhmYmZjN2U0NiJ9.2Qqbf4eTe_P7YCMSf4ivWa_kh5XRdI4brO2fq36P_1U&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763375846
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:37:31.010Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=a0b88c7327f6e7569fdfbd2646ba528f61b72cf55e4e6d400976d503548af61b&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc1OTA2LCJuYmYiOjE3NjMzNzU4NDYsImlhdCI6MTc2MzM3NTg0NiwianRpIjoiZWFmZmQ0ODUtNzFiNS00ZTRkLWIwMWYtY2MyMGU5NTE4NGJiIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiYjVjNWY0ZTUxZmJkYzU5ZTFkMTgwMTYyN2VhZDMxOWI5MGE2M2M3MGVhYmZjYWJjY2FkY2JmYjhmYmZjN2U0NiJ9.2Qqbf4eTe_P7YCMSf4ivWa_kh5XRdI4brO2fq36P_1U&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763375846
+Message: Redirecting from /app to /app/collections_list
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T10:37:31.017Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=a0b88c7327f6e7569fdfbd2646ba528f61b72cf55e4e6d400976d503548af61b&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc1OTA2LCJuYmYiOjE3NjMzNzU4NDYsImlhdCI6MTc2MzM3NTg0NiwianRpIjoiZWFmZmQ0ODUtNzFiNS00ZTRkLWIwMWYtY2MyMGU5NTE4NGJiIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiYjVjNWY0ZTUxZmJkYzU5ZTFkMTgwMTYyN2VhZDMxOWI5MGE2M2M3MGVhYmZjYWJjY2FkY2JmYjhmYmZjN2U0NiJ9.2Qqbf4eTe_P7YCMSf4ivWa_kh5XRdI4brO2fq36P_1U&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763375846
+Message: Redirecting from /app to /app/collections_list
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T10:37:31.010Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=a0b88c7327f6e7569fdfbd2646ba528f61b72cf55e4e6d400976d503548af61b&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc1OTA2LCJuYmYiOjE3NjMzNzU4NDYsImlhdCI6MTc2MzM3NTg0NiwianRpIjoiZWFmZmQ0ODUtNzFiNS00ZTRkLWIwMWYtY2MyMGU5NTE4NGJiIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiYjVjNWY0ZTUxZmJkYzU5ZTFkMTgwMTYyN2VhZDMxOWI5MGE2M2M3MGVhYmZjYWJjY2FkY2JmYjhmYmZjN2U0NiJ9.2Qqbf4eTe_P7YCMSf4ivWa_kh5XRdI4brO2fq36P_1U&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763375846
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:37:34.377Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509,
+  "shopifyDomain": "resort-9336.myshopify.com"
+}
+----------------------------------------
+2025-11-17T10:37:34.377Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509,
+  "shopifyDomain": "resort-9336.myshopify.com"
+}
+----------------------------------------
+2025-11-17T10:37:54.984Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: Search suggestion selected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302183448635",
+  "collectionTitle": "Summer collection"
+}
+----------------------------------------
+2025-11-17T10:37:54.984Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: Collections search submitted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "query": "Summer collection",
+  "statusFilter": "all"
+}
+----------------------------------------
+2025-11-17T10:38:01.795Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection
+Message: Manual refresh triggered
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "shopifyDomain": "resort-9336.myshopify.com",
+  "currentSearch": "",
+  "currentStatus": "all"
+}
+----------------------------------------
+2025-11-17T10:41:05.394Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=3552054c00ed259eefe8eb4e17b70e77449561b03a211534799020887adf149a&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2MTE4LCJuYmYiOjE3NjMzNzYwNTgsImlhdCI6MTc2MzM3NjA1OCwianRpIjoiY2JiN2Y2MTItM2NmNS00MDBiLTgxMWYtYzIxZmJjYjM0MmIwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZjM2MmMzMDQ4NDZkYmVkM2ZkZDhmMjJkOWFhNDAwZjZlMTYwYTI4NmIyMDk1ZGM5NGJhZGUxOWNlMGZlMDU1ZiJ9.Vwg12LIU-koiYvUjvv8g4Y0n2c7nR1kGfBZpdTRTN1U&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763376058
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:41:05.394Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=3552054c00ed259eefe8eb4e17b70e77449561b03a211534799020887adf149a&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2MTE4LCJuYmYiOjE3NjMzNzYwNTgsImlhdCI6MTc2MzM3NjA1OCwianRpIjoiY2JiN2Y2MTItM2NmNS00MDBiLTgxMWYtYzIxZmJjYjM0MmIwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZjM2MmMzMDQ4NDZkYmVkM2ZkZDhmMjJkOWFhNDAwZjZlMTYwYTI4NmIyMDk1ZGM5NGJhZGUxOWNlMGZlMDU1ZiJ9.Vwg12LIU-koiYvUjvv8g4Y0n2c7nR1kGfBZpdTRTN1U&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763376058
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509,
+  "shopifyDomain": "resort-9336.myshopify.com"
+}
+----------------------------------------
+2025-11-17T10:41:05.392Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=3552054c00ed259eefe8eb4e17b70e77449561b03a211534799020887adf149a&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2MTE4LCJuYmYiOjE3NjMzNzYwNTgsImlhdCI6MTc2MzM3NjA1OCwianRpIjoiY2JiN2Y2MTItM2NmNS00MDBiLTgxMWYtYzIxZmJjYjM0MmIwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZjM2MmMzMDQ4NDZkYmVkM2ZkZDhmMjJkOWFhNDAwZjZlMTYwYTI4NmIyMDk1ZGM5NGJhZGUxOWNlMGZlMDU1ZiJ9.Vwg12LIU-koiYvUjvv8g4Y0n2c7nR1kGfBZpdTRTN1U&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763376058
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:41:05.392Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=3552054c00ed259eefe8eb4e17b70e77449561b03a211534799020887adf149a&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2MTE4LCJuYmYiOjE3NjMzNzYwNTgsImlhdCI6MTc2MzM3NjA1OCwianRpIjoiY2JiN2Y2MTItM2NmNS00MDBiLTgxMWYtYzIxZmJjYjM0MmIwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZjM2MmMzMDQ4NDZkYmVkM2ZkZDhmMjJkOWFhNDAwZjZlMTYwYTI4NmIyMDk1ZGM5NGJhZGUxOWNlMGZlMDU1ZiJ9.Vwg12LIU-koiYvUjvv8g4Y0n2c7nR1kGfBZpdTRTN1U&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763376058
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509,
+  "shopifyDomain": "resort-9336.myshopify.com"
+}
+----------------------------------------
+2025-11-17T10:50:18.874Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=3552054c00ed259eefe8eb4e17b70e77449561b03a211534799020887adf149a&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763376058
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:50:19.192Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=3552054c00ed259eefe8eb4e17b70e77449561b03a211534799020887adf149a&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763376058
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:51:14.735Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=2dfae08654e59b1526c3af9983ebaa7044f68e8e7257f7d5b5e3b6deed9ab3c1&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2NzI5LCJuYmYiOjE3NjMzNzY2NjksImlhdCI6MTc2MzM3NjY2OSwianRpIjoiYjE1NGZjOGUtNDBiZC00MmIwLTlhNGYtMDZmODdjMzIzNTUwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMTg0NDAzMjdiYmFhOWQxNWFjMzRkYTEzNjVkYzJiMWE0M2NkMWFkMGM0NjQwMWQ4Y2FhNzZhODhjNTE2OWEyNiJ9.SNVJopgu_ScSb_cB22s0qAlKmunBMMri02Am-4UQwto&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763376669
+Message: Redirecting from /app to /app/collections_list
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T10:51:14.740Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=2dfae08654e59b1526c3af9983ebaa7044f68e8e7257f7d5b5e3b6deed9ab3c1&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2NzI5LCJuYmYiOjE3NjMzNzY2NjksImlhdCI6MTc2MzM3NjY2OSwianRpIjoiYjE1NGZjOGUtNDBiZC00MmIwLTlhNGYtMDZmODdjMzIzNTUwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMTg0NDAzMjdiYmFhOWQxNWFjMzRkYTEzNjVkYzJiMWE0M2NkMWFkMGM0NjQwMWQ4Y2FhNzZhODhjNTE2OWEyNiJ9.SNVJopgu_ScSb_cB22s0qAlKmunBMMri02Am-4UQwto&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763376669
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:51:14.734Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=2dfae08654e59b1526c3af9983ebaa7044f68e8e7257f7d5b5e3b6deed9ab3c1&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2NzI5LCJuYmYiOjE3NjMzNzY2NjksImlhdCI6MTc2MzM3NjY2OSwianRpIjoiYjE1NGZjOGUtNDBiZC00MmIwLTlhNGYtMDZmODdjMzIzNTUwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMTg0NDAzMjdiYmFhOWQxNWFjMzRkYTEzNjVkYzJiMWE0M2NkMWFkMGM0NjQwMWQ4Y2FhNzZhODhjNTE2OWEyNiJ9.SNVJopgu_ScSb_cB22s0qAlKmunBMMri02Am-4UQwto&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763376669
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:51:14.740Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app?embedded=1&hmac=2dfae08654e59b1526c3af9983ebaa7044f68e8e7257f7d5b5e3b6deed9ab3c1&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2NzI5LCJuYmYiOjE3NjMzNzY2NjksImlhdCI6MTc2MzM3NjY2OSwianRpIjoiYjE1NGZjOGUtNDBiZC00MmIwLTlhNGYtMDZmODdjMzIzNTUwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMTg0NDAzMjdiYmFhOWQxNWFjMzRkYTEzNjVkYzJiMWE0M2NkMWFkMGM0NjQwMWQ4Y2FhNzZhODhjNTE2OWEyNiJ9.SNVJopgu_ScSb_cB22s0qAlKmunBMMri02Am-4UQwto&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763376669
+Message: Redirecting from /app to /app/collections_list
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T10:53:00.904Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=cbb3e9a1a2c000df0ccdfb82ecf466e87aa69997c8b2472d8e0764d9781ddf31&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2ODE4LCJuYmYiOjE3NjMzNzY3NTgsImlhdCI6MTc2MzM3Njc1OCwianRpIjoiMGYxZGVhYTgtY2E4MS00ODg1LTgwZTktMzkyMGU0M2FiNTliIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMzBiN2VmMGI0YzJiNGI2OWUzZTk4N2VkZTgyY2UzMjg4NWVmZjdiM2MzOTE1ZWMyYTBlNDFiMjZmYzE0NWJmNiJ9.eaVvRLk_PoxzIyk3OSFNKf0rO0w6qZWYaIs3tV_bVxw&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376758
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 1,
+  "initialSearchQuery": "Summer collection",
+  "initialStatusFilter": "enabled",
+  "shopifyDomain": "resort-9336.myshopify.com"
+}
+----------------------------------------
+2025-11-17T10:53:00.908Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=cbb3e9a1a2c000df0ccdfb82ecf466e87aa69997c8b2472d8e0764d9781ddf31&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2ODE4LCJuYmYiOjE3NjMzNzY3NTgsImlhdCI6MTc2MzM3Njc1OCwianRpIjoiMGYxZGVhYTgtY2E4MS00ODg1LTgwZTktMzkyMGU0M2FiNTliIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMzBiN2VmMGI0YzJiNGI2OWUzZTk4N2VkZTgyY2UzMjg4NWVmZjdiM2MzOTE1ZWMyYTBlNDFiMjZmYzE0NWJmNiJ9.eaVvRLk_PoxzIyk3OSFNKf0rO0w6qZWYaIs3tV_bVxw&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376758
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 1,
+  "initialSearchQuery": "Summer collection",
+  "initialStatusFilter": "enabled",
+  "shopifyDomain": "resort-9336.myshopify.com"
+}
+----------------------------------------
+2025-11-17T10:53:00.905Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=cbb3e9a1a2c000df0ccdfb82ecf466e87aa69997c8b2472d8e0764d9781ddf31&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2ODE4LCJuYmYiOjE3NjMzNzY3NTgsImlhdCI6MTc2MzM3Njc1OCwianRpIjoiMGYxZGVhYTgtY2E4MS00ODg1LTgwZTktMzkyMGU0M2FiNTliIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMzBiN2VmMGI0YzJiNGI2OWUzZTk4N2VkZTgyY2UzMjg4NWVmZjdiM2MzOTE1ZWMyYTBlNDFiMjZmYzE0NWJmNiJ9.eaVvRLk_PoxzIyk3OSFNKf0rO0w6qZWYaIs3tV_bVxw&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376758
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:53:00.908Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=cbb3e9a1a2c000df0ccdfb82ecf466e87aa69997c8b2472d8e0764d9781ddf31&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2ODE4LCJuYmYiOjE3NjMzNzY3NTgsImlhdCI6MTc2MzM3Njc1OCwianRpIjoiMGYxZGVhYTgtY2E4MS00ODg1LTgwZTktMzkyMGU0M2FiNTliIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiMzBiN2VmMGI0YzJiNGI2OWUzZTk4N2VkZTgyY2UzMjg4NWVmZjdiM2MzOTE1ZWMyYTBlNDFiMjZmYzE0NWJmNiJ9.eaVvRLk_PoxzIyk3OSFNKf0rO0w6qZWYaIs3tV_bVxw&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376758
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:54:04.394Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=cbb3e9a1a2c000df0ccdfb82ecf466e87aa69997c8b2472d8e0764d9781ddf31&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376758
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:54:04.394Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=cbb3e9a1a2c000df0ccdfb82ecf466e87aa69997c8b2472d8e0764d9781ddf31&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376758
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 1,
+  "initialSearchQuery": "Summer collection",
+  "initialStatusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:54:04.391Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=cbb3e9a1a2c000df0ccdfb82ecf466e87aa69997c8b2472d8e0764d9781ddf31&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376758
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 1,
+  "initialSearchQuery": "Summer collection",
+  "initialStatusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:54:04.391Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=cbb3e9a1a2c000df0ccdfb82ecf466e87aa69997c8b2472d8e0764d9781ddf31&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376758
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:54:09.469Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=cbb3e9a1a2c000df0ccdfb82ecf466e87aa69997c8b2472d8e0764d9781ddf31&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376758
+Message: Collections search submitted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "query": "Summer collection",
+  "statusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:54:09.468Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=cbb3e9a1a2c000df0ccdfb82ecf466e87aa69997c8b2472d8e0764d9781ddf31&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376758
+Message: Search suggestion selected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302183448635",
+  "collectionTitle": "Summer collection"
+}
+----------------------------------------
+2025-11-17T10:54:15.095Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Manual refresh triggered
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T10:54:24.904Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=93f835e2e1fb9e1efad6cf096a03a9c37b04fc35a29ef857b626946c04eacc2b&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2OTIyLCJuYmYiOjE3NjMzNzY4NjIsImlhdCI6MTc2MzM3Njg2MiwianRpIjoiMDBiZWM4YzYtMzFlNS00OTdkLTkwYmMtMjQ1YWI3ZTdlODMyIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZjQ4YzljZWY0NWE2ZjMyZmJmNGI1ZGFhNGZjZTk5NDVmZWY3YTEwNDY5MzhkYjU4YzBjYjI5NGE1ZjI4YzhjOCJ9.0q2v-qGaHVdPD-f42R8H5Mdw5JOlpcLEaYAy9yHWVe4&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376862
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 1,
+  "initialSearchQuery": "Summer collection",
+  "initialStatusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:54:24.902Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=93f835e2e1fb9e1efad6cf096a03a9c37b04fc35a29ef857b626946c04eacc2b&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2OTIyLCJuYmYiOjE3NjMzNzY4NjIsImlhdCI6MTc2MzM3Njg2MiwianRpIjoiMDBiZWM4YzYtMzFlNS00OTdkLTkwYmMtMjQ1YWI3ZTdlODMyIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZjQ4YzljZWY0NWE2ZjMyZmJmNGI1ZGFhNGZjZTk5NDVmZWY3YTEwNDY5MzhkYjU4YzBjYjI5NGE1ZjI4YzhjOCJ9.0q2v-qGaHVdPD-f42R8H5Mdw5JOlpcLEaYAy9yHWVe4&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376862
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:54:24.901Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=93f835e2e1fb9e1efad6cf096a03a9c37b04fc35a29ef857b626946c04eacc2b&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2OTIyLCJuYmYiOjE3NjMzNzY4NjIsImlhdCI6MTc2MzM3Njg2MiwianRpIjoiMDBiZWM4YzYtMzFlNS00OTdkLTkwYmMtMjQ1YWI3ZTdlODMyIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZjQ4YzljZWY0NWE2ZjMyZmJmNGI1ZGFhNGZjZTk5NDVmZWY3YTEwNDY5MzhkYjU4YzBjYjI5NGE1ZjI4YzhjOCJ9.0q2v-qGaHVdPD-f42R8H5Mdw5JOlpcLEaYAy9yHWVe4&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376862
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 1,
+  "initialSearchQuery": "Summer collection",
+  "initialStatusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:54:24.904Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=93f835e2e1fb9e1efad6cf096a03a9c37b04fc35a29ef857b626946c04eacc2b&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2OTIyLCJuYmYiOjE3NjMzNzY4NjIsImlhdCI6MTc2MzM3Njg2MiwianRpIjoiMDBiZWM4YzYtMzFlNS00OTdkLTkwYmMtMjQ1YWI3ZTdlODMyIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZjQ4YzljZWY0NWE2ZjMyZmJmNGI1ZGFhNGZjZTk5NDVmZWY3YTEwNDY5MzhkYjU4YzBjYjI5NGE1ZjI4YzhjOCJ9.0q2v-qGaHVdPD-f42R8H5Mdw5JOlpcLEaYAy9yHWVe4&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376862
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T10:55:21.746Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=93f835e2e1fb9e1efad6cf096a03a9c37b04fc35a29ef857b626946c04eacc2b&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2OTIyLCJuYmYiOjE3NjMzNzY4NjIsImlhdCI6MTc2MzM3Njg2MiwianRpIjoiMDBiZWM4YzYtMzFlNS00OTdkLTkwYmMtMjQ1YWI3ZTdlODMyIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZjQ4YzljZWY0NWE2ZjMyZmJmNGI1ZGFhNGZjZTk5NDVmZWY3YTEwNDY5MzhkYjU4YzBjYjI5NGE1ZjI4YzhjOCJ9.0q2v-qGaHVdPD-f42R8H5Mdw5JOlpcLEaYAy9yHWVe4&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376862
+Message: Collections search submitted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "query": "Summer collection",
+  "statusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:55:21.746Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=93f835e2e1fb9e1efad6cf096a03a9c37b04fc35a29ef857b626946c04eacc2b&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc2OTIyLCJuYmYiOjE3NjMzNzY4NjIsImlhdCI6MTc2MzM3Njg2MiwianRpIjoiMDBiZWM4YzYtMzFlNS00OTdkLTkwYmMtMjQ1YWI3ZTdlODMyIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiZjQ4YzljZWY0NWE2ZjMyZmJmNGI1ZGFhNGZjZTk5NDVmZWY3YTEwNDY5MzhkYjU4YzBjYjI5NGE1ZjI4YzhjOCJ9.0q2v-qGaHVdPD-f42R8H5Mdw5JOlpcLEaYAy9yHWVe4&locale=en&search=Summer+collection&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763376862
+Message: Search suggestion selected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302183448635",
+  "collectionTitle": "Summer collection"
+}
+----------------------------------------
+2025-11-17T10:55:44.498Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Search suggestion selected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302183448635",
+  "collectionTitle": "Summer collection"
+}
+----------------------------------------
+2025-11-17T10:55:44.498Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Collections search submitted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "query": "Summer collection",
+  "statusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:55:46.381Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Search suggestion selected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302183448635",
+  "collectionTitle": "Summer collection"
+}
+----------------------------------------
+2025-11-17T10:55:46.381Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Collections search submitted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "query": "Summer collection",
+  "statusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:56:16.234Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Collections search submitted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "query": "Summer collection",
+  "statusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:56:16.234Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Search suggestion selected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302183448635",
+  "collectionTitle": "Summer collection"
+}
+----------------------------------------
+2025-11-17T10:56:41.020Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Collections search submitted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "query": "Summer collection",
+  "statusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:56:41.020Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Search suggestion selected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302183448635",
+  "collectionTitle": "Summer collection"
+}
+----------------------------------------
+2025-11-17T10:56:43.650Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Search suggestion selected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302183448635",
+  "collectionTitle": "Summer collection"
+}
+----------------------------------------
+2025-11-17T10:56:43.651Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Collections search submitted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "query": "Summer collection",
+  "statusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:57:31.688Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Collections search submitted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "query": "Summer collection",
+  "statusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:57:31.688Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Search suggestion selected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302183448635",
+  "collectionTitle": "Summer collection"
+}
+----------------------------------------
+2025-11-17T10:57:37.884Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Search cleared
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T10:57:37.884Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Collections search submitted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "query": "",
+  "statusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T10:57:39.937Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?search=Summer+collection&status=enabled
+Message: Manual refresh triggered
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T11:07:14.901Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=eb9b4a4be2ac9ed82738e8a9b5f4d62a37308c0a510d7197ca2928cab668d3f8&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc3Njg3LCJuYmYiOjE3NjMzNzc2MjcsImlhdCI6MTc2MzM3NzYyNywianRpIjoiMDFjMzM1NmMtZTY5Zi00ODJhLTk4YWYtMzc1NWFjZGZiNjAwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNzMyN2ViZjEyNDQ4YTljMzFhMGEwNGJmZDI0NDk1NTM3ZjVmZDgyMzBiM2U5OGVmN2RlNzM4NjEzYzllZjNhNCJ9.aiqgA15kbe0ZSgAejAJOBRPiEeiVw5kgZY5RoIMPiAM&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763377627
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 13,
+  "initialStatusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T11:07:14.897Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=eb9b4a4be2ac9ed82738e8a9b5f4d62a37308c0a510d7197ca2928cab668d3f8&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc3Njg3LCJuYmYiOjE3NjMzNzc2MjcsImlhdCI6MTc2MzM3NzYyNywianRpIjoiMDFjMzM1NmMtZTY5Zi00ODJhLTk4YWYtMzc1NWFjZGZiNjAwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNzMyN2ViZjEyNDQ4YTljMzFhMGEwNGJmZDI0NDk1NTM3ZjVmZDgyMzBiM2U5OGVmN2RlNzM4NjEzYzllZjNhNCJ9.aiqgA15kbe0ZSgAejAJOBRPiEeiVw5kgZY5RoIMPiAM&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763377627
+Message: CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 13,
+  "initialStatusFilter": "enabled"
+}
+----------------------------------------
+2025-11-17T11:07:14.899Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=eb9b4a4be2ac9ed82738e8a9b5f4d62a37308c0a510d7197ca2928cab668d3f8&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc3Njg3LCJuYmYiOjE3NjMzNzc2MjcsImlhdCI6MTc2MzM3NzYyNywianRpIjoiMDFjMzM1NmMtZTY5Zi00ODJhLTk4YWYtMzc1NWFjZGZiNjAwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNzMyN2ViZjEyNDQ4YTljMzFhMGEwNGJmZDI0NDk1NTM3ZjVmZDgyMzBiM2U5OGVmN2RlNzM4NjEzYzllZjNhNCJ9.aiqgA15kbe0ZSgAejAJOBRPiEeiVw5kgZY5RoIMPiAM&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763377627
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T11:07:14.902Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=eb9b4a4be2ac9ed82738e8a9b5f4d62a37308c0a510d7197ca2928cab668d3f8&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc3Njg3LCJuYmYiOjE3NjMzNzc2MjcsImlhdCI6MTc2MzM3NzYyNywianRpIjoiMDFjMzM1NmMtZTY5Zi00ODJhLTk4YWYtMzc1NWFjZGZiNjAwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNzMyN2ViZjEyNDQ4YTljMzFhMGEwNGJmZDI0NDk1NTM3ZjVmZDgyMzBiM2U5OGVmN2RlNzM4NjEzYzllZjNhNCJ9.aiqgA15kbe0ZSgAejAJOBRPiEeiVw5kgZY5RoIMPiAM&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763377627
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T11:07:32.655Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=eb9b4a4be2ac9ed82738e8a9b5f4d62a37308c0a510d7197ca2928cab668d3f8&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc3Njg3LCJuYmYiOjE3NjMzNzc2MjcsImlhdCI6MTc2MzM3NzYyNywianRpIjoiMDFjMzM1NmMtZTY5Zi00ODJhLTk4YWYtMzc1NWFjZGZiNjAwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNzMyN2ViZjEyNDQ4YTljMzFhMGEwNGJmZDI0NDk1NTM3ZjVmZDgyMzBiM2U5OGVmN2RlNzM4NjEzYzllZjNhNCJ9.aiqgA15kbe0ZSgAejAJOBRPiEeiVw5kgZY5RoIMPiAM&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763377627
+Message: Manual refresh triggered
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T11:07:34.164Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=eb9b4a4be2ac9ed82738e8a9b5f4d62a37308c0a510d7197ca2928cab668d3f8&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzc3Njg3LCJuYmYiOjE3NjMzNzc2MjcsImlhdCI6MTc2MzM3NzYyNywianRpIjoiMDFjMzM1NmMtZTY5Zi00ODJhLTk4YWYtMzc1NWFjZGZiNjAwIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNzMyN2ViZjEyNDQ4YTljMzFhMGEwNGJmZDI0NDk1NTM3ZjVmZDgyMzBiM2U5OGVmN2RlNzM4NjEzYzllZjNhNCJ9.aiqgA15kbe0ZSgAejAJOBRPiEeiVw5kgZY5RoIMPiAM&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&status=enabled&timestamp=1763377627
+Message: Refresh completed
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T12:08:28.127Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=d2e2f262113ebde838957785cb62bd3b81672b28bd9f95118744c4a897627650&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzgxMzU4LCJuYmYiOjE3NjMzODEyOTgsImlhdCI6MTc2MzM4MTI5OCwianRpIjoiZDk2MzVjNTEtNGM0Mi00NzhiLTlhNDMtYTYxYmJlMmQ5N2U2Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNjNhYTY1Y2U5YjVlNzhmNjgzMGM1MTUxYjA1MjQwMmUxMzEwMDUyZGVhMDExMzcyZjEwMzA5MmViNTM1ZTU0OCJ9.YsPcfS5nwauLYBgsFr2Gcxl0Ry1e_odpXiCEdyE6BdI&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763381298
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T12:08:28.127Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=d2e2f262113ebde838957785cb62bd3b81672b28bd9f95118744c4a897627650&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzgxMzU4LCJuYmYiOjE3NjMzODEyOTgsImlhdCI6MTc2MzM4MTI5OCwianRpIjoiZDk2MzVjNTEtNGM0Mi00NzhiLTlhNDMtYTYxYmJlMmQ5N2U2Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNjNhYTY1Y2U5YjVlNzhmNjgzMGM1MTUxYjA1MjQwMmUxMzEwMDUyZGVhMDExMzcyZjEwMzA5MmViNTM1ZTU0OCJ9.YsPcfS5nwauLYBgsFr2Gcxl0Ry1e_odpXiCEdyE6BdI&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763381298
+Message: [COLLECTIONS_LIST] CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T12:08:28.121Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=d2e2f262113ebde838957785cb62bd3b81672b28bd9f95118744c4a897627650&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzgxMzU4LCJuYmYiOjE3NjMzODEyOTgsImlhdCI6MTc2MzM4MTI5OCwianRpIjoiZDk2MzVjNTEtNGM0Mi00NzhiLTlhNDMtYTYxYmJlMmQ5N2U2Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNjNhYTY1Y2U5YjVlNzhmNjgzMGM1MTUxYjA1MjQwMmUxMzEwMDUyZGVhMDExMzcyZjEwMzA5MmViNTM1ZTU0OCJ9.YsPcfS5nwauLYBgsFr2Gcxl0Ry1e_odpXiCEdyE6BdI&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763381298
+Message: [COLLECTIONS_LIST] CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T12:08:28.123Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=d2e2f262113ebde838957785cb62bd3b81672b28bd9f95118744c4a897627650&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzgxMzU4LCJuYmYiOjE3NjMzODEyOTgsImlhdCI6MTc2MzM4MTI5OCwianRpIjoiZDk2MzVjNTEtNGM0Mi00NzhiLTlhNDMtYTYxYmJlMmQ5N2U2Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNjNhYTY1Y2U5YjVlNzhmNjgzMGM1MTUxYjA1MjQwMmUxMzEwMDUyZGVhMDExMzcyZjEwMzA5MmViNTM1ZTU0OCJ9.YsPcfS5nwauLYBgsFr2Gcxl0Ry1e_odpXiCEdyE6BdI&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763381298
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/collections_list",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-17T12:14:44.618Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=d2e2f262113ebde838957785cb62bd3b81672b28bd9f95118744c4a897627650&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzgxMzU4LCJuYmYiOjE3NjMzODEyOTgsImlhdCI6MTc2MzM4MTI5OCwianRpIjoiZDk2MzVjNTEtNGM0Mi00NzhiLTlhNDMtYTYxYmJlMmQ5N2U2Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNjNhYTY1Y2U5YjVlNzhmNjgzMGM1MTUxYjA1MjQwMmUxMzEwMDUyZGVhMDExMzcyZjEwMzA5MmViNTM1ZTU0OCJ9.YsPcfS5nwauLYBgsFr2Gcxl0Ry1e_odpXiCEdyE6BdI&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763381298
+Message: [COLLECTIONS_LIST] Collections status filter changed
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "from": "all",
+  "to": "enabled"
+}
+----------------------------------------
+2025-11-17T12:14:47.866Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=d2e2f262113ebde838957785cb62bd3b81672b28bd9f95118744c4a897627650&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzgxMzU4LCJuYmYiOjE3NjMzODEyOTgsImlhdCI6MTc2MzM4MTI5OCwianRpIjoiZDk2MzVjNTEtNGM0Mi00NzhiLTlhNDMtYTYxYmJlMmQ5N2U2Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNjNhYTY1Y2U5YjVlNzhmNjgzMGM1MTUxYjA1MjQwMmUxMzEwMDUyZGVhMDExMzcyZjEwMzA5MmViNTM1ZTU0OCJ9.YsPcfS5nwauLYBgsFr2Gcxl0Ry1e_odpXiCEdyE6BdI&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763381298
+Message: [COLLECTIONS_LIST] Manual refresh triggered
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T12:14:49.368Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=d2e2f262113ebde838957785cb62bd3b81672b28bd9f95118744c4a897627650&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzgxMzU4LCJuYmYiOjE3NjMzODEyOTgsImlhdCI6MTc2MzM4MTI5OCwianRpIjoiZDk2MzVjNTEtNGM0Mi00NzhiLTlhNDMtYTYxYmJlMmQ5N2U2Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNjNhYTY1Y2U5YjVlNzhmNjgzMGM1MTUxYjA1MjQwMmUxMzEwMDUyZGVhMDExMzcyZjEwMzA5MmViNTM1ZTU0OCJ9.YsPcfS5nwauLYBgsFr2Gcxl0Ry1e_odpXiCEdyE6BdI&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763381298
+Message: [COLLECTIONS_LIST] Refresh completed
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-17T12:15:27.391Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: [COLLECTIONS_LIST] Navigate to collection settings clicked
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302365605947",
+  "title": "Watches"
+}
+----------------------------------------
+2025-11-17T12:15:45.043Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collection-sort/302365605947
+Message: TopNavbar navigation triggered
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "from": "/app/collection-sort/302365605947",
+  "to": "/app/collections_list",
+  "section": "RE-SORT APP",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0",
+  "timestamp": "2025-11-17T12:15:45.043Z"
+}
+----------------------------------------
+2025-11-17T12:15:48.430Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: [COLLECTIONS_LIST] CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-17T12:15:48.430Z [INFO] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list
+Message: [COLLECTIONS_LIST] CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------

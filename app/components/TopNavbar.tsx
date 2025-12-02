@@ -1,6 +1,8 @@
+//app/components/TopNavbar.tsx
 import React, { useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { Popover, ActionList } from "@shopify/polaris";
+import { AppLogger } from "../utils/logging";
 
 export function TopNavbar() {
   const navigate = useNavigate();
@@ -10,7 +12,7 @@ export function TopNavbar() {
 
   // Navigation items
   const navItems = [
-    { label: "Dashboard", path: "/app/collections_list", hasDropdown: false },
+    { label: "Dashboard", path: "/app", hasDropdown: false },
     { label: "Tags & Collection Manager", path: "/app/Tags-collection_Manager", hasDropdown: false },
     {
       label: "Statistics",
@@ -31,13 +33,21 @@ export function TopNavbar() {
 
   // Fast navigation handler
   const handleNavigation = useCallback((path: string) => {
+    AppLogger.info('TopNavbar navigation triggered', {
+      from: location.pathname,
+      to: path,
+      section: activeSection,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString()
+    });
+    
     navigate(path);
     setActiveMenu(null);
-  }, [navigate]);
+  }, [navigate, location.pathname, activeSection]);
 
-  // Check if item is active
+  // Check if item is active - FIXED THIS FUNCTION
   const isItemActive = useCallback((itemPath: string) => {
-    return location.pathname.startsWith(itemPath);
+    return location.pathname.startsWith(itemPath); // Changed from item.path to itemPath
   }, [location.pathname]);
 
   // Get item color based on state
@@ -53,6 +63,31 @@ export function TopNavbar() {
     if (hoveredItem === item.label || activeMenu === item.label) return 500;
     return 400;
   }, [isItemActive, hoveredItem, activeMenu]);
+
+  // Menu interaction logging
+  const handleMenuToggle = useCallback((menuLabel: string) => {
+    const isOpening = activeMenu !== menuLabel;
+    AppLogger.debug('TopNavbar menu toggled', {
+      menu: menuLabel,
+      action: isOpening ? 'opened' : 'closed',
+      currentPath: location.pathname,
+      timestamp: new Date().toISOString()
+    });
+    
+    setActiveMenu(isOpening ? menuLabel : null);
+  }, [activeMenu, location.pathname]);
+
+  // Hover logging for debugging
+  const handleHover = useCallback((itemLabel: string | null) => {
+    setHoveredItem(itemLabel);
+    if (itemLabel) {
+      AppLogger.debug('TopNavbar item hover', {
+        item: itemLabel,
+        currentPath: location.pathname,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, [location.pathname]);
 
   return (
     <div
@@ -89,10 +124,10 @@ export function TopNavbar() {
               activator={
                 <div
                   onClick={() => {
-                    setActiveMenu(activeMenu === item.label ? null : item.label);
+                    handleMenuToggle(item.label);
                   }}
-                  onMouseEnter={() => setHoveredItem(item.label)}
-                  onMouseLeave={() => setHoveredItem(null)}
+                  onMouseEnter={() => handleHover(item.label)}
+                  onMouseLeave={() => handleHover(null)}
                   style={{
                     color: getItemColor(item),
                     cursor: "pointer",
@@ -122,12 +157,27 @@ export function TopNavbar() {
                   </span>
                 </div>
               }
-              onClose={() => setActiveMenu(null)}
+              onClose={() => {
+                AppLogger.debug('TopNavbar popover closed', { 
+                  menu: item.label,
+                  timestamp: new Date().toISOString()
+                });
+                setActiveMenu(null);
+              }}
             >
               <ActionList
                 items={item.submenu?.map((sub) => ({
                   content: sub.content,
-                  onAction: () => handleNavigation(sub.path),
+                  onAction: () => {
+                    AppLogger.info('TopNavbar submenu navigation', {
+                      from: location.pathname,
+                      to: sub.path,
+                      submenu: sub.content,
+                      timestamp: new Date().toISOString(),
+                      userAgent: navigator.userAgent
+                    });
+                    handleNavigation(sub.path);
+                  },
                 }))}
               />
             </Popover>
@@ -135,8 +185,8 @@ export function TopNavbar() {
             <div
               key={item.path}
               onClick={() => handleNavigation(item.path)}
-              onMouseEnter={() => setHoveredItem(item.label)}
-              onMouseLeave={() => setHoveredItem(null)}
+              onMouseEnter={() => handleHover(item.label)}
+              onMouseLeave={() => handleHover(null)}
               style={{
                 color: getItemColor(item),
                 cursor: "pointer",

@@ -1,4 +1,3 @@
-// app/routes/app.Bestsellers.tsx
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -20,6 +19,7 @@ import {
 import { useLoaderData, useSubmit, useNavigate, type LoaderFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
 import { SearchIcon } from '@shopify/polaris-icons';
+import { AppLogger } from "../utils/logging";
 
 interface BestsellerProduct {
   id: string;
@@ -225,7 +225,11 @@ const getDateRangeQuery = (months: number): string => {
   const startDateStr = formatDate(startDate);
   const endDateStr = formatDate(endDate);
   
-  console.log(`🗓️ Date range: ${startDateStr} to ${endDateStr}`);
+  AppLogger.debug('Date range calculated', {
+    months,
+    startDate: startDateStr,
+    endDate: endDateStr
+  });
   
   // Use created_at consistently for all queries and properly format the query string
   return `financial_status:paid AND created_at:>=${startDateStr} AND created_at:<${endDateStr}`;
@@ -234,19 +238,23 @@ const getDateRangeQuery = (months: number): string => {
 // Function to fetch ALL sales data from orders with pagination
 async function fetchSalesData(admin: any, months: number): Promise<Map<string, SalesData>> {
   try {
-    console.log(`🛒 Fetching sales data for last ${months} months`);
+    AppLogger.info('Starting sales data fetch', { months });
     
     const salesMap = new Map<string, SalesData>();
     const dateQuery = getDateRangeQuery(months);
-    console.log(`🔍 Query string: ${dateQuery}`);
     
     let hasNextPage = true;
     let after: string | null = null;
     let totalOrders = 0;
+    let pageCount = 0;
 
     // Fetch all orders with pagination
     while (hasNextPage) {
-      console.log(`📄 Fetching orders page with cursor: ${after || 'none'}`);
+      pageCount++;
+      AppLogger.debug('Fetching orders batch', {
+        page: pageCount,
+        after: after ? 'yes' : 'no'
+      });
       
       const response = await admin.graphql(GET_ORDERS_WITH_PRODUCTS, {
         variables: {
@@ -256,23 +264,26 @@ async function fetchSalesData(admin: any, months: number): Promise<Map<string, S
         }
       });
       
-      // Add proper type annotation for the response
+      // Add proper type annotation for response
       const data: GraphQLResponse<OrdersResponse> = await response.json();
       
       if (data.errors) {
-        console.error('❌ GraphQL errors in orders query:', data.errors);
+        AppLogger.error('GraphQL errors in orders query', { errors: data.errors });
         break;
       }
 
       if (!data.data?.orders?.edges) {
-        console.log('📦 No orders found for the period');
+        AppLogger.warn('No orders found for period', { months });
         break;
       }
 
       const orders = data.data.orders.edges;
       totalOrders += orders.length;
       
-      console.log(`📊 Processing ${orders.length} orders (total: ${totalOrders})...`);
+      AppLogger.debug('Processing orders batch', {
+        batchSize: orders.length,
+        totalOrders
+      });
 
       // Process each order and its line items
       orders.forEach((order: OrderNode) => {
@@ -284,21 +295,17 @@ async function fetchSalesData(admin: any, months: number): Promise<Map<string, S
               // Use originalTotalSet as it's the correct field in the API
               const revenue = parseFloat(lineItem.node.originalTotalSet.shopMoney.amount) || 0;
               
-              console.log(`📦 Processing product ${productId}: ${quantity} units, $${revenue}`);
-              
               if (salesMap.has(productId)) {
                 const existing = salesMap.get(productId)!;
                 salesMap.set(productId, {
                   sales: existing.sales + quantity,
                   revenue: existing.revenue + revenue
                 });
-                console.log(`📈 Updated product ${productId}: ${existing.sales + quantity} units, $${existing.revenue + revenue}`);
               } else {
                 salesMap.set(productId, {
                   sales: quantity,
                   revenue: revenue
                 });
-                console.log(`🆕 Added product ${productId}: ${quantity} units, $${revenue}`);
               }
             }
           });
@@ -310,24 +317,20 @@ async function fetchSalesData(admin: any, months: number): Promise<Map<string, S
       after = data.data.orders.pageInfo?.endCursor || null;
       
       if (hasNextPage) {
-        console.log('🔄 Fetching next page of orders...');
+        AppLogger.debug('Fetching next orders page');
       }
     }
     
-    console.log(`✅ Processed ${totalOrders} orders, found ${salesMap.size} products with sales`);
-    
-    // Log all products with sales
-    if (salesMap.size > 0) {
-      console.log('📊 Products with sales:');
-      salesMap.forEach((data, productId) => {
-        console.log(`   Product: ${productId}, Sales: ${data.sales}, Revenue: $${data.revenue}`);
-      });
-    }
+    AppLogger.info('Sales data fetch completed', {
+      totalOrders,
+      productsWithSales: salesMap.size,
+      months
+    });
     
     return salesMap;
     
   } catch (error) {
-    console.error('💥 Error fetching sales data:', error);
+    AppLogger.error('Error fetching sales data', error, { months });
     return new Map();
   }
 }
@@ -335,7 +338,7 @@ async function fetchSalesData(admin: any, months: number): Promise<Map<string, S
 // FIXED: Function to fetch today's orders specifically
 async function fetchTodaysOrders(admin: any): Promise<Map<string, SalesData>> {
   try {
-    console.log('🕒 Fetching today\'s orders...');
+    AppLogger.info('Fetching today\'s orders');
     
     const salesMap = new Map<string, SalesData>();
     
@@ -357,18 +360,21 @@ async function fetchTodaysOrders(admin: any): Promise<Map<string, SalesData>> {
     // Use created_at for consistency with historical data and properly format the query string
     const todaysOrdersQuery = `financial_status:paid AND created_at:>=${todayFormatted} AND created_at:<${tomorrowFormatted}`;
     
-    console.log('📅 Today\'s date range:', {
+    AppLogger.debug('Today\'s date range', {
       today: todayFormatted,
-      tomorrow: tomorrowFormatted,
-      query: todaysOrdersQuery
+      tomorrow: tomorrowFormatted
     });
     
     let hasNextPage = true;
     let after: string | null = null;
     let totalOrders = 0;
+    let pageCount = 0;
 
     // Fetch all of today's orders with pagination
     while (hasNextPage) {
+      pageCount++;
+      AppLogger.debug('Fetching today\'s orders batch', { page: pageCount });
+
       const response = await admin.graphql(GET_ORDERS_WITH_PRODUCTS, {
         variables: {
           first: 100,
@@ -377,23 +383,26 @@ async function fetchTodaysOrders(admin: any): Promise<Map<string, SalesData>> {
         }
       });
       
-      // Add proper type annotation for the response
+      // Add proper type annotation for response
       const data: GraphQLResponse<OrdersResponse> = await response.json();
       
       if (data.errors) {
-        console.error('❌ GraphQL errors in today\'s orders query:', data.errors);
+        AppLogger.error('GraphQL errors in today\'s orders query', { errors: data.errors });
         break;
       }
 
       if (!data.data?.orders?.edges) {
-        console.log('📦 No orders found for today');
+        AppLogger.info('No orders found for today');
         break;
       }
 
       const orders = data.data.orders.edges;
       totalOrders += orders.length;
       
-      console.log(`📊 Processing ${orders.length} today's orders...`);
+      AppLogger.debug('Processing today\'s orders batch', {
+        batchSize: orders.length,
+        totalOrders
+      });
 
       // Process each order and its line items
       orders.forEach((order: OrderNode) => {
@@ -404,9 +413,6 @@ async function fetchTodaysOrders(admin: any): Promise<Map<string, SalesData>> {
               const quantity = lineItem.node.quantity || 0;
               // Use originalTotalSet as it's the correct field in the API
               const revenue = parseFloat(lineItem.node.originalTotalSet.shopMoney.amount) || 0;
-              
-              // Debug log today's orders
-              console.log(`🆕 Today's order - Product: ${productId}, Qty: ${quantity}, Revenue: $${revenue}`);
               
               if (salesMap.has(productId)) {
                 const existing = salesMap.get(productId)!;
@@ -430,29 +436,19 @@ async function fetchTodaysOrders(admin: any): Promise<Map<string, SalesData>> {
       after = data.data.orders.pageInfo?.endCursor || null;
       
       if (hasNextPage) {
-        console.log('🔄 Fetching next page of today\'s orders...');
+        AppLogger.debug('Fetching next page of today\'s orders');
       }
     }
     
-    console.log(`✅ Processed ${totalOrders} today's orders, found ${salesMap.size} products with sales`);
-    
-    // Log specific details about today's orders
-    if (salesMap.size > 0) {
-      console.log('🎯 TODAY\'S ORDERS DETAILS:');
-      salesMap.forEach((salesData, productId) => {
-        console.log(`   Product: ${productId}, Sales: ${salesData.sales}, Revenue: $${salesData.revenue}`);
-      });
-    } else {
-      console.log('❌ No today\'s orders found - this might be due to:');
-      console.log('   - No orders placed today');
-      console.log('   - Timezone differences');
-      console.log('   - Order processing delays');
-    }
+    AppLogger.info('Today\'s orders fetch completed', {
+      totalOrders,
+      productsWithSales: salesMap.size
+    });
     
     return salesMap;
     
   } catch (error) {
-    console.error('💥 Error fetching today\'s orders:', error);
+    AppLogger.error('Error fetching today\'s orders', error);
     return new Map();
   }
 }
@@ -460,7 +456,7 @@ async function fetchTodaysOrders(admin: any): Promise<Map<string, SalesData>> {
 // NEW: Function to fetch yesterday's orders
 async function fetchYesterdaysOrders(admin: any): Promise<Map<string, SalesData>> {
   try {
-    console.log('🕒 Fetching yesterday\'s orders...');
+    AppLogger.info('Fetching yesterday\'s orders');
     
     const salesMap = new Map<string, SalesData>();
     
@@ -483,18 +479,21 @@ async function fetchYesterdaysOrders(admin: any): Promise<Map<string, SalesData>
     // Use created_at for consistency with historical data and properly format the query string
     const yesterdaysOrdersQuery = `financial_status:paid AND created_at:>=${yesterdayFormatted} AND created_at:<${todayFormatted}`;
     
-    console.log('📅 Yesterday\'s date range:', {
+    AppLogger.debug('Yesterday\'s date range', {
       yesterday: yesterdayFormatted,
-      today: todayFormatted,
-      query: yesterdaysOrdersQuery
+      today: todayFormatted
     });
     
     let hasNextPage = true;
     let after: string | null = null;
     let totalOrders = 0;
+    let pageCount = 0;
 
     // Fetch all of yesterday's orders with pagination
     while (hasNextPage) {
+      pageCount++;
+      AppLogger.debug('Fetching yesterday\'s orders batch', { page: pageCount });
+
       const response = await admin.graphql(GET_ORDERS_WITH_PRODUCTS, {
         variables: {
           first: 100,
@@ -503,23 +502,26 @@ async function fetchYesterdaysOrders(admin: any): Promise<Map<string, SalesData>
         }
       });
       
-      // Add proper type annotation for the response
+      // Add proper type annotation for response
       const data: GraphQLResponse<OrdersResponse> = await response.json();
       
       if (data.errors) {
-        console.error('❌ GraphQL errors in yesterday\'s orders query:', data.errors);
+        AppLogger.error('GraphQL errors in yesterday\'s orders query', { errors: data.errors });
         break;
       }
 
       if (!data.data?.orders?.edges) {
-        console.log('📦 No orders found for yesterday');
+        AppLogger.info('No orders found for yesterday');
         break;
       }
 
       const orders = data.data.orders.edges;
       totalOrders += orders.length;
       
-      console.log(`📊 Processing ${orders.length} yesterday's orders...`);
+      AppLogger.debug('Processing yesterday\'s orders batch', {
+        batchSize: orders.length,
+        totalOrders
+      });
 
       // Process each order and its line items
       orders.forEach((order: OrderNode) => {
@@ -530,9 +532,6 @@ async function fetchYesterdaysOrders(admin: any): Promise<Map<string, SalesData>
               const quantity = lineItem.node.quantity || 0;
               // Use originalTotalSet as it's the correct field in the API
               const revenue = parseFloat(lineItem.node.originalTotalSet.shopMoney.amount) || 0;
-              
-              // Debug log yesterday's orders
-              console.log(`📅 Yesterday\'s order - Product: ${productId}, Qty: ${quantity}, Revenue: $${revenue}`);
               
               if (salesMap.has(productId)) {
                 const existing = salesMap.get(productId)!;
@@ -556,24 +555,19 @@ async function fetchYesterdaysOrders(admin: any): Promise<Map<string, SalesData>
       after = data.data.orders.pageInfo?.endCursor || null;
       
       if (hasNextPage) {
-        console.log('🔄 Fetching next page of yesterday\'s orders...');
+        AppLogger.debug('Fetching next page of yesterday\'s orders');
       }
     }
     
-    console.log(`✅ Processed ${totalOrders} yesterday's orders, found ${salesMap.size} products with sales`);
-    
-    // Log specific details about yesterday's orders
-    if (salesMap.size > 0) {
-      console.log('🎯 YESTERDAY\'S ORDERS DETAILS:');
-      salesMap.forEach((salesData, productId) => {
-        console.log(`   Product: ${productId}, Sales: ${salesData.sales}, Revenue: $${salesData.revenue}`);
-      });
-    }
+    AppLogger.info('Yesterday\'s orders fetch completed', {
+      totalOrders,
+      productsWithSales: salesMap.size
+    });
     
     return salesMap;
     
   } catch (error) {
-    console.error('💥 Error fetching yesterday\'s orders:', error);
+    AppLogger.error('Error fetching yesterday\'s orders', error);
     return new Map();
   }
 }
@@ -586,7 +580,7 @@ async function fetchProductsWithPagination(admin: any, first: number, after: str
   startCursor: string | null;
 }> {
   try {
-    console.log(`🔍 Fetching ${first} products${after ? ' with cursor' : ''}`);
+    AppLogger.debug('Fetching products with pagination', { first, after: after ? 'yes' : 'no' });
     
     const response = await admin.graphql(GET_ALL_PRODUCTS, {
       variables: {
@@ -595,7 +589,7 @@ async function fetchProductsWithPagination(admin: any, first: number, after: str
       }
     });
     
-    // Add proper type annotation for the response
+    // Add proper type annotation for response
     const data: GraphQLResponse<{
       products: {
         edges: Array<{ node: ProductNode }>;
@@ -609,19 +603,22 @@ async function fetchProductsWithPagination(admin: any, first: number, after: str
     }> = await response.json();
     
     if (data.errors) {
-      console.error('❌ GraphQL errors in products query:', data.errors);
+      AppLogger.error('GraphQL errors in products query', { errors: data.errors });
       return { products: [], hasNextPage: false, endCursor: null, startCursor: null };
     }
 
     if (!data.data?.products?.edges) {
-      console.log('📦 No products found');
+      AppLogger.warn('No products found in pagination query');
       return { products: [], hasNextPage: false, endCursor: null, startCursor: null };
     }
 
     const products = data.data.products.edges.map(edge => edge.node);
     const pageInfo = data.data.products.pageInfo;
     
-    console.log(`✅ Found ${products.length} products, hasNextPage: ${pageInfo.hasNextPage}`);
+    AppLogger.debug('Products pagination result', {
+      productsCount: products.length,
+      hasNextPage: pageInfo.hasNextPage
+    });
     
     return {
       products,
@@ -631,7 +628,7 @@ async function fetchProductsWithPagination(admin: any, first: number, after: str
     };
     
   } catch (error) {
-    console.error('💥 Error fetching products with pagination:', error);
+    AppLogger.error('Error fetching products with pagination', error, { first, after });
     return { products: [], hasNextPage: false, endCursor: null, startCursor: null };
   }
 }
@@ -647,18 +644,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const searchQuery = url.searchParams.get("search") || "";
   const after = url.searchParams.get("after") || null;
 
-  console.log("🚀 Starting Bestsellers loader with server-side pagination for 10,000+ products");
-  console.log("📊 Parameters:", {
+  AppLogger.info('Bestsellers loader started', {
     selectedMonth,
     productsCount,
     page,
     searchQuery,
-    after
+    after: after ? 'yes' : 'no'
   });
 
   try {
-    // STEP 1: Fetch sales data based on the selected period
-    console.log("🔄 Fetching sales data...");
+    // STEP 1: Fetch sales data based on selected period
+    AppLogger.info('Fetching sales data for period', { selectedMonth });
     
     let salesData: Map<string, SalesData>;
     
@@ -671,11 +667,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       salesData = await fetchSalesData(admin, selectedMonth);
     }
     
-    console.log(`📈 Sales data: ${salesData.size} products`);
+    AppLogger.info('Sales data fetch completed', {
+      productsWithSales: salesData.size,
+      period: selectedMonth
+    });
     
     // If no sales data, return early
     if (salesData.size === 0) {
-      console.log('❌ No sales data found, returning empty results');
+      AppLogger.warn('No sales data found for period', { selectedMonth });
       return {
         bestsellers: [],
         totalProducts: 0,
@@ -689,7 +688,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
 
     // STEP 2: Create a sorted list of product IDs based on sales
-    console.log("🔍 Creating sorted list of products by sales...");
+    AppLogger.info('Creating sorted product list by sales');
     
     // Create an array of products with sales data
     const productsWithSalesData: Array<{
@@ -709,13 +708,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     // Sort by sales (highest first)
     productsWithSalesData.sort((a, b) => b.sales - a.sales);
     
-    console.log(`📊 Total products with sales: ${productsWithSalesData.length}`);
+    AppLogger.info('Products sorted by sales', {
+      totalProductsWithSales: productsWithSalesData.length,
+      topSales: productsWithSalesData.slice(0, 3).map(p => ({ id: p.id, sales: p.sales }))
+    });
     
-    // Apply search filter if provided to the sorted list
+    // Apply search filter if provided to sorted list
     let filteredProductIds = productsWithSalesData;
     if (searchQuery) {
       // For search, we need to fetch product titles to match
-      console.log(`🔍 Applying search filter for "${searchQuery}"...`);
+      AppLogger.info('Applying search filter', { searchQuery });
       
       // We'll need to fetch all products to check titles, but we'll do it in batches
       const matchedProductIds: Array<{
@@ -727,9 +729,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       let productsAfter: string | null = null;
       let hasMoreProducts = true;
       let totalProductsFetched = 0;
+      let batchCount = 0;
       
       // Fetch all products in batches to find matches
       while (hasMoreProducts) {
+        batchCount++;
         const { products, hasNextPage, endCursor } = await fetchProductsWithPagination(
           admin, 
           250, // Fetch in batches of 250
@@ -738,7 +742,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         
         totalProductsFetched += products.length;
         
-        // Filter products that have sales and match the search query
+        // Filter products that have sales and match search query
         products.forEach(product => {
           // Fixed: Use a different variable name to avoid conflict with Map
           const productSalesData = salesData.get(product.id);
@@ -756,29 +760,46 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         hasMoreProducts = hasNextPage && endCursor !== null;
         productsAfter = endCursor;
         
-        console.log(`📦 Batch: ${products.length} products checked, ${matchedProductIds.length} match search`);
+        AppLogger.debug('Search batch processed', {
+          batch: batchCount,
+          productsChecked: products.length,
+          matchesFound: matchedProductIds.length,
+          totalProductsFetched
+        });
       }
       
-      // Sort the matched products by sales
+      // Sort matched products by sales
       matchedProductIds.sort((a, b) => b.sales - a.sales);
       filteredProductIds = matchedProductIds;
       
-      console.log(`🔍 After search filter: ${filteredProductIds.length} products match "${searchQuery}"`);
+      AppLogger.info('Search filter applied', {
+        searchQuery,
+        beforeSearch: productsWithSalesData.length,
+        afterSearch: filteredProductIds.length
+      });
     }
     
     // Calculate total products for pagination
     const totalProductsCount = filteredProductIds.length;
     
-    // Apply pagination to the sorted list
+    // Apply pagination to sorted list
     const startIndex = (page - 1) * productsCount;
     const endIndex = startIndex + productsCount;
     const paginatedProductIds = filteredProductIds.slice(startIndex, endIndex);
     
-    console.log(`📄 Fetching product details for page ${page} (${startIndex + 1}-${endIndex})`);
+    AppLogger.info('Applying pagination', {
+      page,
+      productsCount,
+      startIndex,
+      endIndex,
+      paginatedProducts: paginatedProductIds.length
+    });
     
-    // STEP 3: Fetch the actual product details for the current page
+    // STEP 3: Fetch actual product details for current page
     const productIds = paginatedProductIds.map(p => p.id);
     const productDetails = new Map<string, ProductNode>();
+    
+    AppLogger.info('Fetching product details', { productIdsCount: productIds.length });
     
     // Fetch products in batches to handle API limits
     for (let i = 0; i < productIds.length; i += 50) {
@@ -826,7 +847,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       const data: GraphQLResponse<{ nodes: (ProductNode | null)[] }> = await response.json();
       
       if (data.errors) {
-        console.error('❌ GraphQL errors in products by IDs query:', data.errors);
+        AppLogger.error('GraphQL errors in products by IDs query', {
+          errors: data.errors,
+          batch: Math.floor(i / 50) + 1
+        });
         continue;
       }
       
@@ -837,18 +861,26 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           }
         });
       }
+      
+      AppLogger.debug('Product details batch fetched', {
+        batch: Math.floor(i / 50) + 1,
+        productsFetched: data.data?.nodes?.length || 0
+      });
     }
     
-    console.log(`📦 Fetched details for ${productDetails.size} products`);
+    AppLogger.info('Product details fetch completed', {
+      totalDetailsFetched: productDetails.size,
+      expected: productIds.length
+    });
     
-    // STEP 4: Transform the products with sales data
+    // STEP 4: Transform products with sales data
     const bestsellers: BestsellerProduct[] = [];
     
     paginatedProductIds.forEach((productData, index) => {
       const productDetail = productDetails.get(productData.id);
       
       if (!productDetail) {
-        console.warn(`⚠️ Product details not found for ID: ${productData.id}`);
+        AppLogger.warn('Product details not found', { productId: productData.id });
         return;
       }
       
@@ -901,8 +933,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       bestsellers.push(bestsellerProduct);
     });
 
-    console.log(`✅ Final results: ${bestsellers.length} products on page ${page}`);
-    console.log(`💰 Total products with sales: ${totalProductsCount}`);
+    AppLogger.info('Bestsellers transformation completed', {
+      bestsellersCount: bestsellers.length,
+      page,
+      totalProducts: totalProductsCount
+    });
     
     // Calculate pagination info
     const hasPreviousPage = page > 1;
@@ -913,14 +948,22 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     let prevCursor = null;
     
     if (hasNextPage && bestsellers.length > 0) {
-      // For next page, we'll use the position-based approach
+      // For next page, we'll use position-based approach
       nextCursor = (page + 1).toString();
     }
     
     if (hasPreviousPage) {
-      // For previous page, we'll use the position-based approach
+      // For previous page, we'll use position-based approach
       prevCursor = (page - 1).toString();
     }
+
+    AppLogger.info('Bestsellers loader completed successfully', {
+      bestsellersReturned: bestsellers.length,
+      totalProducts: totalProductsCount,
+      currentPage: page,
+      hasNextPage,
+      hasPreviousPage
+    });
 
     return {
       bestsellers,
@@ -936,7 +979,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     };
 
   } catch (error: any) {
-    console.error('💥 Error in Bestsellers loader:', error);
+    AppLogger.error('Error in Bestsellers loader', error, {
+      selectedMonth,
+      productsCount,
+      page,
+      searchQuery
+    });
     return { 
       bestsellers: [], 
       totalProducts: 0,
@@ -972,6 +1020,16 @@ export default function BestsellersPage() {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [currentPage, setCurrentPage] = useState(initialPage);
 
+  // ADD COMPONENT MOUNT LOGGING
+  useEffect(() => {
+    AppLogger.info('BestsellersPage component mounted', {
+      initialBestsellers: bestsellers.length,
+      initialMonth,
+      initialPage,
+      initialSearch
+    });
+  }, []);
+
   // UPDATED: Month options with shorter periods for testing
   const monthOptions = [
     { label: 'Today only', value: '0' },
@@ -985,6 +1043,10 @@ export default function BestsellersPage() {
 
   // Handle month period change
   const handleMonthChange = (value: string) => {
+    AppLogger.info('Month period changed', {
+      from: selectedMonth,
+      to: value
+    });
     setSelectedMonth(value);
     
     const params = new URLSearchParams(window.location.search);
@@ -997,6 +1059,10 @@ export default function BestsellersPage() {
   // Handle count change
   const handleCountChange = (value: string) => {
     const newCount = parseInt(value);
+    AppLogger.info('Products per page changed', {
+      from: productsCount,
+      to: newCount
+    });
     setProductsCount(newCount);
     
     const params = new URLSearchParams(window.location.search);
@@ -1008,6 +1074,10 @@ export default function BestsellersPage() {
 
   // Handle page change
   const handlePageChange = (page: number) => {
+    AppLogger.info('Page changed', {
+      from: currentPage,
+      to: page
+    });
     setCurrentPage(page);
     
     const params = new URLSearchParams(window.location.search);
@@ -1021,6 +1091,10 @@ export default function BestsellersPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchQuery !== initialSearch) {
+        AppLogger.info('Search query executed', {
+          searchQuery,
+          previousSearch: initialSearch
+        });
         const params = new URLSearchParams(window.location.search);
         if (searchQuery) {
           params.set("search", searchQuery);
@@ -1106,7 +1180,10 @@ export default function BestsellersPage() {
                       autoComplete="off"
                       prefix={<Icon source={SearchIcon} />}
                       clearButton
-                      onClearButtonClick={() => setSearchQuery('')}
+                      onClearButtonClick={() => {
+                        AppLogger.info('Search cleared');
+                        setSearchQuery('');
+                      }}
                     />
                   </div>
                   
@@ -1205,7 +1282,7 @@ export default function BestsellersPage() {
                 </Text>
                 <Text as="p" tone="subdued" variant="bodySm">
                   <strong>Note:</strong> Only products with actual sales in the selected period are shown.
-                  Products are ranked by number of units sold (highest first).
+                  Products are ranked by the number of units sold (highest first).
                 </Text>
                 <InlineStack gap="400">
                   <Text as="p" variant="bodySm" fontWeight="medium">
@@ -1294,7 +1371,10 @@ export default function BestsellersPage() {
                   </Box>
                   {searchQuery && (
                     <Box paddingBlockStart="200">
-                      <Button onClick={() => setSearchQuery('')}>
+                      <Button onClick={() => {
+                        AppLogger.info('Clear search clicked from empty state');
+                        setSearchQuery('');
+                      }}>
                         Clear search
                       </Button>
                     </Box>

@@ -1,6 +1,6 @@
 // app/routes/app.collections_list.tsx
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
-import { useLoaderData, useNavigate, useSubmit, useFetcher } from "react-router";
+import { useLoaderData, useNavigate, useSubmit, useFetcher, useNavigation } from "react-router";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import prisma from "../db.server";
 import {
@@ -24,6 +24,7 @@ import {
   Badge,
   Listbox,
   AutoSelection,
+  Spinner,
 } from "@shopify/polaris";
 import {
   ViewIcon,
@@ -33,6 +34,7 @@ import {
   SearchIcon,
 } from "@shopify/polaris-icons";
 import { authenticate } from "../shopify.server";
+import { AppLogger } from "../utils/logging";
 
 // --- Types ---
 interface Collection {
@@ -126,7 +128,7 @@ const CustomToggle = ({ checked, onChange, id }: {
 
 // --- OPTIMIZED: Helper function to fetch up to 2500 collections ---
 async function fetchAllCollections(admin: any, searchQuery: string = '') {
-  console.log(`🔄 Fetching collections with search: "${searchQuery}"`);
+  AppLogger.info('[COLLECTIONS_LIST] Fetching collections from Shopify', { searchQuery });
   
   let allCollections: any[] = [];
   let hasNextPage = true;
@@ -172,16 +174,21 @@ async function fetchAllCollections(admin: any, searchQuery: string = '') {
         variables.query = `title:${searchQuery}*`;
       }
 
+      AppLogger.debug('[COLLECTIONS_LIST] Fetching collections batch', {
+        batch: batchCount,
+        afterCursor: afterCursor ? 'yes' : 'no'
+      });
+
       const response = await admin.graphql(graphqlQuery, { variables });
       const shopifyData: ShopifyCollectionResponse = await response.json();
       
       if (shopifyData.errors) {
-        console.error("🚨 GraphQL Errors:", shopifyData.errors);
+        AppLogger.error('[COLLECTIONS_LIST] GraphQL errors in collections query', { errors: shopifyData.errors });
         throw new Error(`GraphQL Error: ${shopifyData.errors[0]?.message || 'Unknown error'}`);
       }
       
       if (!shopifyData.data?.collections?.edges) {
-        console.error("❌ Invalid response from Shopify API");
+        AppLogger.error('[COLLECTIONS_LIST] Invalid response from Shopify API');
         break;
       }
 
@@ -194,11 +201,15 @@ async function fetchAllCollections(admin: any, searchQuery: string = '') {
       hasNextPage = collectionsData.pageInfo?.hasNextPage || false;
       afterCursor = collectionsData.pageInfo?.endCursor || null;
 
-      console.log(`📦 Batch ${batchCount}: Fetched ${collections.length} collections. Total: ${allCollections.length}`);
+      AppLogger.debug('[COLLECTIONS_LIST] Collections batch processed', {
+        batch: batchCount,
+        collectionsInBatch: collections.length,
+        totalCollections: allCollections.length
+      });
       
       // Stop when we reach 2500 collections for optimal performance
       if (allCollections.length >= MAX_COLLECTIONS) {
-        console.log(`✅ Reached ${MAX_COLLECTIONS} collections limit for optimal performance`);
+        AppLogger.info('[COLLECTIONS_LIST] Reached maximum collections limit', { maxCollections: MAX_COLLECTIONS });
         break;
       }
 
@@ -207,11 +218,11 @@ async function fetchAllCollections(admin: any, searchQuery: string = '') {
       }
     }
 
-    console.log(`✅ Successfully fetched ${allCollections.length} total collections`);
+    AppLogger.info('[COLLECTIONS_LIST] Collections fetch completed', { totalCollections: allCollections.length });
     return allCollections;
     
   } catch (error) {
-    console.error("❌ GraphQL request failed:", error);
+    AppLogger.error('[COLLECTIONS_LIST] GraphQL request failed for collections', error, { searchQuery });
     throw error;
   }
 }
@@ -219,7 +230,7 @@ async function fetchAllCollections(admin: any, searchQuery: string = '') {
 // --- OPTIMIZED LOADER: Fetch up to 2500 collections ---
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    console.log("🚀 === COLLECTIONS LOADER STARTED ===");
+    AppLogger.info("[COLLECTIONS_LIST] Collections loader started");
     const { admin, session } = await authenticate.admin(request);
     const shopifyDomain = session.shop;
 
@@ -228,14 +239,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const searchQuery = url.searchParams.get('search') || '';
     const statusFilter = url.searchParams.get('status') || 'all';
 
-    console.log("📋 LOADER PARAMETERS:", {
+    AppLogger.info("[COLLECTIONS_LIST] Loader parameters", {
       search: searchQuery,
       status: statusFilter,
+      shopifyDomain
     });
 
     // Fetch collections from Shopify (up to 2500)
     const shopifyCollections = await fetchAllCollections(admin, searchQuery);
-    console.log(`📦 Raw Shopify collections: ${shopifyCollections.length}`);
+    AppLogger.info(`[COLLECTIONS_LIST] Raw Shopify collections loaded`, { count: shopifyCollections.length });
 
     // Fetch enabled collections from our database - OPTIMIZED with chunking
     let enabledCollections: AppCollection[] = [];
@@ -248,6 +260,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
         collectionIdChunks.push(shopifyCollections.slice(i, i + chunkSize).map((col: any) => col.id));
       }
 
+      AppLogger.info('[COLLECTIONS_LIST] Fetching enabled collections from database in chunks', {
+        chunks: collectionIdChunks.length,
+        chunkSize
+      });
+
       for (const chunk of collectionIdChunks) {
         const chunkResults = await prisma.appCollection.findMany({
           where: { 
@@ -259,7 +276,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         enabledCollections = [...enabledCollections, ...chunkResults];
       }
       
-      console.log(`🔧 Found ${enabledCollections.length} enabled collections in database`);
+      AppLogger.info(`[COLLECTIONS_LIST] Enabled collections found in database`, { count: enabledCollections.length });
     }
 
     // Create a map of collectionId -> enabled status
@@ -274,23 +291,25 @@ export async function loader({ request }: LoaderFunctionArgs) {
       enabled: collectionStatusMap.get(collection.id) || false,
     }));
 
-    console.log(`🎯 Applied enabled status to ${collectionsWithStatus.length} collections`);
+    AppLogger.info(`[COLLECTIONS_LIST] Applied enabled status to collections`, { count: collectionsWithStatus.length });
 
     // Apply status filter if provided
     if (statusFilter !== "all") {
       const filterEnabled = statusFilter === "enabled";
       const beforeFilterCount = collectionsWithStatus.length;
       collectionsWithStatus = collectionsWithStatus.filter((collection: Collection) => collection.enabled === filterEnabled);
-      console.log(`🔍 Status filter "${statusFilter}": ${beforeFilterCount} -> ${collectionsWithStatus.length} collections`);
+      AppLogger.info(`[COLLECTIONS_LIST] Status filter applied`, {
+        statusFilter,
+        beforeFilter: beforeFilterCount,
+        afterFilter: collectionsWithStatus.length
+      });
     }
 
-    console.log("📊 FINAL LOADER RESULTS:", {
+    AppLogger.info("[COLLECTIONS_LIST] Loader completed successfully", {
       collectionsCount: collectionsWithStatus.length,
       searchQuery,
       statusFilter
     });
-    
-    console.log("✅ === LOADER COMPLETED ===\n");
     
     return { 
       collections: collectionsWithStatus, 
@@ -300,7 +319,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       statusFilter: statusFilter !== 'all' ? statusFilter : undefined,
     };
   } catch (error) {
-    console.error("💥 LOADER FAILED:", error);
+    AppLogger.error("[COLLECTIONS_LIST] Collections loader failed", error);
     
     return { 
       collections: [], 
@@ -312,7 +331,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 // --- ACTION: Server-side data mutation - OPTIMIZED for speed ---
 export async function action({ request }: ActionFunctionArgs) {
-  console.log("🔄 ACTION FUNCTION CALLED - Processing toggle request");
+  AppLogger.info("[COLLECTIONS_LIST] Collections action function called");
   
   try {
     const { session } = await authenticate.admin(request);
@@ -321,14 +340,14 @@ export async function action({ request }: ActionFunctionArgs) {
     const collectionId = formData.get("id") as string;
     const enabled = formData.get("enabled") === "true";
 
-    console.log("📥 Action received data:", { 
+    AppLogger.info("[COLLECTIONS_LIST] Action received data", {
       shopifyDomain, 
       collectionId, 
       enabled
     });
 
     if (!collectionId) {
-      console.error("❌ Collection ID is required");
+      AppLogger.error("[COLLECTIONS_LIST] Collection ID is required in action");
       return new Response(JSON.stringify({ 
         success: false, 
         error: "Collection ID is required" 
@@ -352,7 +371,11 @@ export async function action({ request }: ActionFunctionArgs) {
         }
       });
       
-      console.log('✅ Database operation successful. AppCollection ID:', result.id);
+      AppLogger.info('[COLLECTIONS_LIST] Database operation successful', {
+        appCollectionId: result.id,
+        collectionId: result.collectionId,
+        enabled: result.enabled
+      });
 
       return new Response(JSON.stringify({ 
         success: true,
@@ -371,7 +394,7 @@ export async function action({ request }: ActionFunctionArgs) {
       });
 
     } catch (error) {
-      console.error('❌ Database operation failed:', error);
+      AppLogger.error('[COLLECTIONS_LIST] Database operation failed in action', error, { collectionId, enabled });
       return new Response(JSON.stringify({ 
         success: false, 
         error: 'Failed to update collection in database: ' + (error instanceof Error ? error.message : 'Unknown error')
@@ -382,7 +405,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
   } catch (error) {
-    console.error("❌ Action failed:", error);
+    AppLogger.error("[COLLECTIONS_LIST] Collections action failed", error);
     return new Response(JSON.stringify({ 
       success: false, 
       error: error instanceof Error ? error.message : "Failed to update collection" 
@@ -402,7 +425,12 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const handleError = (error: ErrorEvent) => {
-      console.error('🔴 Global error caught:', error);
+      AppLogger.error('[COLLECTIONS_LIST] Global error caught in Collections error boundary', {
+        error: error.error?.message,
+        filename: error.filename,
+        lineno: error.lineno,
+        colno: error.colno
+      });
       setHasError(true);
     };
 
@@ -422,6 +450,36 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
   }
 
   return <>{children}</>;
+}
+
+// Loading Overlay Component
+function LoadingOverlay({ isLoading }: { isLoading: boolean }) {
+  if (!isLoading) return null;
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+      }}
+    >
+      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+        <Spinner size="large" />
+      </div>
+      <Text as="p" variant="bodyMd" alignment="center">
+        Refreshing collections...
+      </Text>
+    </div>
+  );
 }
 
 // Collection Row Component - INSTANT TOGGLE with optimistic updates
@@ -452,6 +510,13 @@ function CollectionRow({
   }, [enabled]);
 
   const handleToggle = (id: string, newValue: boolean) => {
+    AppLogger.info('[COLLECTIONS_LIST] Collection toggle triggered', {
+      collectionId: id,
+      collectionTitle: title,
+      from: optimisticEnabled,
+      to: newValue
+    });
+
     // INSTANT UI update
     setOptimisticEnabled(newValue);
     
@@ -464,6 +529,21 @@ function CollectionRow({
       method: "POST",
       action: "/app/collections_list",
     });
+  };
+
+  const handleEditInShopify = () => {
+    AppLogger.info('[COLLECTIONS_LIST] Edit collection in Shopify clicked', { collectionId: id, title });
+    window.open(`https://admin.shopify.com/store/${shopifyDomain.replace('.myshopify.com', '')}/collections/${numericId}`, '_blank');
+  };
+
+  const handleViewInStore = () => {
+    AppLogger.info('[COLLECTIONS_LIST] View collection in store clicked', { collectionId: id, title });
+    window.open(`https://${shopifyDomain}/collections/${handle}`, '_blank');
+  };
+
+  const handleNavigateToSettings = () => {
+    AppLogger.info('[COLLECTIONS_LIST] Navigate to collection settings clicked', { collectionId: id, title });
+    navigate(`/app/collection-sort/${numericId}`);
   };
 
   return (
@@ -503,7 +583,7 @@ function CollectionRow({
               size="slim" 
               variant="plain" 
               icon={EditIcon}
-              onClick={() => window.open(`https://admin.shopify.com/store/${shopifyDomain.replace('.myshopify.com', '')}/collections/${numericId}`, '_blank')}
+              onClick={handleEditInShopify}
             />
           </Tooltip>
           <Tooltip content="View in Online Store">
@@ -511,7 +591,7 @@ function CollectionRow({
               size="slim" 
               variant="plain" 
               icon={ViewIcon}
-              onClick={() => window.open(`https://${shopifyDomain}/collections/${handle}`, '_blank')}
+              onClick={handleViewInStore}
             />
           </Tooltip>
           {optimisticEnabled && (
@@ -532,7 +612,7 @@ function CollectionRow({
           variant="plain"
           icon={SettingsIcon}
           disabled={!optimisticEnabled}
-          onClick={() => navigate(`/app/collection-sort/${numericId}`)}
+          onClick={handleNavigateToSettings}
         />
       </IndexTable.Cell>
     </IndexTable.Row>
@@ -576,6 +656,11 @@ function SearchWithSuggestions({
         
         setSuggestions(filtered);
         setShowSuggestions(true);
+        
+        AppLogger.debug('[COLLECTIONS_LIST] Search suggestions generated', {
+          query,
+          suggestionsCount: filtered.length
+        });
       }, 30); // Minimal debounce for instant feel
       
       return () => clearTimeout(timer);
@@ -591,6 +676,10 @@ function SearchWithSuggestions({
   }, [setSearchQuery]);
 
   const handleSuggestionSelect = useCallback((collection: Collection) => {
+    AppLogger.info('[COLLECTIONS_LIST] Search suggestion selected', {
+      collectionId: collection.id,
+      collectionTitle: collection.title
+    });
     setSearchQuery(collection.title);
     setShowSuggestions(false);
     onSearchSubmit(collection.title);
@@ -629,6 +718,7 @@ function SearchWithSuggestions({
   }, [searchQuery.length]);
 
   const handleClear = useCallback(() => {
+    AppLogger.info('[COLLECTIONS_LIST] Search cleared');
     setSearchQuery('');
     setShowSuggestions(false);
     onSearchSubmit('');
@@ -689,9 +779,9 @@ function SearchWithSuggestions({
                     <Text as="span" variant="bodyMd" fontWeight="medium">
                       {collection.title}
                     </Text>
-                   <Badge tone="info">
-                    {collection.productsCount.count.toString()} products
-                  </Badge>
+                    <Badge tone="info">
+                      {`${collection.productsCount.count} products`}
+                    </Badge>
                   </InlineStack>
                   <Text as="p" variant="bodySm" tone="subdued">
                     {collection.handle}
@@ -716,6 +806,8 @@ function CollectionListPageContent() {
     statusFilter: initialStatusFilter,
   } = useLoaderData<LoaderData>();
   const navigate = useNavigate();
+  const navigation = useNavigation();
+  const submit = useSubmit();
 
   const [toastActive, setToastActive] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -726,6 +818,16 @@ function CollectionListPageContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // ADD COMPONENT MOUNT LOGGING
+  useEffect(() => {
+    AppLogger.info('[COLLECTIONS_LIST] CollectionsListPageContent component mounted', {
+      initialCollectionsCount: initialCollections.length,
+      initialSearchQuery,
+      initialStatusFilter
+    });
+  }, []);
 
   // Fix hydration issues
   useEffect(() => {
@@ -755,11 +857,39 @@ function CollectionListPageContent() {
       filtered = filtered.filter(collection => collection.enabled === filterEnabled);
     }
 
+    AppLogger.debug('[COLLECTIONS_LIST] Client-side filtering applied', {
+      searchQuery,
+      statusFilter,
+      beforeFilter: initialCollections.length,
+      afterFilter: filtered.length
+    });
+
     return filtered;
   }, [initialCollections, searchQuery, statusFilter]);
 
+  // Handle refresh WITHOUT full page reload
+  const handleRefresh = useCallback(() => {
+    AppLogger.info('[COLLECTIONS_LIST] Manual refresh triggered');
+    setIsRefreshing(true);
+    
+    // Use React Router's navigation to refresh the data without full page reload
+    navigate('.', { 
+      replace: true,
+      preventScrollReset: true 
+    });
+    
+    // Reset refreshing state after a short delay
+    const timer = setTimeout(() => {
+      setIsRefreshing(false);
+      AppLogger.info('[COLLECTIONS_LIST] Refresh completed');
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
   // Handle search submission
   const handleSearchSubmit = useCallback((query: string = searchQuery) => {
+    AppLogger.info('[COLLECTIONS_LIST] Collections search submitted', { query, statusFilter });
     const params = new URLSearchParams();
     
     if (query.trim()) {
@@ -779,6 +909,7 @@ function CollectionListPageContent() {
 
   // Handle status filter change
   const handleStatusChange = useCallback((value: string) => {
+    AppLogger.info('[COLLECTIONS_LIST] Collections status filter changed', { from: statusFilter, to: value });
     setStatusFilter(value);
     
     const params = new URLSearchParams();
@@ -797,6 +928,7 @@ function CollectionListPageContent() {
   const handleResortConfirm = async () => {
     if (!selectedCollection) return;
     
+    AppLogger.info('[COLLECTIONS_LIST] Collection resort confirmed', { collectionId: selectedCollection });
     setResortModalActive(false);
     
     try {
@@ -812,16 +944,26 @@ function CollectionListPageContent() {
       });
 
       if (response.ok) {
+        AppLogger.info('[COLLECTIONS_LIST] Collection resort successful', { collectionId: selectedCollection });
         setToastMessage("Collection re-sorted successfully!");
         setToastActive(true);
       } else {
+        AppLogger.error('[COLLECTIONS_LIST] Collection resort failed', { collectionId: selectedCollection, status: response.status });
         setToastMessage("Failed to re-sort collection");
         setToastActive(true);
       }
     } catch (error) {
+      AppLogger.error('[COLLECTIONS_LIST] Collection resort error', error, { collectionId: selectedCollection });
       setToastMessage("Error re-sorting collection");
       setToastActive(true);
     }
+  };
+
+  const handleClearFilters = () => {
+    AppLogger.info('[COLLECTIONS_LIST] Clear filters clicked');
+    setSearchQuery('');
+    setStatusFilter('all');
+    handleSearchSubmit('');
   };
 
   // Calculate serial numbers
@@ -830,7 +972,7 @@ function CollectionListPageContent() {
       key={collection.id}
       collection={collection}
       shopifyDomain={shopifyDomain}
-      onToggleChange={() => {}} // Empty function since handled in CollectionRow
+      onToggleChange={() => {}}
       position={index}
       serialNumber={index + 1}
     />
@@ -840,6 +982,9 @@ function CollectionListPageContent() {
     <Toast content={toastMessage} onDismiss={() => setToastActive(false)} duration={3000} />
   ) : null;
 
+  // Show loading only during manual refresh
+  const showLoading = isRefreshing;
+
   if (!isHydrated) {
     return (
       <Frame>
@@ -848,7 +993,10 @@ function CollectionListPageContent() {
             <Layout.Section>
               <Card>
                 <div style={{ padding: '40px', textAlign: 'center' }}>
-                  <Text as="p" variant="bodyMd">Loading collections...</Text>
+                  <Spinner size="large" />
+                  <Box padding="400">
+                    <Text as="p" variant="bodyMd">Loading collections...</Text>
+                  </Box>
                 </div>
               </Card>
             </Layout.Section>
@@ -860,15 +1008,15 @@ function CollectionListPageContent() {
 
   return (
     <Frame>
+      <LoadingOverlay isLoading={showLoading} />
       <Page 
         title="Collections" 
         subtitle="Manage which collections are sorted by app."
         primaryAction={{
           content: 'Refresh',
           icon: RefreshIcon,
-          onAction: () => {
-            window.location.reload();
-          },
+          onAction: handleRefresh,
+          disabled: isRefreshing,
         }}
       >
         <Layout>
@@ -917,7 +1065,7 @@ function CollectionListPageContent() {
                       {/* Collection count badge */}
                       <InlineStack gap="200" blockAlign="center">
                         <Badge tone="info">
-                          {filteredCollections.length.toString()} of {initialCollections.length.toString()} collections
+                          {`${filteredCollections.length} of ${initialCollections.length} collections`}
                         </Badge>
                       </InlineStack>
                     </InlineStack>
@@ -964,11 +1112,7 @@ function CollectionListPageContent() {
                     </Text>
                     {(searchQuery || statusFilter !== "all") && (
                       <Box paddingBlockStart="400">
-                        <Button onClick={() => {
-                          setSearchQuery('');
-                          setStatusFilter('all');
-                          handleSearchSubmit('');
-                        }}>
+                        <Button onClick={handleClearFilters}>
                           Clear filters
                         </Button>
                       </Box>
@@ -998,7 +1142,10 @@ function CollectionListPageContent() {
 
         <Modal
           open={resortModalActive}
-          onClose={() => setResortModalActive(false)}
+          onClose={() => {
+            AppLogger.info('[COLLECTIONS_LIST] Resort modal closed');
+            setResortModalActive(false);
+          }}
           title="Re-Sort products?"
           primaryAction={{ 
             content: "Yes, re-Sort", 
@@ -1006,7 +1153,10 @@ function CollectionListPageContent() {
           }}
           secondaryActions={[{ 
             content: "Cancel", 
-            onAction: () => setResortModalActive(false) 
+            onAction: () => {
+              AppLogger.info('[COLLECTIONS_LIST] Resort modal cancelled');
+              setResortModalActive(false);
+            } 
           }]}
         >
           <Modal.Section>

@@ -1,0 +1,53 @@
+2025-11-17T08:23:28.592Z [WARN] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: PERFORMANCE: Slow database query detected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "component": "TopNavbar",
+  "action": "test-warning-button",
+  "severity": "medium",
+  "queryTime": "2.45s",
+  "table": "collections",
+  "rowCount": 12500,
+  "timestamp": "2025-11-17T08:23:28.591Z",
+  "recommendation": "Add index on created_at column"
+}
+----------------------------------------
+2025-11-17T08:23:28.594Z [WARN] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: DEPRECATION: Old API version used
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "component": "TopNavbar",
+  "action": "test-warning-button",
+  "severity": "low",
+  "apiVersion": "2023-01",
+  "recommendedVersion": "2024-01",
+  "endpoint": "/admin/products.json",
+  "sunsetDate": "2024-06-30"
+}
+----------------------------------------
+2025-11-17T08:23:28.593Z [WARN] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: SECURITY: Multiple failed login attempts
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "component": "TopNavbar",
+  "action": "test-warning-button",
+  "severity": "high",
+  "ipAddress": "192.168.1.100",
+  "attempts": 5,
+  "userId": "user-12345",
+  "actionTaken": "temporary_lockout",
+  "lockoutDuration": "15 minutes"
+}
+----------------------------------------
+2025-11-17T08:23:33.748Z [WARN] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: RESOURCE: High memory usage detected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "component": "TopNavbar",
+  "action": "test-all-button",
+  "severity": "medium",
+  "memory": "1.2GB",
+  "limit": "1.5GB",
+  "recommendation": "Optimize collection loading"
+}
+----------------------------------------

@@ -1,4 +1,3 @@
-// app/routes/app.NewArrivals.tsx
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -21,6 +20,156 @@ import {
 import { useLoaderData, useSubmit, useNavigate, type LoaderFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
 import { SearchIcon } from '@shopify/polaris-icons';
+
+// BrowserLogger implementation
+class BrowserLogger {
+  private isDevelopment = process.env.NODE_ENV === 'development';
+  private logEndpoint = '/api/logs';
+
+  private formatTimestamp(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    return `[${year}-${month}-${day} ${hours}:${minutes}:${seconds}]`;
+  }
+
+  private formatLogMessage(level: string, message: string, meta?: any): string {
+    const timestamp = this.formatTimestamp();
+    const metaString = meta ? JSON.stringify(meta) : '';
+    return `${timestamp} [${level}] ${message}${metaString}`;
+  }
+
+  private async sendToServer(level: string, message: string, meta?: any): Promise<void> {
+    // TEMPORARILY ENABLE IN DEVELOPMENT FOR TESTING - COMMENT THIS OUT
+    // if (this.isDevelopment) {
+    //   console.log(`[LOGGER DEV] ${level}: ${message}`, meta);
+    //   return;
+    // }
+
+    // Ensure all required fields are present
+    const logPayload = {
+      level: level || 'UNKNOWN',
+      message: message || 'No message',
+      meta: meta || {},
+      timestamp: new Date().toISOString(),
+      url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+    };
+
+    try {
+      console.log('🚀 SENDING LOG TO SERVER:', { level, message }); // ADD THIS DEBUG LINE
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const response = await fetch(this.logEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(logPayload),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        console.warn('Logger: Server responded with error', response.status);
+      } else {
+        console.log('✅ Log successfully sent to server');
+        const result = await response.json();
+        console.log('Server response:', result);
+      }
+    } catch (error) {
+      console.error('❌ Logger: Failed to send log to server', error);
+    }
+  }
+
+  debug(message: string, meta?: any): void {
+    if (this.isDevelopment) {
+      const formattedMessage = this.formatLogMessage('DEBUG', message, meta);
+      console.debug(formattedMessage);
+    }
+  }
+
+  info(message: string, meta?: any): void {
+    const formattedMessage = this.formatLogMessage('INFO', message, meta);
+    console.info(formattedMessage);
+    this.sendToServer('INFO', message, meta).catch(() => {});
+  }
+
+  warn(message: string, meta?: any): void {
+    const formattedMessage = this.formatLogMessage('WARN', message, meta);
+    console.warn(formattedMessage);
+    this.sendToServer('WARN', message, meta).catch(() => {});
+  }
+
+  error(message: string, error?: any, meta?: any): void {
+    let errorInfo = '';
+    if (error instanceof Error) {
+      errorInfo = `Error: ${error.message} | Stack: ${error.stack}`;
+    } else if (error) {
+      errorInfo = `Error: ${JSON.stringify(error)}`;
+    }
+    
+    const finalMeta = { 
+      ...meta, 
+      errorInfo,
+      originalError: error 
+    };
+    
+    const formattedMessage = this.formatLogMessage('ERROR', message, finalMeta);
+    console.error(formattedMessage);
+    this.sendToServer('ERROR', message, finalMeta).catch(() => {});
+  }
+
+  // ADD THE MISSING HTTP METHOD
+  http(message: string, meta?: any): void {
+    const formattedMessage = this.formatLogMessage('HTTP', message, meta);
+    console.info(formattedMessage);
+    this.sendToServer('HTTP', message, meta).catch(() => {});
+  }
+}
+
+export const Logger = new BrowserLogger();
+
+// AppLogger wrapper using the BrowserLogger
+export class AppLogger {
+  static info(message: string, meta?: any): void {
+    Logger.info(message, meta);
+  }
+
+  static error(message: string, error?: any, meta?: any): void {
+    Logger.error(message, error, meta);
+  }
+
+  static warn(message: string, meta?: any): void {
+    Logger.warn(message, meta);
+  }
+
+  static http(message: string, meta?: any): void {
+    Logger.http(message, meta);
+  }
+
+  static debug(message: string, meta?: any): void {
+    Logger.debug(message, meta);
+  }
+
+  static db(operation: string, model: string, data?: any): void {
+    Logger.info(`DB ${operation} on ${model}`, { model, operation, data });
+  }
+
+  static shopifyAPI(operation: string, resource: string, data?: any): void {
+    Logger.info(`Shopify API ${operation} on ${resource}`, { 
+      resource, 
+      operation, 
+      data 
+    });
+  }
+}
 
 interface NewArrivalProduct {
   id: string;
@@ -54,7 +203,85 @@ interface LoaderData {
   hasMoreProducts: boolean;
 }
 
-// GraphQL query to fetch orders for sales data
+// ADD INTERFACES FOR GRAPHQL RESPONSES
+interface GraphQLResponse<T = any> {
+  data?: T;
+  errors?: Array<{
+    message: string;
+    locations?: Array<{ line: number; column: number }>;
+    path?: string[];
+  }>;
+}
+
+interface ProductsResponse {
+  products: {
+    edges: Array<{
+      cursor: string;
+      node: {
+        id: string;
+        title: string;
+        handle: string;
+        featuredImage: { url: string; altText: string } | null;
+        variants: {
+          edges: Array<{
+            node: {
+              price: string;
+              inventoryQuantity: number;
+            };
+          }>;
+        };
+        totalInventory: number;
+        createdAt: string;
+        publishedAt: string;
+        status: string;
+        vendor: string;
+      };
+    }>;
+    pageInfo: {
+      hasNextPage: boolean;
+      endCursor: string | null;
+    };
+  };
+}
+
+interface OrdersResponse {
+  orders: {
+    edges: Array<{
+      node: {
+        id: string;
+        processedAt: string;
+        lineItems: {
+          edges: Array<{
+            node: {
+              product: {
+                id: string;
+              };
+              quantity: number;
+              originalUnitPriceSet: {
+                shopMoney: {
+                  amount: string;
+                  currencyCode: string;
+                };
+              };
+              originalTotalSet: {
+                shopMoney: {
+                  amount: string;
+                  currencyCode: string;
+                };
+              };
+            };
+          }>;
+        };
+      };
+    }>;
+    pageInfo: {
+      hasNextPage: boolean;
+      endCursor: string | null;
+    };
+  };
+}
+
+// GraphQL query to fetch orders for sales data - UPDATED WITH originalUnitPriceSet
 const GET_ALL_ORDERS = `#graphql
   query GetAllOrders($first: Int!, $after: String) {
     orders(first: $first, after: $after, query: "financial_status:paid", sortKey: PROCESSED_AT, reverse: true) {
@@ -73,6 +300,12 @@ const GET_ALL_ORDERS = `#graphql
                   id
                 }
                 quantity
+                originalUnitPriceSet {
+                  shopMoney {
+                    amount
+                    currencyCode
+                  }
+                }
                 originalTotalSet {
                   shopMoney {
                     amount
@@ -91,7 +324,7 @@ const GET_ALL_ORDERS = `#graphql
 // Function to fetch ALL products with pagination
 async function fetchAllProducts(admin: any, query: string) {
   try {
-    console.log(`📦 Fetching ALL products with query: ${query}`);
+    AppLogger.info('[NEW_ARRIVALS] Fetching all products', { query });
     
     const allProducts: any[] = [];
     let after: string | null = null;
@@ -128,43 +361,50 @@ async function fetchAllProducts(admin: any, query: string) {
         }
       `;
 
+      AppLogger.debug('[NEW_ARRIVALS] Fetching products batch', { page: pageCount, after: after ? 'yes' : 'no' });
+
       const response = await admin.graphql(productsQuery, {
         variables: {
-          first: 250, // Fetch in chunks of 250
+          first: 250, // Fetch in batches of 250
           query: query,
           after: after
         }
       });
       
-      const data = await response.json();
+      // Add proper type annotation for response
+      const data: GraphQLResponse<ProductsResponse> = await response.json();
       
       if (data.errors || !data.data?.products?.edges) {
-        console.error('❌ Error fetching products data:', data.errors);
+        AppLogger.error('[NEW_ARRIVALS] Error fetching products data', { errors: data.errors });
         break;
       }
 
       const products = data.data.products.edges.map((edge: any) => edge.node);
       allProducts.push(...products);
 
-      console.log(`📦 Fetched ${products.length} products (page ${pageCount}, total: ${allProducts.length})`);
-
       hasNextPage = data.data.products.pageInfo?.hasNextPage || false;
       after = data.data.products.pageInfo?.endCursor;
       
-      if (!hasNextPage) break;
-      
-      // Small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100));
+      AppLogger.debug('[NEW_ARRIVALS] Products batch fetched', {
+        batch: pageCount,
+        productsFetched: products.length,
+        totalProducts: allProducts.length,
+        hasNextPage
+      });
     }
 
-    console.log(`✅ Total products fetched: ${allProducts.length}`);
+    AppLogger.info('[NEW_ARRIVALS] All products fetch completed', {
+      totalProducts: allProducts.length,
+      hasMore: hasNextPage
+    });
+    
     return {
       products: allProducts,
       hasMore: hasNextPage
     };
     
   } catch (error) {
-    console.error('💥 Error fetching products:', error);
+    AppLogger.error('[NEW_ARRIVALS] Error fetching products', error, { query });
     return {
       products: [],
       hasMore: false
@@ -172,10 +412,12 @@ async function fetchAllProducts(admin: any, query: string) {
   }
 }
 
-// Function to fetch sales data
+// Function to fetch sales data - FIXED DATE PROCESSING BUG
 async function fetchSalesData(admin: any): Promise<Map<string, { salesLast60Days: number; totalSales: number; revenue: number }>> {
   try {
-    const salesMap = new Map();
+    AppLogger.info('[NEW_ARRIVALS] Starting sales data fetch for new arrivals');
+    
+    const salesMap = new Map<string, { salesLast60Days: number; totalSales: number; revenue: number }>();
     const sixtyDaysAgo = new Date();
     sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
     
@@ -183,41 +425,68 @@ async function fetchSalesData(admin: any): Promise<Map<string, { salesLast60Days
     let hasNextPage = true;
     let pageCount = 0;
 
-    while (hasNextPage && pageCount < 20) {
+    while (hasNextPage && pageCount < 20) { // Limit to 20 pages to avoid excessive API calls
       pageCount++;
+      
+      AppLogger.debug('[NEW_ARRIVALS] Fetching sales data batch', { page: pageCount, after: after ? 'yes' : 'no' });
+
       const response = await admin.graphql(GET_ALL_ORDERS, {
-        variables: { first: 100, after }
+        variables: { 
+          first: 100, // Fetch in batches of 100
+          after: after
+        }
       });
       
-      const data = await response.json();
+      // Add proper type annotation for response
+      const data: GraphQLResponse<OrdersResponse> = await response.json();
       
-      if (data.errors || !data.data?.orders?.edges) break;
+      if (data.errors || !data.data?.orders?.edges) {
+        AppLogger.error('[NEW_ARRIVALS] Error fetching orders data', { errors: data.errors });
+        break;
+      }
 
       const orders = data.data.orders.edges;
-
+      
       orders.forEach((order: any) => {
+        // FIXED: Use processedAt instead of processAt
         const orderDate = new Date(order.node.processedAt);
         const isRecentSale = orderDate >= sixtyDaysAgo;
         
         if (order.node.lineItems?.edges) {
           order.node.lineItems.edges.forEach((lineItem: any) => {
             if (lineItem.node.product && lineItem.node.product.id) {
-              const productId = lineItem.node.product.id.replace(/^gid:\/\/shopify\/Product\//, '');
+              const productId = lineItem.node.product.id;
               const quantity = lineItem.node.quantity || 0;
-              const revenue = parseFloat(lineItem.node.originalTotalSet?.shopMoney?.amount || '0');
               
-              if (salesMap.has(productId)) {
-                const existing = salesMap.get(productId);
+              // FIXED: Use unit price * quantity for accurate revenue calculation
+              const unitPrice = parseFloat(lineItem.node.originalUnitPriceSet?.shopMoney?.amount || '0');
+              const revenue = unitPrice * quantity;
+              
+              // FIXED: Get the existing value first and check if it exists
+              const existing = salesMap.get(productId);
+              if (existing) {
                 salesMap.set(productId, {
                   salesLast60Days: isRecentSale ? existing.salesLast60Days + quantity : existing.salesLast60Days,
                   totalSales: existing.totalSales + quantity,
-                  revenue: existing.revenue + revenue,
+                  revenue: existing.revenue + revenue
                 });
               } else {
                 salesMap.set(productId, {
                   salesLast60Days: isRecentSale ? quantity : 0,
                   totalSales: quantity,
-                  revenue: revenue,
+                  revenue: revenue
+                });
+              }
+
+              // DEBUG: Log sales data for analysis
+              if (isRecentSale && quantity > 0) {
+                AppLogger.debug('[NEW_ARRIVALS] Recent sale found', {
+                  productId,
+                  quantity,
+                  unitPrice,
+                  revenue,
+                  orderDate: order.node.processedAt,
+                  isRecentSale
                 });
               }
             }
@@ -229,10 +498,31 @@ async function fetchSalesData(admin: any): Promise<Map<string, { salesLast60Days
       after = data.data.orders.pageInfo?.endCursor;
     }
 
-    console.log(`✅ Fetched sales data for ${salesMap.size} products`);
+    // DEBUG: Log summary of sales data
+    AppLogger.info('[NEW_ARRIVALS] Sales data fetch completed', {
+      productsWithSales: salesMap.size,
+      totalRevenue: Array.from(salesMap.values()).reduce((sum, data) => sum + data.revenue, 0),
+      totalSales: Array.from(salesMap.values()).reduce((sum, data) => sum + data.salesLast60Days, 0),
+      sixtyDaysAgo: sixtyDaysAgo.toISOString()
+    });
+
+    // DEBUG: Log first few products with sales for verification
+    let count = 0;
+    for (const [productId, salesData] of salesMap.entries()) {
+      if (salesData.salesLast60Days > 0 && count < 5) {
+        AppLogger.debug('[NEW_ARRIVALS] Product with sales', {
+          productId,
+          salesLast60Days: salesData.salesLast60Days,
+          revenue: salesData.revenue
+        });
+        count++;
+      }
+    }
+    
     return salesMap;
+    
   } catch (error) {
-    console.error('Error fetching sales data:', error);
+    AppLogger.error('[NEW_ARRIVALS] Error fetching sales data', error);
     return new Map();
   }
 }
@@ -244,19 +534,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const selectedPeriod = url.searchParams.get("period") || "60";
   const searchQuery = url.searchParams.get("search") || "";
 
-  console.log("🚀 Loading New Arrivals:", {
+  AppLogger.info('[NEW_ARRIVALS] New Arrivals loader started', {
     selectedPeriod,
     searchQuery
   });
 
   try {
     // Fetch sales data first
+    AppLogger.info('[NEW_ARRIVALS] Fetching sales data for new arrivals');
     const salesData = await fetchSalesData(admin);
 
     // Calculate date filter based on selected period
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - parseInt(selectedPeriod));
-    const dateFilter = `created_at:>='${cutoffDate.toISOString()}'`;
+    const dateFilter = `created_at:>${cutoffDate.toISOString()}`;
     
     // Build search query
     let finalQuery = dateFilter;
@@ -264,26 +555,39 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       finalQuery = `${dateFilter} AND (title:*${searchQuery}* OR vendor:*${searchQuery}*)`;
     }
 
-    // Fetch ALL products for the selected period
-    const productsResult = await fetchAllProducts(admin, finalQuery);
+    AppLogger.info('[NEW_ARRIVALS] Fetching products with query', { finalQuery });
 
+    // Fetch products
+    const productsResult = await fetchAllProducts(admin, finalQuery);
     const products = productsResult.products;
-    const hasMoreProducts = productsResult.hasMore;
+
+    AppLogger.info('[NEW_ARRIVALS] Transforming products with sales data', {
+      productsCount: products.length,
+      salesDataSize: salesData.size
+    });
 
     // Transform products with sales data
     const transformedData = products.map((product: any, index: number) => {
       const mainVariant = product.variants?.edges[0]?.node;
       const price = mainVariant?.price || '0.00';
       const basePrice = parseFloat(price);
-      const inventory = product.totalInventory || 0;
       
-      // Get sales data for this product
-      const productId = product.id.replace(/^gid:\/\/shopify\/Product\//, '');
-      const productSalesData = salesData.get(productId) || { 
+      // FIXED: Use the full product ID without stripping for sales data lookup
+      const productSalesData = salesData.get(product.id) || { 
         salesLast60Days: 0, 
         totalSales: 0, 
         revenue: 0 
       };
+
+      // Add debug logging for products with sales
+      if (productSalesData.salesLast60Days > 0) {
+        AppLogger.debug('[NEW_ARRIVALS] Product with sales found', {
+          productId: product.id,
+          title: product.title,
+          salesLast60Days: productSalesData.salesLast60Days,
+          revenue: productSalesData.revenue
+        });
+      }
 
       return {
         id: product.id,
@@ -291,7 +595,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         image: product.featuredImage?.url || '',
         title: product.title,
         price: `$${basePrice.toFixed(2)}`,
-        inStock: inventory,
+        inStock: product.totalInventory || 0,
         created: new Date(product.createdAt).toLocaleDateString('en-US', {
           year: 'numeric', 
           month: '2-digit', 
@@ -306,7 +610,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       };
     });
 
-    // Sort products: search matches first, then by creation date (newest first), then by sales
+    // Sort products: search matches first, then by creation date (newest first), then by sales (highest first)
     let sortedData = [...transformedData];
     
     if (searchQuery) {
@@ -317,11 +621,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         const aVendorMatch = a.vendor.toLowerCase().includes(searchQuery.toLowerCase());
         const bVendorMatch = b.vendor.toLowerCase().includes(searchQuery.toLowerCase());
         
-        // Exact title matches first
+        // Exact title match first
         if (aTitleMatch && !bTitleMatch) return -1;
         if (!aTitleMatch && bTitleMatch) return 1;
         
-        // Vendor matches next
+        // Vendor match next
         if (aVendorMatch && !bVendorMatch) return -1;
         if (!aVendorMatch && bVendorMatch) return 1;
         
@@ -329,21 +633,32 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
     } else {
-      // Normal sort: newest first, then by sales (highest sales first)
+      // Normal sort: newest first, then by sales (highest first)
       sortedData.sort((a, b) => {
         // First by creation date (newest first)
         const dateDiff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        if (Math.abs(dateDiff) > 24 * 60 * 60 * 1000) {
+        if (Math.abs(dateDiff) > 24 * 60 * 60 * 1000) { // If more than 24 days apart
           return dateDiff;
         }
-        // Then by sales (highest sales first)
+        
+        // Then by sales (highest first)
         return b.salesLast60Days - a.salesLast60Days;
       });
     }
 
     // Calculate totals
     const totalRevenue = sortedData.reduce((sum, p) => sum + p.revenue, 0);
-    const totalSalesCount = sortedData.reduce((sum, p) => sum + p.totalSales, 0);
+    const totalSalesCount = sortedData.reduce((sum, p) => sum + p.salesLast60Days, 0);
+    const totalWithSales = sortedData.filter(p => p.salesLast60Days > 0).length;
+
+    AppLogger.info('[NEW_ARRIVALS] New Arrivals loader completed', {
+      newArrivalsCount: sortedData.length,
+      totalRevenue,
+      totalSalesCount,
+      totalWithSales,
+      productsWithSales: sortedData.filter(p => p.salesLast60Days > 0).length,
+      hasMoreProducts: productsResult.hasMore
+    });
 
     return {
       newArrivals: sortedData,
@@ -356,11 +671,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       searchQuery,
       totalRevenue,
       totalSalesCount,
-      hasMoreProducts,
+      totalWithSales,
+      hasMoreProducts: productsResult.hasMore
     };
 
   } catch (error) {
-    console.error('Error in loader:', error);
+    AppLogger.error('[NEW_ARRIVALS] Error in New Arrivals loader', error, {
+      selectedPeriod,
+      searchQuery
+    });
     return { 
       newArrivals: [], 
       totalProducts: 0,
@@ -372,7 +691,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       searchQuery,
       totalRevenue: 0,
       totalSalesCount: 0,
-      hasMoreProducts: false,
+      totalWithSales: 0,
+      hasMoreProducts: false
     };
   }
 };
@@ -389,6 +709,7 @@ export default function NewArrivalsPage() {
     searchQuery: initialSearch,
     totalRevenue,
     totalSalesCount,
+    totalWithSales = 0,
     hasMoreProducts
   } = useLoaderData<LoaderData>();
   
@@ -399,6 +720,31 @@ export default function NewArrivalsPage() {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [loading, setLoading] = useState(false);
 
+  // ADD COMPONENT MOUNT LOGGING
+  useEffect(() => {
+    AppLogger.info('[NEW_ARRIVALS] NewArrivalsPage component mounted', {
+      initialNewArrivals: newArrivals.length,
+      initialPeriod,
+      initialSearch,
+      totalRevenue,
+      totalSalesCount,
+      totalWithSales
+    });
+  }, []);
+
+  // Reset loading when data changes
+  useEffect(() => {
+    setLoading(false);
+    AppLogger.debug('[NEW_ARRIVALS] New Arrivals data loaded', {
+      newArrivalsCount: newArrivals.length,
+      selectedPeriod,
+      searchQuery,
+      totalRevenue,
+      totalSalesCount,
+      totalWithSales
+    });
+  }, [newArrivals, selectedPeriod, searchQuery]);
+
   const periodOptions = [
     { label: 'Last 7 days', value: '7' },
     { label: 'Last 14 days', value: '14' },
@@ -407,15 +753,29 @@ export default function NewArrivalsPage() {
     { label: 'Last 90 days', value: '90' },
   ];
 
-  // Reset loading when data changes
-  useEffect(() => {
-    setLoading(false);
-  }, [newArrivals]);
+  // Handle period change
+  const handlePeriodChange = (value: string) => {
+    AppLogger.info('[NEW_ARRIVALS] Period changed', {
+      from: selectedPeriod,
+      to: value
+    });
+    setSelectedPeriod(value);
+    setLoading(true);
+    
+    const params = new URLSearchParams();
+    params.set("period", value);
+    
+    navigate(`?${params.toString()}`, { replace: true });
+  };
 
   // Handle search with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchQuery !== initialSearch) {
+        AppLogger.info('[NEW_ARRIVALS] Search query executed', {
+          searchQuery,
+          previousSearch: initialSearch
+        });
         setLoading(true);
         const params = new URLSearchParams();
         if (searchQuery) {
@@ -423,44 +783,35 @@ export default function NewArrivalsPage() {
         }
         params.set("period", selectedPeriod);
         
-        submit(params, { replace: true });
+        navigate(`?${params.toString()}`, { replace: true });
       }
     }, 500);
 
     return () => clearTimeout(timer);
   }, [searchQuery, submit, initialSearch, selectedPeriod]);
 
-  const handlePeriodChange = (value: string) => {
-    setSelectedPeriod(value);
-    setLoading(true);
-    
-    const params = new URLSearchParams();
-    params.set("period", value);
-    if (searchQuery) {
-      params.set("search", searchQuery);
-    }
-    
-    submit(params, { replace: true });
-  };
-
   const refreshData = () => {
+    AppLogger.info('[NEW_ARRIVALS] Manual refresh triggered');
     setLoading(true);
+    
     const params = new URLSearchParams();
     params.set("period", selectedPeriod);
     if (searchQuery) {
       params.set("search", searchQuery);
     }
-    submit(params, { replace: true });
+    
+    navigate(`?${params.toString()}`, { replace: true });
   };
 
   const clearSearch = () => {
+    AppLogger.info('[NEW_ARRIVALS] Search cleared');
     setSearchQuery('');
     setLoading(true);
     
     const params = new URLSearchParams();
     params.set("period", selectedPeriod);
     
-    submit(params, { replace: true });
+    navigate(`?${params.toString()}`, { replace: true });
   };
 
   const rows = newArrivals.map((product: NewArrivalProduct) => [
@@ -488,7 +839,7 @@ export default function NewArrivalsPage() {
     <Badge 
       tone={
         product.status === 'ACTIVE' ? 'success' : 
-        product.status === 'DRAFT' ? 'warning' : 'critical'
+        product.status === 'DRAFT' ? 'attention' : 'critical'
       } 
       key="status"
     >
@@ -513,10 +864,6 @@ export default function NewArrivalsPage() {
     </Text>,
   ]);
 
-  // Calculate statistics
-  const totalWithSales = newArrivals.filter(p => p.salesLast60Days > 0).length;
-  const totalOutOfStock = newArrivals.filter(p => p.inStock === 0).length;
-
   const getCurrentDateTime = (): string => {
     const now = new Date();
     return now.toLocaleDateString('en-GB', {
@@ -529,10 +876,13 @@ export default function NewArrivalsPage() {
     }) + ')';
   };
 
+  // Calculate statistics - use the calculated totalWithSales from loader
+  const totalOutOfStock = newArrivals.filter(p => p.inStock === 0).length;
+
   return (
     <Page
-      title="New Arrivals"
-      subtitle={`Products added in the last ${selectedPeriod} days`}
+      title={`New Arrivals (Last ${selectedPeriod} Days)`}
+      subtitle="Products added to your store - newest first"
     >
       <Layout>
         <Layout.Section>
@@ -581,28 +931,28 @@ export default function NewArrivalsPage() {
 
                 {/* Middle Row: Information */}
                 <InlineStack align="space-between" blockAlign="center">
-                  <Text as="p" tone="subdued" variant="bodySm">
+                  <Text as="p" variant="bodySm" tone="subdued">
                     {searchQuery 
                       ? `Searching for: "${searchQuery}" • ${newArrivals.length} products found`
                       : `Showing ALL ${newArrivals.length} products from the last ${selectedPeriod} days`
                     }
                     {hasMoreProducts && (
-                      <Text as="span" tone="warning" variant="bodySm"> • Some products may be truncated due to API limits</Text>
+                      <Text as="span" tone="caution" variant="bodySm"> • Some products may be truncated due to API limits</Text>
                     )}
                   </Text>
                   
                   {newArrivals.length > 0 && (
                     <InlineStack gap="300">
-                      <Text as="span" variant="bodySm" tone="success">
+                      <Text as="span" variant="bodySm" tone={totalWithSales > 0 ? "success" : "subdued"}>
                         {totalWithSales} with sales
                       </Text>
                       <Text as="span" variant="bodySm" tone="critical">
                         {totalOutOfStock} out of stock
                       </Text>
-                      <Text as="span" variant="bodySm" tone="success">
-                        ${totalRevenue.toLocaleString()} revenue
+                      <Text as="span" variant="bodySm" tone={totalRevenue > 0 ? "success" : "subdued"}>
+                        ${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} revenue
                       </Text>
-                      <Text as="span" variant="bodySm" tone="success">
+                      <Text as="span" variant="bodySm" tone={totalSalesCount > 0 ? "success" : "subdued"}>
                         {totalSalesCount} total sales
                       </Text>
                     </InlineStack>
@@ -617,11 +967,8 @@ export default function NewArrivalsPage() {
                 <div style={{ textAlign: 'center' }}>
                   <Spinner size="large" />
                   <Box paddingBlockStart="200">
-                    <Text as="p" tone="subdued" variant="bodyMd">
-                      Loading products from the last {selectedPeriod} days...
-                    </Text>
-                    <Text as="p" tone="subdued" variant="bodySm">
-                      This may take a moment for large catalogs
+                    <Text as="p" variant="bodyMd" tone="subdued">
+                      Loading products from the last ${selectedPeriod} days...
                     </Text>
                   </Box>
                 </div>
@@ -633,10 +980,9 @@ export default function NewArrivalsPage() {
                     'numeric',
                     'text',
                     'text',
-                    'numeric',
-                    'text',
                     'text',
                     'numeric',
+                    'text',
                     'text',
                     'numeric'
                   ]}
@@ -652,7 +998,7 @@ export default function NewArrivalsPage() {
                     'Revenue'
                   ]}
                   rows={rows}
-                  footerContent={`Showing ALL ${newArrivals.length} products from the last ${selectedPeriod} days`}
+                  footerContent={`Showing ALL ${newArrivals.length} products from the last ${selectedPeriod} days • ${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total revenue`}
                 />
               </>
             ) : (
@@ -677,7 +1023,10 @@ export default function NewArrivalsPage() {
                     </Box>
                   )}
                   <Box paddingBlockStart="200">
-                    <Button onClick={() => handlePeriodChange("90")}>
+                    <Button onClick={() => {
+                      AppLogger.info('[NEW_ARRIVALS] Try last 90 days clicked from empty state');
+                      handlePeriodChange("90");
+                    }}>
                       Try last 90 days
                     </Button>
                   </Box>

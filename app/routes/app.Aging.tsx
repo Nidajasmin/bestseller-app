@@ -29,6 +29,7 @@ import {
   getCachedData,
   setCachedData,
 } from "../utils/agingSettings";
+import { AppLogger } from "../utils/logging";
 
 interface AgedProduct {
   id: string;
@@ -154,21 +155,26 @@ const normalizeProductId = (productId: string): string => {
 // Optimized function to fetch sales data with time limit
 async function fetchAllSalesData(admin: any): Promise<Map<string, SalesData>> {
   try {
-    console.log(`🛒 Fetching sales data from orders (optimized)`);
+    AppLogger.info('Starting sales data fetch from orders');
     
     const salesMap = new Map<string, SalesData>();
     const last60DaysDate = getLast60DaysDate();
     let after: string | null = null;
     let hasNextPage = true;
     let totalOrdersProcessed = 0;
-    const MAX_ORDERS = 500; // Limit to 500 orders for performance
+    const MAX_ORDERS = 500;
     const startTime = Date.now();
-    const MAX_TIME_MS = 30000; // 30 second timeout
+    const MAX_TIME_MS = 30000;
 
     while (hasNextPage && totalOrdersProcessed < MAX_ORDERS && (Date.now() - startTime) < MAX_TIME_MS) {
+      AppLogger.debug('Fetching orders batch', {
+        batch: Math.floor(totalOrdersProcessed / 50) + 1,
+        after: after ? 'yes' : 'no'
+      });
+
       const response: any = await admin.graphql(GET_ALL_ORDERS, {
         variables: {
-          first: 50, // Reduced from 100 to 50
+          first: 50,
           after: after
         }
       });
@@ -176,14 +182,15 @@ async function fetchAllSalesData(admin: any): Promise<Map<string, SalesData>> {
       const data: any = await response.json();
       
       if (data.errors || !data.data?.orders?.edges) {
-        console.error('❌ Error fetching orders data');
+        AppLogger.error('Error fetching orders data', data.errors, {
+          batch: Math.floor(totalOrdersProcessed / 50) + 1
+        });
         break;
       }
 
       const orders = data.data.orders.edges;
       totalOrdersProcessed += orders.length;
 
-      // Process orders in batches for better performance
       orders.forEach((order: any) => {
         const orderDate = order.node.processedAt;
         const isRecentSale = orderDate >= last60DaysDate;
@@ -220,19 +227,27 @@ async function fetchAllSalesData(admin: any): Promise<Map<string, SalesData>> {
       hasNextPage = data.data.orders.pageInfo?.hasNextPage || false;
       after = data.data.orders.pageInfo?.endCursor;
       
-      // Break if taking too long
       if ((Date.now() - startTime) > MAX_TIME_MS) {
-        console.log(`⏰ Time limit reached after ${totalOrdersProcessed} orders`);
+        AppLogger.warn('Sales data fetch time limit reached', {
+          ordersProcessed: totalOrdersProcessed,
+          timeElapsed: Date.now() - startTime
+        });
         break;
       }
     }
 
-    console.log(`✅ Found sales data for ${salesMap.size} products from ${totalOrdersProcessed} orders (in ${Date.now() - startTime}ms)`);
+    AppLogger.info('Sales data fetch completed', {
+      productsWithSales: salesMap.size,
+      totalOrdersProcessed,
+      timeElapsed: Date.now() - startTime
+    });
     
     return salesMap;
     
   } catch (error) {
-    console.error('💥 Error fetching sales data:', error);
+    AppLogger.error('Error fetching sales data', error, {
+      operation: 'fetchAllSalesData'
+    });
     return new Map();
   }
 }
@@ -240,19 +255,24 @@ async function fetchAllSalesData(admin: any): Promise<Map<string, SalesData>> {
 // Optimized function to fetch products with limits
 async function fetchAllProducts(admin: any): Promise<any[]> {
   try {
-    console.log(`📦 Fetching products from store (optimized)`);
+    AppLogger.info('Starting products fetch from store');
     
     const allProducts: any[] = [];
     let after: string | null = null;
     let hasNextPage = true;
     let pageCount = 0;
-    const MAX_PRODUCTS = 500; // Limit to 500 products for performance
-    const MAX_PAGES = 5; // Reduced from 20 to 5
+    const MAX_PRODUCTS = 500;
+    const MAX_PAGES = 5;
     const startTime = Date.now();
 
     while (hasNextPage && pageCount < MAX_PAGES && allProducts.length < MAX_PRODUCTS) {
       pageCount++;
       
+      AppLogger.debug('Fetching products batch', {
+        page: pageCount,
+        after: after ? 'yes' : 'no'
+      });
+
       const response: any = await admin.graphql(GET_ALL_PRODUCTS, {
         variables: {
           first: 100,
@@ -263,16 +283,18 @@ async function fetchAllProducts(admin: any): Promise<any[]> {
       const data: any = await response.json();
       
       if (data.errors || !data.data?.products?.edges) {
-        console.error('❌ Error fetching products data:', data.errors);
+        AppLogger.error('Error fetching products data', data.errors, {
+          page: pageCount,
+          operation: 'fetchAllProducts'
+        });
         break;
       }
 
       const products = data.data.products.edges.map((edge: any) => edge.node);
       allProducts.push(...products);
 
-      // Check if we've reached the limit
       if (allProducts.length >= MAX_PRODUCTS) {
-        console.log(`📦 Reached product limit of ${MAX_PRODUCTS}`);
+        AppLogger.info('Reached maximum products limit', { maxProducts: MAX_PRODUCTS });
         break;
       }
 
@@ -282,41 +304,42 @@ async function fetchAllProducts(admin: any): Promise<any[]> {
       if (!hasNextPage) break;
     }
 
-    console.log(`✅ Total products fetched: ${allProducts.length} (in ${Date.now() - startTime}ms)`);
+    AppLogger.info('Products fetch completed', {
+      totalProducts: allProducts.length,
+      timeElapsed: Date.now() - startTime
+    });
     
     return allProducts;
     
   } catch (error) {
-    console.error('💥 Error fetching products:', error);
+    AppLogger.error('Error fetching products', error, {
+      operation: 'fetchAllProducts'
+    });
     return [];
   }
 }
 
-// FIXED: Calculate days since creation (proper date math)
 const getDaysSinceCreation = (createdAt: string): number => {
   const createdDate = new Date(createdAt);
   const today = new Date();
   
-  // Set both dates to midnight for accurate day calculation
   createdDate.setHours(0, 0, 0, 0);
   today.setHours(0, 0, 0, 0);
   
   const diffTime = today.getTime() - createdDate.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   
-  return Math.max(0, diffDays); // Ensure no negative days
+  return Math.max(0, diffDays);
 };
 
-// Calculate days since last sale
 const getDaysSinceLastSale = (lastSaleDate: string | null): number => {
-  if (!lastSaleDate) return 9999; // Never sold
+  if (!lastSaleDate) return 9999;
   const lastSale = new Date(lastSaleDate);
   const today = new Date();
   const diffTime = Math.abs(today.getTime() - lastSale.getTime());
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 
-// Helper function to check if a product is "new" (created in the last 30 days)
 const isProductNew = (createdAt: string): boolean => {
   const createdDate = new Date(createdAt);
   const thirtyDaysAgo = new Date();
@@ -324,16 +347,13 @@ const isProductNew = (createdAt: string): boolean => {
   return createdDate > thirtyDaysAgo;
 };
 
-// FIXED: Check if product meets aged product criteria with better inventory handling
 const isAgedProduct = (product: any, salesData: SalesData, settings: AgingSettings): boolean => {
   const daysSinceCreation = getDaysSinceCreation(product.createdAt);
-  
-  // FIXED: Better inventory check - handle null/undefined
   const hasInventory = (product.totalInventory ?? 0) > 0;
   const salesLast60Days = salesData.salesLast60Days;
   
-  const meetsAgeCriteria = daysSinceCreation >= settings.minAgeDays; // Changed to >=
-  const meetsSalesCriteria = salesLast60Days <= settings.maxSales; // Changed to <=
+  const meetsAgeCriteria = daysSinceCreation >= settings.minAgeDays;
+  const meetsSalesCriteria = salesLast60Days <= settings.maxSales;
   const meetsInventoryCriteria = !settings.requireInventory || hasInventory;
   
   const meetsAllCriteria = meetsAgeCriteria && meetsSalesCriteria && meetsInventoryCriteria;
@@ -341,10 +361,11 @@ const isAgedProduct = (product: any, salesData: SalesData, settings: AgingSettin
   return meetsAllCriteria;
 };
 
-// FIXED: Enhanced logging for better debugging
 const logAgingAnalysisSummary = (allProducts: any[], salesDataMap: Map<string, SalesData>, settings: AgingSettings) => {
-  console.log('📊 AGING ANALYSIS SUMMARY');
-  console.log('========================');
+  AppLogger.info('Aging analysis summary started', {
+    totalProducts: allProducts.length,
+    settings
+  });
   
   let totalProducts = allProducts.length;
   let productsWithAgeOverMin = 0;
@@ -381,17 +402,16 @@ const logAgingAnalysisSummary = (allProducts: any[], salesDataMap: Map<string, S
     }
   });
   
-  console.log(`📦 Total Products: ${totalProducts}`);
-  console.log(`💰 Products with sales (60d): ${productsWithSalesData}`);
-  console.log(`❌ Products with zero sales: ${productsWithZeroSales}`);
-  console.log(`📅 Products >= ${settings.minAgeDays} days: ${productsWithAgeOverMin}`);
-  console.log(`📉 Products with <= ${settings.maxSales} sales: ${productsWithLowSales}`);
-  console.log(`📦 Products with inventory > 0: ${productsWithInventory}`);
-  console.log(`🎯 Products meeting ALL criteria: ${productsMeetingAllCriteria}`);
-  console.log('========================');
+  AppLogger.info('Aging analysis statistics', {
+    totalProducts,
+    productsWithSales: productsWithSalesData,
+    productsWithZeroSales,
+    productsWithAgeOverMin,
+    productsWithLowSales,
+    productsWithInventory,
+    productsMeetingAllCriteria
+  });
   
-  // Log some example products that are close to criteria
-  console.log('🔍 EXAMPLE PRODUCTS NEAR CRITERIA:');
   const nearCriteriaProducts = allProducts
     .filter(product => {
       const normalizedId = normalizeProductId(product.id);
@@ -403,17 +423,18 @@ const logAgingAnalysisSummary = (allProducts: any[], salesDataMap: Map<string, S
       return daysSinceCreation <= settings.minAgeDays + 5 || 
              salesLast60Days <= settings.maxSales + 5;
     })
-    .slice(0, 10); // Show first 10
+    .slice(0, 10);
     
-  nearCriteriaProducts.forEach((product, index) => {
-    const normalizedId = normalizeProductId(product.id);
-    const productSalesData = salesDataMap.get(normalizedId);
-    const salesLast60Days = productSalesData?.salesLast60Days || 0;
-    const daysSinceCreation = getDaysSinceCreation(product.createdAt);
-    const hasInventory = (product.totalInventory ?? 0) > 0;
-    
-    console.log(`   ${index + 1}. "${product.title}" - ${daysSinceCreation}d, ${salesLast60Days} sales, inventory: ${hasInventory}`);
-  });
+  if (nearCriteriaProducts.length > 0) {
+    AppLogger.debug('Products near aging criteria', {
+      nearCriteriaProducts: nearCriteriaProducts.map(p => ({
+        title: p.title.substring(0, 40),
+        daysSinceCreation: getDaysSinceCreation(p.createdAt),
+        salesLast60Days: salesDataMap.get(normalizeProductId(p.id))?.salesLast60Days || 0,
+        inventory: p.totalInventory || 0
+      }))
+    });
+  }
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -425,10 +446,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const searchQuery = url.searchParams.get("search") || "";
   const settingsUpdated = url.searchParams.get("settingsUpdated");
 
-  // CRITICAL FIX: Get settings from URL parameters OR localStorage
   let currentSettings = loadSettings();
   
-  // Check if settings are passed via URL (for server-side loading)
   const minAgeFromUrl = url.searchParams.get("minAgeDays");
   const maxSalesFromUrl = url.searchParams.get("maxSales");
   const requireInventoryFromUrl = url.searchParams.get("requireInventory");
@@ -439,41 +458,41 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       maxSales: maxSalesFromUrl ? parseInt(maxSalesFromUrl) : currentSettings.maxSales,
       requireInventory: requireInventoryFromUrl ? requireInventoryFromUrl === 'true' : currentSettings.requireInventory
     };
-    console.log("🔄 Using settings from URL parameters:", currentSettings);
+    AppLogger.info('Using settings from URL parameters', { settings: currentSettings });
   } else {
-    console.log("🎯 Using settings from localStorage:", currentSettings);
+    AppLogger.info('Using settings from localStorage', { settings: currentSettings });
   }
 
-  console.log("🚀 Starting Aged Products loader");
-  console.log("📊 Parameters:", { productsCount, page, searchQuery, settingsUpdated });
+  AppLogger.info('Aged Products loader started', {
+    productsCount,
+    page,
+    searchQuery,
+    settingsUpdated: !!settingsUpdated,
+    currentSettings
+  });
 
-  // Check cache first, but ONLY if settings haven't been updated
   const cachedData = getCachedData();
   if (cachedData && 
       JSON.stringify(cachedData.settings) === JSON.stringify(currentSettings) &&
       !settingsUpdated) {
-    console.log('💾 Using cached data');
+    AppLogger.info('Using cached aged products data');
     return {
       ...cachedData.data,
       filters: currentSettings,
     };
   } else if (settingsUpdated) {
-    console.log('🔄 Settings updated - bypassing cache');
+    AppLogger.info('Settings updated - bypassing cache');
   }
 
   try {
-    // STEP 1: Fetch sales data and products in parallel
-    console.log("🛒 Step 1: Fetching sales data...");
+    AppLogger.info('Fetching sales data and products in parallel');
     const salesDataPromise = fetchAllSalesData(admin);
-    
-    console.log("📦 Step 2: Fetching products...");
     const productsPromise = fetchAllProducts(admin);
     
-    // Wait for both to complete
     const [salesData, allProducts] = await Promise.all([salesDataPromise, productsPromise]);
     
     if (allProducts.length === 0) {
-      console.log("❌ No products found in the store.");
+      AppLogger.warn('No products found in store');
       return { 
         agedProducts: [], 
         totalProducts: 0,
@@ -487,36 +506,36 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       };
     }
 
-    console.log(`📊 Processing ${allProducts.length} products with current settings`);
+    AppLogger.info('Processing products for aging analysis', {
+      totalProducts: allProducts.length,
+      productsWithSalesData: salesData.size
+    });
 
-    // STEP 2: Quick analysis - FIND OLDEST PRODUCTS
-    console.log('📊 QUICK ANALYSIS:');
-    console.log(`📦 Total Products: ${allProducts.length}`);
-    console.log(`📊 Products with sales data: ${Array.from(salesData.keys()).length}`);
-    console.log(`🎯 Criteria: Age >= ${currentSettings.minAgeDays} days, Sales <= ${currentSettings.maxSales}, Inventory: ${currentSettings.requireInventory ? 'required' : 'optional'}`);
-
-    // Find and log the actual oldest products
     const sortedByAge = [...allProducts].sort((a, b) => {
       return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
     });
     
-    console.log('🔍 OLDEST 5 PRODUCTS:');
-    sortedByAge.slice(0, 5).forEach((product, index) => {
-      const daysOld = getDaysSinceCreation(product.createdAt);
-      console.log(`   ${index + 1}. "${product.title}" - ${daysOld} days old`);
+    AppLogger.debug('Oldest products in store', {
+      oldestProducts: sortedByAge.slice(0, 5).map((p, index) => ({
+        position: index + 1,
+        title: p.title.substring(0, 40),
+        daysOld: getDaysSinceCreation(p.createdAt)
+      }))
     });
 
-    // STEP 3: Enhanced analysis summary
     logAgingAnalysisSummary(allProducts, salesData, currentSettings);
 
-    // STEP 4: Find aged products with CURRENT settings
     const agedProductsList: AgedProduct[] = [];
     let agedCount = 0;
 
-    console.log("🔍 Applying current criteria...");
-    console.log(`🎯 CRITERIA: Age >= ${currentSettings.minAgeDays} days, Sales <= ${currentSettings.maxSales}, Inventory: ${currentSettings.requireInventory ? 'required' : 'optional'}`);
+    AppLogger.info('Applying aging criteria to products', {
+      criteria: {
+        minAgeDays: currentSettings.minAgeDays,
+        maxSales: currentSettings.maxSales,
+        requireInventory: currentSettings.requireInventory
+      }
+    });
 
-    // Use for loop for better performance
     for (let i = 0; i < allProducts.length; i++) {
       const product = allProducts[i];
       const mainVariant = product.variants?.edges[0]?.node;
@@ -524,7 +543,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       const basePrice = parseFloat(price);
       const inventory = product.totalInventory || 0;
       
-      // Get sales data for this product
       const normalizedProductId = normalizeProductId(product.id);
       const productSalesData = salesData.get(normalizedProductId) || { 
         salesLast60Days: 0, 
@@ -535,18 +553,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       
       const daysSinceCreation = getDaysSinceCreation(product.createdAt);
       
-      // Check if product meets aged criteria
       const isAged = isAgedProduct(product, productSalesData, currentSettings);
 
-      // Log products that are close to meeting criteria for debugging
       const isCloseToCriteria = daysSinceCreation >= currentSettings.minAgeDays - 2 || 
                                (productSalesData.salesLast60Days > 0 && productSalesData.salesLast60Days <= currentSettings.maxSales + 2);
 
       if (isCloseToCriteria) {
-        console.log(`🔍 CHECKING: "${product.title.substring(0, 40)}..." - ${daysSinceCreation}d, ${productSalesData.salesLast60Days} sales, inventory: ${inventory} - Meets: ${isAged ? 'YES' : 'NO'}`);
+        AppLogger.debug('Product near aging criteria', {
+          title: product.title.substring(0, 40),
+          daysSinceCreation,
+          salesLast60Days: productSalesData.salesLast60Days,
+          inventory,
+          meetsCriteria: isAged
+        });
       }
 
-      // ONLY add to agedProductsList if it meets aged criteria
       if (isAged) {
         agedCount++;
         
@@ -575,26 +596,35 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
         agedProductsList.push(productData);
         
-        // Log the first few products that match
         if (agedCount <= 10) {
-          console.log(`✅ MATCHES: "${product.title}" - ${daysSinceCreation} days, ${productSalesData.salesLast60Days} sales, inventory: ${inventory}`);
+          AppLogger.debug('Product matches aging criteria', {
+            title: product.title,
+            daysSinceCreation,
+            salesLast60Days: productSalesData.salesLast60Days,
+            inventory
+          });
         }
       }
     }
 
-    console.log(`🎯 Found ${agedCount} products matching current settings`);
+    AppLogger.info('Aging analysis completed', {
+      totalAgedProducts: agedCount,
+      criteria: currentSettings
+    });
 
-    // STEP 5: Apply search filter if provided
     let filteredProducts = agedProductsList;
     if (searchQuery) {
       filteredProducts = agedProductsList.filter((product: AgedProduct) =>
         product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.vendor.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      console.log(`🔍 After search: ${filteredProducts.length} products`);
+      AppLogger.info('Applied search filter', {
+        searchQuery,
+        beforeSearch: agedProductsList.length,
+        afterSearch: filteredProducts.length
+      });
     }
 
-    // STEP 6: Sort aged products
     const sortedProducts = filteredProducts.sort((a: AgedProduct, b: AgedProduct) => {
       if (b.daysSinceCreation !== a.daysSinceCreation) {
         return b.daysSinceCreation - a.daysSinceCreation;
@@ -602,7 +632,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       return a.salesLast60Days - b.salesLast60Days;
     });
 
-    // STEP 7: Apply pagination
     const startIndex = (page - 1) * productsCount;
     const endIndex = startIndex + productsCount;
     const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
@@ -620,15 +649,26 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       filters: currentSettings,
     };
 
-    // Cache the result (only if not a settings update)
     if (!settingsUpdated) {
       setCachedData(result, currentSettings);
+      AppLogger.info('Cached aged products data');
     }
+
+    AppLogger.info('Loader returning aged products data', {
+      returnedProducts: paginatedProducts.length,
+      totalProducts: sortedProducts.length,
+      currentPage: page,
+      totalPages
+    });
 
     return result;
 
   } catch (error) {
-    console.error('💥 Error in Aged Products loader:', error);
+    AppLogger.error('Error in Aged Products loader', error, {
+      productsCount,
+      page,
+      searchQuery
+    });
     return { 
       agedProducts: [], 
       totalProducts: 0,
@@ -643,7 +683,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 };
 
-// Settings Modal Component
 const SettingsModal = ({ 
   open, 
   onClose, 
@@ -660,14 +699,13 @@ const SettingsModal = ({
   const [maxSalesError, setMaxSalesError] = useState<string>('');
 
   useEffect(() => {
-    console.log('⚙️ Settings modal opened with:', settings);
+    AppLogger.info('Settings modal opened', { settings });
     setLocalSettings(settings);
     setMinAgeError('');
     setMaxSalesError('');
   }, [settings, open]);
 
   const handleSave = () => {
-    // Validate inputs
     let hasError = false;
     
     if (localSettings.minAgeDays < 0) {
@@ -685,15 +723,18 @@ const SettingsModal = ({
     }
     
     if (!hasError) {
-      console.log('✅ Saving validated settings:', localSettings);
+      AppLogger.info('Saving validated aging settings', { settings: localSettings });
       onSave(localSettings);
     } else {
-      console.log('❌ Settings validation failed');
+      AppLogger.warn('Settings validation failed', {
+        minAgeError,
+        maxSalesError
+      });
     }
   };
 
   const handleReset = () => {
-    console.log('🔄 Resetting to default settings');
+    AppLogger.info('Resetting to default aging settings');
     setLocalSettings(DEFAULT_AGING_SETTINGS);
     setMinAgeError('');
     setMaxSalesError('');
@@ -701,7 +742,7 @@ const SettingsModal = ({
 
   const handleInventoryRequirementChange = useCallback((value: string[]) => {
     const newRequireInventory = value.includes('requireInventory');
-    console.log(`📦 Inventory requirement: ${newRequireInventory}`);
+    AppLogger.debug('Inventory requirement changed', { requireInventory: newRequireInventory });
     setLocalSettings(prev => ({
       ...prev,
       requireInventory: newRequireInventory
@@ -710,7 +751,7 @@ const SettingsModal = ({
 
   const handleMinAgeChange = useCallback((value: string) => {
     const numValue = parseInt(value) || 0;
-    console.log(`📅 Minimum age changed to: ${numValue} days`);
+    AppLogger.debug('Minimum age changed', { minAgeDays: numValue });
     setLocalSettings(prev => ({
       ...prev,
       minAgeDays: numValue
@@ -725,7 +766,7 @@ const SettingsModal = ({
 
   const handleMaxSalesChange = useCallback((value: string) => {
     const numValue = parseInt(value) || 0;
-    console.log(`💰 Maximum sales changed to: ${numValue}`);
+    AppLogger.debug('Maximum sales changed', { maxSales: numValue });
     setLocalSettings(prev => ({
       ...prev,
       maxSales: numValue
@@ -757,7 +798,7 @@ const SettingsModal = ({
       <Modal.Section>
         <BlockStack gap="400">
           <Text as="p" variant="bodyMd">
-            Configure the criteria for identifying aged products. Products meeting all these conditions will be flagged as "Aged".
+            Configure criteria for identifying aged products. Products meeting all these conditions will be flagged as "Aged".
           </Text>
           
           <TextField
@@ -779,7 +820,7 @@ const SettingsModal = ({
             autoComplete="off"
             min={0}
             error={maxSalesError}
-            helpText="Products with this many sales or fewer in the last 60 days"
+            helpText="Products with this many sales or fewer in last 60 days"
           />
           
           <ChoiceList
@@ -823,7 +864,6 @@ const SettingsModal = ({
   );
 };
 
-// Main Component
 export default function AgingPage() {
   const { 
     agedProducts = [], 
@@ -847,22 +887,37 @@ export default function AgingPage() {
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [currentSettings, setCurrentSettings] = useState<AgingSettings>(filters);
 
-  // Reset loading state when new data is loaded
+  useEffect(() => {
+    AppLogger.info('AgingPage component mounted', {
+      initialAgedProducts: agedProducts.length,
+      initialSettings: filters,
+      currentPage: initialPage,
+      searchQuery: initialSearch
+    });
+  }, []);
+
   useEffect(() => {
     setLoading(false);
-    console.log('🔄 Data loaded with settings:', filters);
-    console.log('📊 Products found:', agedProducts.length);
-  }, [agedProducts, filters]);
+    AppLogger.info('Aging page data loaded', {
+      agedProductsCount: agedProducts.length,
+      totalProducts,
+      filters,
+      currentPage,
+      searchQuery
+    });
+  }, [agedProducts, filters, currentPage, searchQuery, totalProducts]);
 
-  // Update current settings when filters change
   useEffect(() => {
-    console.log('🎯 Settings updated from loader:', filters);
+    AppLogger.debug('Aging settings updated from loader', { filters });
     setCurrentSettings(filters);
   }, [filters]);
 
-  // Handle count change
   const handleCountChange = (value: string) => {
     const newCount = parseInt(value);
+    AppLogger.info('Products per page changed', {
+      from: productsCount,
+      to: newCount
+    });
     setProductsCount(newCount);
     setLoading(true);
     
@@ -873,8 +928,11 @@ export default function AgingPage() {
     submit(params, { replace: true });
   };
 
-  // Handle page change
   const handlePageChange = (page: number) => {
+    AppLogger.info('Page changed', {
+      from: currentPage,
+      to: page
+    });
     setCurrentPage(page);
     setLoading(true);
     
@@ -884,10 +942,13 @@ export default function AgingPage() {
     navigate(`?${params.toString()}`, { replace: true });
   };
 
-  // Handle search with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchQuery !== initialSearch) {
+        AppLogger.info('Search query executed', {
+          searchQuery,
+          previousSearch: initialSearch
+        });
         setLoading(true);
         const params = new URLSearchParams(window.location.search);
         if (searchQuery) {
@@ -904,29 +965,26 @@ export default function AgingPage() {
     return () => clearTimeout(timer);
   }, [searchQuery, submit, initialSearch]);
 
-  // Handle settings save
   const handleSettingsSave = (newSettings: AgingSettings) => {
-    console.log('💾 SAVING NEW SETTINGS:', newSettings);
+    AppLogger.info('Saving new aging settings', {
+      oldSettings: currentSettings,
+      newSettings
+    });
     
-    // Save to localStorage
     saveSettings(newSettings);
     
-    // Clear cache to ensure fresh data
     try {
       localStorage.removeItem('aged-products-cache');
-      console.log('🗑️ Cache cleared');
+      AppLogger.info('Aged products cache cleared');
     } catch (error) {
-      console.error('Error clearing cache:', error);
+      AppLogger.error('Error clearing aged products cache', error);
     }
     
-    // Update local state
     setCurrentSettings(newSettings);
     setLoading(true);
     
-    // Close modal
     setSettingsModalOpen(false);
     
-    // Submit new settings to loader WITH settings in URL parameters
     const params = new URLSearchParams(window.location.search);
     params.set("settingsUpdated", Date.now().toString());
     params.set("minAgeDays", newSettings.minAgeDays.toString());
@@ -934,11 +992,16 @@ export default function AgingPage() {
     params.set("requireInventory", newSettings.requireInventory.toString());
     params.set("page", "1");
     
-    console.log('🔄 Submitting new settings to loader with URL parameters...');
+    AppLogger.info('Submitting new settings to loader', {
+      urlParams: {
+        minAgeDays: newSettings.minAgeDays,
+        maxSales: newSettings.maxSales,
+        requireInventory: newSettings.requireInventory
+      }
+    });
     submit(params, { replace: true });
   };
 
-  // Generate count options dynamically
   const generateCountOptions = () => {
     const options = [];
     const commonIncrements = [10, 25, 50, 100, 250];
@@ -1007,13 +1070,11 @@ export default function AgingPage() {
     </Text>,
   ]);
 
-  // Calculate statistics
   const totalAgedProducts = agedProducts.filter(p => p.isAged).length;
   const averageAge = agedProducts.length > 0 ? 
     Math.round(agedProducts.reduce((sum, p) => sum + p.daysSinceCreation, 0) / agedProducts.length) : 0;
   const zeroSalesProducts = agedProducts.filter(p => p.salesLast60Days === 0).length;
 
-  // Enhanced pagination logic
   const showPagination = totalProducts > 0 && (hasNextPage || hasPreviousPage);
   const totalPages = Math.ceil(totalProducts / productsCount);
 
@@ -1025,10 +1086,8 @@ export default function AgingPage() {
       <Layout>
         <Layout.Section>
           <Card>
-            {/* Search and Controls Section */}
             <Box padding="400" borderBlockEndWidth="025" borderColor="border">
               <BlockStack gap="400">
-                {/* Top Row: Search and Count */}
                 <InlineStack align="space-between" blockAlign="center">
                   <div style={{ width: '320px' }}>
                     <TextField
@@ -1040,21 +1099,25 @@ export default function AgingPage() {
                       autoComplete="off"
                       prefix={<Icon source={SearchIcon} />}
                       clearButton
-                      onClearButtonClick={() => setSearchQuery('')}
+                      onClearButtonClick={() => {
+                        AppLogger.info('Search cleared');
+                        setSearchQuery('');
+                      }}
                     />
                   </div>
                   
                   <InlineStack gap="400" blockAlign="center">
-                    {/* Settings Button */}
                     <Button
                       icon={SettingsIcon}
-                      onClick={() => setSettingsModalOpen(true)}
+                      onClick={() => {
+                        AppLogger.info('Settings button clicked');
+                        setSettingsModalOpen(true);
+                      }}
                       variant="secondary"
                     >
                       Settings
                     </Button>
                     
-                    {/* Products per page selector */}
                     <InlineStack gap="200" blockAlign="center">
                       <Text as="span" variant="bodyMd" tone="subdued">
                         Show:
@@ -1070,7 +1133,6 @@ export default function AgingPage() {
                       </div>
                     </InlineStack>
 
-                    {/* Pagination - TOP */}
                     {showPagination && (
                       <div style={{
                         backgroundColor: '#f6f6f7',
@@ -1091,7 +1153,6 @@ export default function AgingPage() {
                   </InlineStack>
                 </InlineStack>
 
-                {/* Middle Row: Information */}
                 <InlineStack align="space-between" blockAlign="center">
                   <BlockStack gap="100">
                     <Text as="p" variant="bodyMd" fontWeight="medium">
@@ -1102,7 +1163,7 @@ export default function AgingPage() {
                     </Text>
                     <Text as="p" tone="subdued" variant="bodySm">
                       {agedProducts.length > 0 
-                        ? `Showing ${agedProducts.length} products (${totalAgedProducts} aged) that meet the criteria`
+                        ? `Showing ${agedProducts.length} products (${totalAgedProducts} aged) that meet criteria`
                         : loading 
                           ? 'Loading aged products analysis...'
                           : 'No aged products found matching your criteria.'
@@ -1115,15 +1176,16 @@ export default function AgingPage() {
                     )}
                   </BlockStack>
                   
-                  {/* Refresh Button */}
-                  <Button onClick={() => window.location.reload()} disabled={loading}>
+                  <Button onClick={() => {
+                    AppLogger.info('Manual refresh triggered');
+                    window.location.reload();
+                  }} disabled={loading}>
                     {loading ? 'Refreshing...' : 'Refresh'}
                   </Button>
                 </InlineStack>
               </BlockStack>
             </Box>
 
-            {/* Information Section */}
             {agedProducts.length > 0 && (
               <Box padding="400">
                 <BlockStack gap="200">
@@ -1152,7 +1214,6 @@ export default function AgingPage() {
               </Box>
             )}
 
-            {/* Data Table */}
             {loading ? (
               <Box padding="800">
                 <div style={{ textAlign: 'center' }}>
@@ -1198,7 +1259,6 @@ export default function AgingPage() {
                   footerContent={`Showing ${agedProducts.length} products • ${totalAgedProducts} aged products • Page ${currentPage} of ${totalPages}`}
                 />
 
-                {/* Bottom Pagination */}
                 {showPagination && (
                   <Box padding="400">
                     <InlineStack align="center">
@@ -1243,7 +1303,10 @@ export default function AgingPage() {
                     </Box>
                   )}
                   <Box paddingBlockStart="200">
-                    <Button onClick={() => setSettingsModalOpen(true)}>
+                    <Button onClick={() => {
+                      AppLogger.info('Adjust settings clicked from empty state');
+                      setSettingsModalOpen(true);
+                    }}>
                       Adjust Settings
                     </Button>
                   </Box>
@@ -1252,7 +1315,6 @@ export default function AgingPage() {
             )}
           </Card>
 
-          {/* Statistics Footer */}
           <Box padding="400">
             <InlineStack align="space-between" blockAlign="center">
               <Text as="p" tone="subdued" variant="bodySm">
@@ -1269,10 +1331,12 @@ export default function AgingPage() {
         </Layout.Section>
       </Layout>
 
-      {/* Settings Modal */}
       <SettingsModal
         open={settingsModalOpen}
-        onClose={() => setSettingsModalOpen(false)}
+        onClose={() => {
+          AppLogger.info('Settings modal closed');
+          setSettingsModalOpen(false);
+        }}
         settings={currentSettings}
         onSave={handleSettingsSave}
       />

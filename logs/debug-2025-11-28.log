@@ -1,0 +1,246 @@
+[2025-11-28 09:14:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 09:14:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 09:15:57] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-11-28T03:45:57.938Z"}
+[2025-11-28 09:16:15] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-11-28T03:46:15.171Z"}
+[2025-11-28 09:16:17] [DEBUG] Toggling popover for collection{"collection":"Accessories - Modern","from":false,"to":true}
+[2025-11-28 09:41:16] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 09:41:16] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 09:41:32] [DEBUG] Toggling popover for collection{"collection":"Accessories - Modern","from":false,"to":true}
+[2025-11-28 09:45:55] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T04:15:55.516Z"}
+[2025-11-28 09:47:05] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T04:17:05.512Z"}
+[2025-11-28 09:56:55] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T04:26:55.523Z"}
+[2025-11-28 09:56:55] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T04:26:55.605Z"}
+[2025-11-28 09:57:02] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T04:27:02.998Z"}
+[2025-11-28 09:57:11] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 09:57:11] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 09:57:33] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collections_list","timestamp":"2025-11-28T04:27:33.948Z"}
+[2025-11-28 09:57:46] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 09:57:46] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 09:58:13] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 09:58:13] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 09:58:24] [DEBUG] Toggling popover for collection{"collection":"Accessories - Modern","from":false,"to":true}
+[2025-11-28 09:58:52] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T04:28:52.949Z"}
+[2025-11-28 10:43:43] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T05:13:43.147Z"}
+[2025-11-28 10:48:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 10:48:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 10:50:10] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"ba","statusFilter":"all","beforeFilter":515,"afterFilter":32}
+[2025-11-28 10:50:10] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"b","statusFilter":"all","beforeFilter":515,"afterFilter":102}
+[2025-11-28 10:50:10] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"b","statusFilter":"all","beforeFilter":515,"afterFilter":102}
+[2025-11-28 10:50:10] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"ba","statusFilter":"all","beforeFilter":515,"afterFilter":32}
+[2025-11-28 10:50:10] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"ba","suggestionsCount":8}
+[2025-11-28 10:50:12] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 10:50:12] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"b","statusFilter":"all","beforeFilter":515,"afterFilter":102}
+[2025-11-28 10:50:12] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 10:50:12] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"b","statusFilter":"all","beforeFilter":515,"afterFilter":102}
+[2025-11-28 10:50:20] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 10:50:20] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 10:50:20] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 10:50:20] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 10:50:20] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 10:50:20] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hij","suggestionsCount":1}
+[2025-11-28 10:50:20] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 10:50:22] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 10:50:22] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 10:50:22] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 10:50:23] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 10:50:24] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 10:50:23] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 10:50:26] [DEBUG] Toggling popover for collection{"collection":"Hijabs","from":false,"to":true}
+[2025-11-28 10:51:44] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 10:51:44] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 10:53:00] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-11-28T05:23:00.658Z"}
+[2025-11-28 10:53:00] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app","timestamp":"2025-11-28T05:23:00.558Z"}
+[2025-11-28 10:53:05] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 10:53:05] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 10:53:05] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 10:53:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 10:53:06] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hij","suggestionsCount":1}
+[2025-11-28 10:53:05] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 10:53:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 10:53:07] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 10:53:07] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 10:53:07] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 10:53:09] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 10:53:09] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 10:53:09] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 10:53:11] [DEBUG] Toggling popover for collection{"collection":"Hijabs","from":false,"to":true}
+[2025-11-28 10:55:25] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T05:25:25.259Z"}
+[2025-11-28 11:14:35] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/featured-products/303119171643","timestamp":"2025-11-28T05:44:35.264Z"}
+[2025-11-28 12:14:17] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 12:14:17] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 12:14:36] [DEBUG] Toggling popover for collection{"collection":"Accessories - Modern","from":false,"to":true}
+[2025-11-28 12:21:56] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T06:51:56.771Z"}
+[2025-11-28 12:47:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 12:47:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 14:26:25] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 14:26:25] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 14:26:37] [DEBUG] Toggling popover for collection{"collection":"Accessories - Modern","from":false,"to":true}
+[2025-11-28 14:26:49] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T08:56:49.516Z"}
+[2025-11-28 14:28:34] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T08:58:34.900Z"}
+[2025-11-28 14:28:39] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T08:58:39.043Z"}
+[2025-11-28 15:49:36] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T10:19:36.059Z"}
+[2025-11-28 15:49:40] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T10:19:40.804Z"}
+[2025-11-28 15:49:42] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/302621327419","timestamp":"2025-11-28T10:19:42.919Z"}
+[2025-11-28 15:49:46] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 15:49:46] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 15:50:51] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collections_list","timestamp":"2025-11-28T10:20:51.060Z"}
+[2025-11-28 15:54:09] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 15:54:09] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 15:54:38] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 15:54:38] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 15:54:38] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 15:54:38] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 15:54:38] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hi","suggestionsCount":8}
+[2025-11-28 15:54:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 15:54:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 15:54:39] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hij","suggestionsCount":1}
+[2025-11-28 15:54:41] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 15:54:41] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 15:54:41] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 15:54:42] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 15:54:42] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 15:54:42] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 15:54:46] [DEBUG] Toggling popover for collection{"collection":"Hijabs","from":false,"to":true}
+[2025-11-28 15:55:14] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T10:25:14.293Z"}
+[2025-11-28 15:57:30] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 15:57:30] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 15:57:47] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app","timestamp":"2025-11-28T10:27:47.912Z"}
+[2025-11-28 15:57:48] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-11-28T10:27:48.514Z"}
+[2025-11-28 15:57:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 15:57:58] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 15:57:59] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hi","suggestionsCount":8}
+[2025-11-28 15:57:58] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 15:57:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 15:57:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 15:57:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 15:57:59] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hij","suggestionsCount":1}
+[2025-11-28 15:58:00] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 15:58:00] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 15:58:00] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 15:58:01] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 15:58:01] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 15:58:01] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 15:58:03] [DEBUG] Toggling popover for collection{"collection":"Hijabs","from":false,"to":true}
+[2025-11-28 15:58:18] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T10:28:18.348Z"}
+[2025-11-28 15:58:34] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/303119171643","timestamp":"2025-11-28T10:28:34.048Z"}
+[2025-11-28 15:58:37] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/manage-tags/303119171643","timestamp":"2025-11-28T10:28:37.788Z"}
+[2025-11-28 15:58:52] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/303119171643","timestamp":"2025-11-28T10:28:52.593Z"}
+[2025-11-28 15:59:09] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/303119171643","timestamp":"2025-11-28T10:29:09.924Z"}
+[2025-11-28 15:59:21] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/303119171643","timestamp":"2025-11-28T10:29:21.536Z"}
+[2025-11-28 15:59:37] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/303119171643","timestamp":"2025-11-28T10:29:37.169Z"}
+[2025-11-28 15:59:46] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/303119171643","timestamp":"2025-11-28T10:29:46.202Z"}
+[2025-11-28 15:59:55] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T10:29:55.185Z"}
+[2025-11-28 15:59:55] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T10:29:55.778Z"}
+[2025-11-28 16:05:31] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:05:31] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:06:41] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sort/303004287035","timestamp":"2025-11-28T10:36:41.370Z"}
+[2025-11-28 16:10:09] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/303119171643","timestamp":"2025-11-28T10:40:09.626Z"}
+[2025-11-28 16:10:11] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/303119171643","timestamp":"2025-11-28T10:40:11.610Z"}
+[2025-11-28 16:10:40] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/303119171643","timestamp":"2025-11-28T10:40:40.328Z"}
+[2025-11-28 16:11:43] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:11:43] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:11:51] [DEBUG] Toggling popover for collection{"collection":"Accessories - Modern","from":false,"to":true}
+[2025-11-28 16:12:08] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sort/303004287035","timestamp":"2025-11-28T10:42:08.394Z"}
+[2025-11-28 16:12:11] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collection-sort/303004287035","timestamp":"2025-11-28T10:42:11.237Z"}
+[2025-11-28 16:12:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:12:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:13:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 16:13:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 16:13:07] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:13:07] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:13:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 16:13:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 16:13:07] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hij","suggestionsCount":1}
+[2025-11-28 16:13:08] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:13:08] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:13:08] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 16:13:09] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 16:13:09] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 16:13:09] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 16:13:10] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 16:13:10] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 16:13:10] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 16:13:11] [DEBUG] Toggling popover for collection{"collection":"Hijabs","from":false,"to":true}
+[2025-11-28 16:24:19] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T10:54:19.567Z"}
+[2025-11-28 16:24:43] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T10:54:43.574Z"}
+[2025-11-28 16:27:23] [DEBUG] TopNavbar menu toggled{"menu":"Statistics","action":"opened","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T10:57:23.867Z"}
+[2025-11-28 16:27:23] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T10:57:23.077Z"}
+[2025-11-28 16:27:34] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T10:57:34.456Z"}
+[2025-11-28 16:27:35] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T10:57:35.508Z"}
+[2025-11-28 16:27:38] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T10:57:38.579Z"}
+[2025-11-28 16:27:38] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T10:57:38.889Z"}
+[2025-11-28 16:28:03] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T10:58:03.610Z"}
+[2025-11-28 16:32:45] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T11:02:45.662Z"}
+[2025-11-28 16:32:45] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T11:02:45.163Z"}
+[2025-11-28 16:32:48] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:32:48] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:32:55] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app","timestamp":"2025-11-28T11:02:55.272Z"}
+[2025-11-28 16:32:57] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:32:57] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:32:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 16:32:58] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 16:32:58] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 16:32:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 16:32:59] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hi","suggestionsCount":8}
+[2025-11-28 16:32:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 16:32:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 16:32:59] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hi","suggestionsCount":8}
+[2025-11-28 16:33:00] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:33:00] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:33:00] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hij","suggestionsCount":1}
+[2025-11-28 16:34:29] [DEBUG] Toggling popover for collection{"collection":"Hijabs","from":false,"to":true}
+[2025-11-28 16:35:45] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:05:45.426Z"}
+[2025-11-28 16:37:46] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:07:46.581Z"}
+[2025-11-28 16:37:56] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:07:56.252Z"}
+[2025-11-28 16:37:58] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:07:58.579Z"}
+[2025-11-28 16:38:39] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:08:39.898Z"}
+[2025-11-28 16:38:55] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:08:55.624Z"}
+[2025-11-28 16:39:26] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:09:26.999Z"}
+[2025-11-28 16:40:12] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:10:12.161Z"}
+[2025-11-28 16:40:28] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:10:28.133Z"}
+[2025-11-28 16:40:28] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:10:28.398Z"}
+[2025-11-28 16:40:32] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:10:32.428Z"}
+[2025-11-28 16:41:39] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:11:39.755Z"}
+[2025-11-28 16:41:53] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:11:53.495Z"}
+[2025-11-28 16:41:54] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:11:54.538Z"}
+[2025-11-28 16:43:13] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:13:13.977Z"}
+[2025-11-28 16:47:43] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:17:43.197Z"}
+[2025-11-28 16:48:42] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:18:42.565Z"}
+[2025-11-28 16:48:54] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:18:54.821Z"}
+[2025-11-28 16:50:11] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:20:11.700Z"}
+[2025-11-28 16:51:32] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:21:32.986Z"}
+[2025-11-28 16:51:34] [DEBUG] TopNavbar menu toggled{"menu":"Statistics","action":"opened","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:21:34.818Z"}
+[2025-11-28 16:52:12] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T11:22:12.164Z"}
+[2025-11-28 16:52:33] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T11:22:33.215Z"}
+[2025-11-28 16:54:08] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T11:24:08.164Z"}
+[2025-11-28 16:54:08] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T11:24:08.299Z"}
+[2025-11-28 16:54:08] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T11:24:08.588Z"}
+[2025-11-28 16:54:07] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/Bestsellers","timestamp":"2025-11-28T11:24:07.930Z"}
+[2025-11-28 16:54:12] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:54:12] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-28 16:54:24] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 16:54:24] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"h","statusFilter":"all","beforeFilter":515,"afterFilter":209}
+[2025-11-28 16:54:25] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 16:54:25] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hi","statusFilter":"all","beforeFilter":515,"afterFilter":36}
+[2025-11-28 16:54:25] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hi","suggestionsCount":8}
+[2025-11-28 16:54:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:54:29] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hij","suggestionsCount":1}
+[2025-11-28 16:54:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hij","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:54:30] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hija","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:54:30] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"hija","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:54:30] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hija","suggestionsCount":1}
+[2025-11-28 16:54:30] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:54:30] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-28 16:54:30] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 16:54:31] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 16:54:31] [DEBUG] [COLLECTIONS_LIST] Search suggestions generated{"query":"hijabs","suggestionsCount":1}
+[2025-11-28 16:54:31] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Hijabs","statusFilter":"all","beforeFilter":1,"afterFilter":1}
+[2025-11-28 16:54:32] [DEBUG] Toggling popover for collection{"collection":"Hijabs","from":false,"to":true}
+[2025-11-28 16:55:00] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:25:00.684Z"}
+[2025-11-28 17:02:44] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:32:44.403Z"}
+[2025-11-28 17:14:58] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:44:58.276Z"}
+[2025-11-28 17:15:49] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:45:49.094Z"}
+[2025-11-28 17:17:45] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:47:45.369Z"}
+[2025-11-28 17:17:54] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T11:47:54.777Z"}
+[2025-11-28 17:39:08] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T12:09:08.716Z"}
+[2025-11-28 18:01:04] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/collection-sorting/303119171643","timestamp":"2025-11-28T12:31:04.144Z"}

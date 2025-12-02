@@ -20,6 +20,7 @@ import {
 import { useLoaderData, useSubmit, useNavigate, type LoaderFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
 import { SearchIcon } from '@shopify/polaris-icons';
+import { AppLogger } from "../utils/logging"; // ADD THIS IMPORT
 
 interface TrendingProduct {
   id: string;
@@ -238,17 +239,21 @@ const getDateRangeQuery = (days: number): string => {
 // Function to fetch ALL sales data from orders with pagination
 async function fetchSalesData(admin: any, days: number): Promise<Map<string, SalesData>> {
   try {
-    console.log(`🛒 Fetching sales data for last ${days} days`);
+    AppLogger.info('[TRENDING] Starting sales data fetch for trending products', { days });
     
     const salesMap = new Map<string, SalesData>();
     const dateQuery = getDateRangeQuery(days);
     let hasNextPage = true;
     let after: string | null = null;
     let totalOrders = 0;
+    let pageCount = 0;
 
     // Fetch all orders with pagination
     while (hasNextPage) {
-      const response = await admin.graphql(GET_ORDERS_WITH_PRODUCTS, {
+      pageCount++;
+      AppLogger.debug('[TRENDING] Fetching trending orders batch', { page: pageCount });
+
+      const response: Response = await admin.graphql(GET_ORDERS_WITH_PRODUCTS, {
         variables: {
           first: 100,
           query: dateQuery,
@@ -260,19 +265,22 @@ async function fetchSalesData(admin: any, days: number): Promise<Map<string, Sal
       const data: GraphQLResponse<OrdersResponse> = await response.json();
       
       if (data.errors) {
-        console.error('❌ GraphQL errors in orders query:', data.errors);
+        AppLogger.error('[TRENDING] GraphQL errors in trending orders query', { errors: data.errors });
         break;
       }
 
       if (!data.data?.orders?.edges) {
-        console.log('📦 No orders found for the period');
+        AppLogger.warn('[TRENDING] No orders found for trending period', { days });
         break;
       }
 
       const orders = data.data.orders.edges;
       totalOrders += orders.length;
       
-      console.log(`📊 Processing ${orders.length} orders...`);
+      AppLogger.debug('[TRENDING] Processing trending orders batch', {
+        batchSize: orders.length,
+        totalOrders
+      });
 
       // Process each order and its line items
       orders.forEach((order: OrderNode) => {
@@ -283,8 +291,9 @@ async function fetchSalesData(admin: any, days: number): Promise<Map<string, Sal
               const quantity = lineItem.node.quantity || 0;
               const revenue = parseFloat(lineItem.node.originalTotalSet.shopMoney.amount) || 0;
               
-              if (salesMap.has(productId)) {
-                const existing = salesMap.get(productId)!;
+              // FIXED: Get existing data safely
+              const existing = salesMap.get(productId);
+              if (existing) {
                 salesMap.set(productId, {
                   sales: existing.sales + quantity,
                   revenue: existing.revenue + revenue
@@ -305,16 +314,20 @@ async function fetchSalesData(admin: any, days: number): Promise<Map<string, Sal
       after = data.data.orders.pageInfo?.endCursor || null;
       
       if (hasNextPage) {
-        console.log('🔄 Fetching next page of orders...');
+        AppLogger.debug('[TRENDING] Fetching next page of trending orders');
       }
     }
     
-    console.log(`✅ Processed ${totalOrders} orders, found ${salesMap.size} products with sales`);
+    AppLogger.info('[TRENDING] Trending sales data fetch completed', {
+      totalOrders,
+      productsWithSales: salesMap.size,
+      days
+    });
     
     return salesMap;
     
   } catch (error) {
-    console.error('💥 Error fetching sales data:', error);
+    AppLogger.error('[TRENDING] Error fetching trending sales data', error, { days });
     return new Map();
   }
 }
@@ -327,9 +340,9 @@ async function fetchProductsWithPagination(admin: any, first: number, after: str
   startCursor: string | null;
 }> {
   try {
-    console.log(`🔍 Fetching ${first} products${after ? ' with cursor' : ''}`);
+    AppLogger.debug('[TRENDING] Fetching products with pagination for trending', { first, after: after ? 'yes' : 'no' });
     
-    const response = await admin.graphql(GET_ALL_PRODUCTS, {
+    const response: Response = await admin.graphql(GET_ALL_PRODUCTS, {
       variables: {
         first,
         after
@@ -350,19 +363,22 @@ async function fetchProductsWithPagination(admin: any, first: number, after: str
     }> = await response.json();
     
     if (data.errors) {
-      console.error('❌ GraphQL errors in products query:', data.errors);
+      AppLogger.error('[TRENDING] GraphQL errors in trending products query', { errors: data.errors });
       return { products: [], hasNextPage: false, endCursor: null, startCursor: null };
     }
 
     if (!data.data?.products?.edges) {
-      console.log('📦 No products found');
+      AppLogger.warn('[TRENDING] No products found in trending pagination query');
       return { products: [], hasNextPage: false, endCursor: null, startCursor: null };
     }
 
     const products = data.data.products.edges.map(edge => edge.node);
     const pageInfo = data.data.products.pageInfo;
     
-    console.log(`✅ Found ${products.length} products, hasNextPage: ${pageInfo.hasNextPage}`);
+    AppLogger.debug('[TRENDING] Trending products pagination result', {
+      productsCount: products.length,
+      hasNextPage: pageInfo.hasNextPage
+    });
     
     return {
       products,
@@ -372,7 +388,7 @@ async function fetchProductsWithPagination(admin: any, first: number, after: str
     };
     
   } catch (error) {
-    console.error('💥 Error fetching products with pagination:', error);
+    AppLogger.error('[TRENDING] Error fetching trending products with pagination', error, { first, after });
     return { products: [], hasNextPage: false, endCursor: null, startCursor: null };
   }
 }
@@ -384,7 +400,7 @@ async function fetchProductsByIds(admin: any, productIds: string[]): Promise<Map
   }
 
   try {
-    console.log(`🔍 Fetching ${productIds.length} products by their IDs`);
+    AppLogger.info('[TRENDING] Fetching trending products by IDs', { productIdsCount: productIds.length });
     
     const productDetails = new Map<string, ProductNode>();
     
@@ -392,7 +408,7 @@ async function fetchProductsByIds(admin: any, productIds: string[]): Promise<Map
     for (let i = 0; i < productIds.length; i += 50) {
       const batchIds = productIds.slice(i, i + 50);
       
-      const response = await admin.graphql(GET_PRODUCTS_BY_IDS, {
+      const response: Response = await admin.graphql(GET_PRODUCTS_BY_IDS, {
         variables: {
           ids: batchIds
         }
@@ -401,7 +417,10 @@ async function fetchProductsByIds(admin: any, productIds: string[]): Promise<Map
       const data: GraphQLResponse<{ nodes: (ProductNode | null)[] }> = await response.json();
       
       if (data.errors) {
-        console.error('❌ GraphQL errors in products by IDs query:', data.errors);
+        AppLogger.error('[TRENDING] GraphQL errors in trending products by IDs query', {
+          errors: data.errors,
+          batch: Math.floor(i / 50) + 1
+        });
         continue;
       }
       
@@ -412,17 +431,33 @@ async function fetchProductsByIds(admin: any, productIds: string[]): Promise<Map
           }
         });
       }
+      
+      AppLogger.debug('[TRENDING] Trending products batch fetched', {
+        batch: Math.floor(i / 50) + 1,
+        productsFetched: data.data?.nodes?.length || 0
+      });
     }
     
-    console.log(`✅ Found ${productDetails.size} products from the IDs`);
+    AppLogger.info('[TRENDING] Trending products by IDs fetch completed', {
+      totalDetailsFetched: productDetails.size,
+      expected: productIds.length
+    });
     
     return productDetails;
     
   } catch (error) {
-    console.error('💥 Error fetching products by IDs:', error);
+    AppLogger.error('[TRENDING] Error fetching trending products by IDs', error, { productIdsCount: productIds.length });
     return new Map();
   }
 }
+
+// Helper function to check if product is new (created in last 7 days)
+const isProductNew = (createdAt: string): boolean => {
+  const createdDate = new Date(createdAt);
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  return createdDate > sevenDaysAgo;
+};
 
 // UPDATED loader function with PROPER server-side pagination for 10,000+ products
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -434,24 +469,24 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const searchQuery = url.searchParams.get("search") || "";
   const after = url.searchParams.get("after") || null;
 
-  console.log("🚀 Starting Trending loader with server-side pagination for 10,000+ products");
-  console.log("📊 Parameters:", {
+  AppLogger.info('[TRENDING] Trending loader started', {
     productsCount,
     page,
     searchQuery,
-    after
+    after: after ? 'yes' : 'no',
+    salesPeriod: SALES_PERIOD
   });
 
   try {
     // STEP 1: Fetch sales data from orders for the last 7 days
-    console.log("🔄 Fetching sales data for the last 7 days...");
+    AppLogger.info('[TRENDING] Fetching sales data for trending period', { days: SALES_PERIOD });
     const salesData = await fetchSalesData(admin, SALES_PERIOD);
     
-    console.log(`📈 Sales data: ${salesData.size} products`);
+    AppLogger.info('[TRENDING] Trending sales data loaded', { productsWithSales: salesData.size });
 
     // If no sales data found, return empty results
     if (salesData.size === 0) {
-      console.log("❌ No products with sales found for the last 7 days");
+      AppLogger.warn('[TRENDING] No products with sales found for trending period', { days: SALES_PERIOD });
       return { 
         trendingProducts: [], 
         totalProducts: 0,
@@ -464,7 +499,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
 
     // STEP 2: NEW APPROACH - Create a sorted list of product IDs based on sales
-    console.log("🔍 Creating sorted list of products by sales...");
+    AppLogger.info('[TRENDING] Creating sorted list of trending products by sales');
     
     // Create an array of products with sales data
     const productsWithSalesData: Array<{
@@ -473,24 +508,27 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       revenue: number;
     }> = [];
     
-    salesData.forEach((salesData, productId) => {
+    salesData.forEach((salesDataItem, productId) => {
       productsWithSalesData.push({
         id: productId,
-        sales: salesData.sales,
-        revenue: salesData.revenue
+        sales: salesDataItem.sales,
+        revenue: salesDataItem.revenue
       });
     });
     
     // Sort by sales (highest first)
     productsWithSalesData.sort((a, b) => b.sales - a.sales);
     
-    console.log(`📊 Total products with sales: ${productsWithSalesData.length}`);
+    AppLogger.info('[TRENDING] Trending products sorted by sales', {
+      totalProductsWithSales: productsWithSalesData.length,
+      topSales: productsWithSalesData.slice(0, 3).map(p => ({ id: p.id, sales: p.sales }))
+    });
     
     // Apply search filter if provided to the sorted list
     let filteredProductIds = productsWithSalesData;
     if (searchQuery) {
       // For search, we need to fetch product titles to match
-      console.log(`🔍 Applying search filter for "${searchQuery}"...`);
+      AppLogger.info('[TRENDING] Applying search filter to trending products', { searchQuery });
       
       // We'll need to fetch all products to check titles, but we'll do it in batches
       const matchedProductIds: Array<{
@@ -502,9 +540,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       let productsAfter: string | null = null;
       let hasMoreProducts = true;
       let totalProductsFetched = 0;
+      let batchCount = 0;
       
       // Fetch all products in batches to find matches
       while (hasMoreProducts) {
+        batchCount++;
         const { products, hasNextPage, endCursor } = await fetchProductsWithPagination(
           admin, 
           250, // Fetch in batches of 250
@@ -515,13 +555,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         
         // Filter products that have sales and match the search query
         products.forEach(product => {
-          const salesData = salesData.get(product.id);
-          if (salesData && salesData.sales > 0) {
+          const productSalesInfo = salesData.get(product.id);
+          if (productSalesInfo && productSalesInfo.sales > 0) {
             if (product.title.toLowerCase().includes(searchQuery.toLowerCase())) {
               matchedProductIds.push({
                 id: product.id,
-                sales: salesData.sales,
-                revenue: salesData.revenue
+                sales: productSalesInfo.sales,
+                revenue: productSalesInfo.revenue
               });
             }
           }
@@ -530,14 +570,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         hasMoreProducts = hasNextPage && endCursor !== null;
         productsAfter = endCursor;
         
-        console.log(`📦 Batch: ${products.length} products checked, ${matchedProductIds.length} match search`);
+        AppLogger.debug('[TRENDING] Trending search batch processed', {
+          batch: batchCount,
+          productsChecked: products.length,
+          matchesFound: matchedProductIds.length,
+          totalProductsFetched
+        });
       }
       
       // Sort the matched products by sales
       matchedProductIds.sort((a, b) => b.sales - a.sales);
       filteredProductIds = matchedProductIds;
       
-      console.log(`🔍 After search filter: ${filteredProductIds.length} products match "${searchQuery}"`);
+      AppLogger.info('[TRENDING] Trending search filter applied', {
+        searchQuery,
+        beforeSearch: productsWithSalesData.length,
+        afterSearch: filteredProductIds.length
+      });
     }
     
     // Calculate total products for pagination
@@ -548,7 +597,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const endIndex = startIndex + productsCount;
     const paginatedProductIds = filteredProductIds.slice(startIndex, endIndex);
     
-    console.log(`📄 Fetching product details for page ${page} (${startIndex + 1}-${endIndex})`);
+    AppLogger.info('[TRENDING] Applying trending pagination', {
+      page,
+      productsCount,
+      startIndex,
+      endIndex,
+      paginatedProducts: paginatedProductIds.length
+    });
     
     // STEP 3: Fetch the actual product details for the current page
     const productIds = paginatedProductIds.map(p => p.id);
@@ -561,7 +616,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       const productDetail = productDetails.get(productData.id);
       
       if (!productDetail) {
-        console.warn(`⚠️ Product details not found for ID: ${productData.id}`);
+        AppLogger.warn('[TRENDING] Trending product details not found', { productId: productData.id });
         return;
       }
       
@@ -598,8 +653,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       trendingProducts.push(trendingProduct);
     });
 
-    console.log(`✅ Final results: ${trendingProducts.length} products on page ${page}`);
-    console.log(`💰 Total products with sales: ${totalProductsCount}`);
+    AppLogger.info('[TRENDING] Trending products transformation completed', {
+      trendingProductsCount: trendingProducts.length,
+      page,
+      totalProducts: totalProductsCount
+    });
     
     // Calculate pagination info
     const hasPreviousPage = page > 1;
@@ -619,6 +677,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       prevCursor = (page - 1).toString();
     }
 
+    AppLogger.info('[TRENDING] Trending loader completed successfully', {
+      trendingProductsReturned: trendingProducts.length,
+      totalProducts: totalProductsCount,
+      currentPage: page,
+      hasNextPage,
+      hasPreviousPage
+    });
+
     return {
       trendingProducts,
       totalProducts: totalProductsCount,
@@ -632,7 +698,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     };
 
   } catch (error: any) {
-    console.error('💥 Error in Trending loader:', error);
+    AppLogger.error('[TRENDING] Error in Trending loader', error, {
+      productsCount,
+      page,
+      searchQuery
+    });
     return { 
       trendingProducts: [], 
       totalProducts: 0,
@@ -643,14 +713,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       searchQuery,
     };
   }
-};
-
-// Helper function to check if product is new (created in last 7 days)
-const isProductNew = (createdAt: string): boolean => {
-  const createdDate = new Date(createdAt);
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  return createdDate > sevenDaysAgo;
 };
 
 export default function TrendingPage() {
@@ -674,15 +736,33 @@ export default function TrendingPage() {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [loading, setLoading] = useState(false);
 
+  // ADD COMPONENT MOUNT LOGGING
+  useEffect(() => {
+    AppLogger.info('[TRENDING] TrendingPage component mounted', {
+      initialTrendingProducts: trendingProducts.length,
+      initialPage,
+      initialSearch
+    });
+  }, []);
+
   // Reset loading state when new data is loaded
   useEffect(() => {
     setLoading(false);
-  }, [trendingProducts]);
+    AppLogger.debug('[TRENDING] Trending data loaded', {
+      trendingProductsCount: trendingProducts.length,
+      currentPage,
+      searchQuery
+    });
+  }, [trendingProducts, currentPage, searchQuery]);
 
   // Handle search with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchQuery !== initialSearch) {
+        AppLogger.info('[TRENDING] Trending search query executed', {
+          searchQuery,
+          previousSearch: initialSearch
+        });
         setLoading(true);
         const params = new URLSearchParams(window.location.search);
         if (searchQuery) {
@@ -702,6 +782,10 @@ export default function TrendingPage() {
 
   const handleCountChange = (value: string) => {
     const newCount = parseInt(value);
+    AppLogger.info('[TRENDING] Trending products per page changed', {
+      from: productsCount,
+      to: newCount
+    });
     setProductsCount(newCount);
     setLoading(true);
     
@@ -713,6 +797,10 @@ export default function TrendingPage() {
   };
 
   const handlePageChange = (page: number) => {
+    AppLogger.info('[TRENDING] Trending page changed', {
+      from: currentPage,
+      to: page
+    });
     setCurrentPage(page);
     setLoading(true);
     
@@ -724,12 +812,17 @@ export default function TrendingPage() {
   };
 
   const refreshData = () => {
+    AppLogger.info('[TRENDING] Trending manual refresh triggered');
     setLoading(true);
     const params = new URLSearchParams(window.location.search);
     submit(params, { replace: true });
   };
 
   const downloadCSV = () => {
+    AppLogger.info('[TRENDING] Trending CSV download initiated', {
+      productsCount: trendingProducts.length,
+      currentPage
+    });
     const headers = ['Position', 'Trend', 'Title', 'Price', '7-Day Sales', '7-Day Revenue', 'New', 'In Stock', 'Created'];
     const csvData = trendingProducts.map(product => [
       product.position,
@@ -835,7 +928,10 @@ export default function TrendingPage() {
                       autoComplete="off"
                       prefix={<Icon source={SearchIcon} />}
                       clearButton
-                      onClearButtonClick={() => setSearchQuery('')}
+                      onClearButtonClick={() => {
+                        AppLogger.info('[TRENDING] Trending search cleared');
+                        setSearchQuery('');
+                      }}
                     />
                   </div>
                   
@@ -1037,7 +1133,10 @@ export default function TrendingPage() {
                   </Box>
                   {searchQuery && (
                     <Box paddingBlockStart="200">
-                      <Button onClick={() => setSearchQuery('')} disabled={loading}>
+                      <Button onClick={() => {
+                        AppLogger.info('[TRENDING] Clear search clicked from trending empty state');
+                        setSearchQuery('');
+                      }} disabled={loading}>
                         Clear search
                       </Button>
                     </Box>

@@ -1,0 +1,186 @@
+[2025-11-30 20:00:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:00:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:03:12] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-11-30T14:33:12.284Z"}
+[2025-11-30 20:03:26] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-11-30T14:33:26.962Z"}
+[2025-11-30 20:05:06] [DEBUG] Toggling popover for collection{"collection":"Accessories - Modern","from":false,"to":true}
+[2025-11-30 20:34:33] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:34:33] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:34:43] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-11-30T15:04:43.968Z"}
+[2025-11-30 20:42:07] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:42:07] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:42:27] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:42:27] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:45:03] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:45:03] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:45:05] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:45:05] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:45:13] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:45:13] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:45:31] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:45:31] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:46:44] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:46:44] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:47:02] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:47:02] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:50:57] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:50:57] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:51:00] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:51:00] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:52:10] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:52:10] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:52:21] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:52:21] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:52:49] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"w","statusFilter":"all","beforeFilter":515,"afterFilter":71}
+[2025-11-30 20:52:50] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"we","statusFilter":"all","beforeFilter":515,"afterFilter":25}
+[2025-11-30 20:52:49] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"w","statusFilter":"all","beforeFilter":515,"afterFilter":71}
+[2025-11-30 20:52:50] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"we","statusFilter":"all","beforeFilter":515,"afterFilter":25}
+[2025-11-30 20:52:52] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"wes","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-30 20:52:52] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"wes","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-30 20:52:52] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"west","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-30 20:52:52] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"west","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-30 20:52:55] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"wes","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-30 20:52:55] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"wes","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-30 20:52:55] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"we","statusFilter":"all","beforeFilter":515,"afterFilter":25}
+[2025-11-30 20:52:55] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"we","statusFilter":"all","beforeFilter":515,"afterFilter":25}
+[2025-11-30 20:52:58] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"w","statusFilter":"all","beforeFilter":515,"afterFilter":71}
+[2025-11-30 20:52:58] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:52:58] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:52:58] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"w","statusFilter":"all","beforeFilter":515,"afterFilter":71}
+[2025-11-30 20:53:13] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-11-30T15:23:13.177Z"}
+[2025-11-30 20:53:26] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":515,"afterFilter":19}
+[2025-11-30 20:53:26] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":515,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:29] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:53:36] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":19,"afterFilter":0}
+[2025-11-30 20:53:36] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":19,"afterFilter":0}
+[2025-11-30 20:53:38] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:38] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:54] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:54] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:53:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:53:59] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:02] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":515,"afterFilter":496}
+[2025-11-30 20:54:02] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":515,"afterFilter":496}
+[2025-11-30 20:54:03] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:03] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:07] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:07] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:07] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:07] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:08] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:08] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:09] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:09] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:09] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:09] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:11] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:11] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:12] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:12] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:54:32] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app","timestamp":"2025-11-30T15:24:32.421Z"}
+[2025-11-30 20:56:45] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:56:45] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:58:04] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-11-30T15:28:04.903Z"}
+[2025-11-30 20:58:19] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app","timestamp":"2025-11-30T15:28:19.253Z"}
+[2025-11-30 20:58:36] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":515,"afterFilter":19}
+[2025-11-30 20:58:36] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":515,"afterFilter":19}
+[2025-11-30 20:58:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:58:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"enabled","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:58:45] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:58:45] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":19,"afterFilter":19}
+[2025-11-30 20:58:47] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:58:47] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:02] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:02] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:02] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:02] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:03] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:03] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:05] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-11-30T15:29:05.541Z"}
+[2025-11-30 20:59:05] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:05] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:05] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:05] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:05] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app","timestamp":"2025-11-30T15:29:05.963Z"}
+[2025-11-30 20:59:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:06] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:35] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":515,"afterFilter":496}
+[2025-11-30 20:59:35] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":515,"afterFilter":496}
+[2025-11-30 20:59:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:59:39] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"disabled","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:59:41] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:59:41] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":496,"afterFilter":496}
+[2025-11-30 20:59:44] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 20:59:44] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:02:54] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"w","statusFilter":"all","beforeFilter":515,"afterFilter":71}
+[2025-11-30 21:02:54] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"w","statusFilter":"all","beforeFilter":515,"afterFilter":71}
+[2025-11-30 21:03:03] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:03:03] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:03:03] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"W","statusFilter":"all","beforeFilter":515,"afterFilter":71}
+[2025-11-30 21:02:55] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:02:55] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:03:03] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"W","statusFilter":"all","beforeFilter":515,"afterFilter":71}
+[2025-11-30 21:03:15] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"W","statusFilter":"all","beforeFilter":515,"afterFilter":71}
+[2025-11-30 21:03:15] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"W","statusFilter":"all","beforeFilter":515,"afterFilter":71}
+[2025-11-30 21:03:16] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"We","statusFilter":"all","beforeFilter":515,"afterFilter":25}
+[2025-11-30 21:03:16] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"We","statusFilter":"all","beforeFilter":515,"afterFilter":25}
+[2025-11-30 21:03:16] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Wes","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-30 21:03:16] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"Wes","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-30 21:03:17] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"West","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-30 21:03:17] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"West","statusFilter":"all","beforeFilter":515,"afterFilter":1}
+[2025-11-30 21:03:23] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:03:23] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:03:35] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:03:35] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:03:37] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:03:37] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:04:53] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:04:53] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:05:42] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app/featured-products/302621327419","timestamp":"2025-11-30T15:35:42.243Z"}
+[2025-11-30 21:06:44] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/featured-products/302621327419","timestamp":"2025-11-30T15:36:44.205Z"}
+[2025-11-30 21:07:04] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:07:04] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:11:33] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:11:33] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":515,"afterFilter":515}
+[2025-11-30 21:12:39] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-11-30T15:42:39.426Z"}
+[2025-11-30 21:13:18] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/302621327419","timestamp":"2025-11-30T15:43:18.592Z"}
+[2025-11-30 21:13:34] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/manage-tags/302621327419","timestamp":"2025-11-30T15:43:34.815Z"}
+[2025-11-30 21:14:08] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app/manage-tags/302621327419","timestamp":"2025-11-30T15:44:08.761Z"}
+[2025-11-30 21:14:26] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/302621327419","timestamp":"2025-11-30T15:44:26.029Z"}
+[2025-11-30 21:15:16] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/manage-tags/302621327419","timestamp":"2025-11-30T15:45:16.386Z"}

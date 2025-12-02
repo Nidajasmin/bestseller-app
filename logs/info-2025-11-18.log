@@ -1,0 +1,240 @@
+2025-11-18T03:44:44.556Z [INFO] from https://genres-around-jay-executives.trycloudflare.com/app?embedded=1&hmac=e7fb9d6c335c4ebe2eb1e9f1008c8df7eaab53dca2fdd5938f3cc6c613c6eccf&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzNDM3NTIzLCJuYmYiOjE3NjM0Mzc0NjMsImlhdCI6MTc2MzQzNzQ2MywianRpIjoiZDI5MmI1ODMtOGU0MS00MDFmLWFkYjktOWMxZGMzNzEzMGQ2Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiY2I0Y2E3ZmFjM2ViOTc1NWU5NTFjYmYzNjE2ODljZGIyOGMwY2Y5NTE2NjhkMWFlNjk3NGI2ODMyYjM3YTY4YiJ9.J45L-jDf3bQ9YsqMc4p_VK8I22ICvWylIlg45GEWdNE&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763437463
+Message: Redirecting from /app to /app/collections_list
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-18T03:44:44.556Z [INFO] from https://genres-around-jay-executives.trycloudflare.com/app?embedded=1&hmac=e7fb9d6c335c4ebe2eb1e9f1008c8df7eaab53dca2fdd5938f3cc6c613c6eccf&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzNDM3NTIzLCJuYmYiOjE3NjM0Mzc0NjMsImlhdCI6MTc2MzQzNzQ2MywianRpIjoiZDI5MmI1ODMtOGU0MS00MDFmLWFkYjktOWMxZGMzNzEzMGQ2Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiY2I0Y2E3ZmFjM2ViOTc1NWU5NTFjYmYzNjE2ODljZGIyOGMwY2Y5NTE2NjhkMWFlNjk3NGI2ODMyYjM3YTY4YiJ9.J45L-jDf3bQ9YsqMc4p_VK8I22ICvWylIlg45GEWdNE&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763437463
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-18T03:44:44.550Z [INFO] from https://genres-around-jay-executives.trycloudflare.com/app?embedded=1&hmac=e7fb9d6c335c4ebe2eb1e9f1008c8df7eaab53dca2fdd5938f3cc6c613c6eccf&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzNDM3NTIzLCJuYmYiOjE3NjM0Mzc0NjMsImlhdCI6MTc2MzQzNzQ2MywianRpIjoiZDI5MmI1ODMtOGU0MS00MDFmLWFkYjktOWMxZGMzNzEzMGQ2Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiY2I0Y2E3ZmFjM2ViOTc1NWU5NTFjYmYzNjE2ODljZGIyOGMwY2Y5NTE2NjhkMWFlNjk3NGI2ODMyYjM3YTY4YiJ9.J45L-jDf3bQ9YsqMc4p_VK8I22ICvWylIlg45GEWdNE&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763437463
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-18T03:44:44.551Z [INFO] from https://genres-around-jay-executives.trycloudflare.com/app?embedded=1&hmac=e7fb9d6c335c4ebe2eb1e9f1008c8df7eaab53dca2fdd5938f3cc6c613c6eccf&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzNDM3NTIzLCJuYmYiOjE3NjM0Mzc0NjMsImlhdCI6MTc2MzQzNzQ2MywianRpIjoiZDI5MmI1ODMtOGU0MS00MDFmLWFkYjktOWMxZGMzNzEzMGQ2Iiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiY2I0Y2E3ZmFjM2ViOTc1NWU5NTFjYmYzNjE2ODljZGIyOGMwY2Y5NTE2NjhkMWFlNjk3NGI2ODMyYjM3YTY4YiJ9.J45L-jDf3bQ9YsqMc4p_VK8I22ICvWylIlg45GEWdNE&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763437463
+Message: Redirecting from /app to /app/collections_list
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {}
+----------------------------------------
+2025-11-18T03:44:48.764Z [INFO] from https://genres-around-jay-executives.trycloudflare.com/app/collections_list
+Message: [COLLECTIONS_LIST] CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-18T03:44:48.762Z [INFO] from https://genres-around-jay-executives.trycloudflare.com/app/collections_list
+Message: [COLLECTIONS_LIST] CollectionsListPageContent component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialCollectionsCount": 509
+}
+----------------------------------------
+2025-11-18T03:48:46.944Z [INFO] from https://genres-around-jay-executives.trycloudflare.com/app/collections_list
+Message: [COLLECTIONS_LIST] Edit collection in Shopify clicked
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302365605947",
+  "title": "Watches"
+}
+----------------------------------------
+2025-11-18T03:49:04.947Z [INFO] from https://genres-around-jay-executives.trycloudflare.com/app/collections_list
+Message: [COLLECTIONS_LIST] View collection in store clicked
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "collectionId": "gid://shopify/Collection/302365605947",
+  "title": "Watches"
+}
+----------------------------------------
+2025-11-18T04:33:55.267Z [INFO] from https://lamb-acm-dispatched-replies.trycloudflare.com/app/Bestsellers?embedded=1&hmac=ff751d0eaaa44ed511da574e60349e5ed89b1c46674963fafd68f603067a04b2&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzNDQwNDUxLCJuYmYiOjE3NjM0NDAzOTEsImlhdCI6MTc2MzQ0MDM5MSwianRpIjoiMmZhM2ZmY2MtOTNlOC00ZTNlLTgxNWQtNDczY2ViZjRiOWRjIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNTZlYzk2NDFjMTMxYjAwYjRlZTA5OTEzODBhYWRmOGJmNjdkNTkxYzJlODM5MjYyN2M5MzI1OTg5YjFjYTlhYiJ9.FlPtA5sfcE6huytAwX_23HNGI_yMARRPETbB1E72Rd8&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763440391
+Message: BestsellersPage component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialBestsellers": 11,
+  "initialMonth": "6",
+  "initialPage": 1,
+  "initialSearch": ""
+}
+----------------------------------------
+2025-11-18T04:33:55.269Z [INFO] from https://lamb-acm-dispatched-replies.trycloudflare.com/app/Bestsellers?embedded=1&hmac=ff751d0eaaa44ed511da574e60349e5ed89b1c46674963fafd68f603067a04b2&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzNDQwNDUxLCJuYmYiOjE3NjM0NDAzOTEsImlhdCI6MTc2MzQ0MDM5MSwianRpIjoiMmZhM2ZmY2MtOTNlOC00ZTNlLTgxNWQtNDczY2ViZjRiOWRjIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNTZlYzk2NDFjMTMxYjAwYjRlZTA5OTEzODBhYWRmOGJmNjdkNTkxYzJlODM5MjYyN2M5MzI1OTg5YjFjYTlhYiJ9.FlPtA5sfcE6huytAwX_23HNGI_yMARRPETbB1E72Rd8&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763440391
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/Bestsellers",
+  "apiKey": "set"
+}
+----------------------------------------
+2025-11-18T04:33:55.276Z [INFO] from https://lamb-acm-dispatched-replies.trycloudflare.com/app/Bestsellers?embedded=1&hmac=ff751d0eaaa44ed511da574e60349e5ed89b1c46674963fafd68f603067a04b2&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzNDQwNDUxLCJuYmYiOjE3NjM0NDAzOTEsImlhdCI6MTc2MzQ0MDM5MSwianRpIjoiMmZhM2ZmY2MtOTNlOC00ZTNlLTgxNWQtNDczY2ViZjRiOWRjIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNTZlYzk2NDFjMTMxYjAwYjRlZTA5OTEzODBhYWRmOGJmNjdkNTkxYzJlODM5MjYyN2M5MzI1OTg5YjFjYTlhYiJ9.FlPtA5sfcE6huytAwX_23HNGI_yMARRPETbB1E72Rd8&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763440391
+Message: BestsellersPage component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "initialBestsellers": 11,
+  "initialMonth": "6",
+  "initialPage": 1,
+  "initialSearch": ""
+}
+----------------------------------------
+2025-11-18T04:33:55.276Z [INFO] from https://lamb-acm-dispatched-replies.trycloudflare.com/app/Bestsellers?embedded=1&hmac=ff751d0eaaa44ed511da574e60349e5ed89b1c46674963fafd68f603067a04b2&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzNDQwNDUxLCJuYmYiOjE3NjM0NDAzOTEsImlhdCI6MTc2MzQ0MDM5MSwianRpIjoiMmZhM2ZmY2MtOTNlOC00ZTNlLTgxNWQtNDczY2ViZjRiOWRjIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNTZlYzk2NDFjMTMxYjAwYjRlZTA5OTEzODBhYWRmOGJmNjdkNTkxYzJlODM5MjYyN2M5MzI1OTg5YjFjYTlhYiJ9.FlPtA5sfcE6huytAwX_23HNGI_yMARRPETbB1E72Rd8&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763440391
+Message: App component mounted
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "currentPath": "/app/Bestsellers",
+  "apiKey": "set"
+}
+----------------------------------------
+[2025-11-18 11:01:02] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 11:01:02] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 11:01:02] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 11:01:02] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 11:01:06] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:01:06] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:01:15] [INFO] [COLLECTIONS_LIST] Collection toggle triggered{"collectionId":"gid://shopify/Collection/302619426875","collectionTitle":"Activating CPR","from":false,"to":true}
+[2025-11-18 11:01:18] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302619426875","title":"Activating CPR"}
+[2025-11-18 11:03:08] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 11:03:08] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 11:03:08] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 11:03:08] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 11:03:11] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:03:11] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:03:36] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 11:03:50] [INFO] TopNavbar navigation triggered{"from":"/app/collection-sort/302621327419","to":"/app/Tags-collection_Manager","section":"RE-SORT APP","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-18T05:33:50.590Z"}
+[2025-11-18 11:04:06] [INFO] TopNavbar navigation triggered{"from":"/app/Tags-collection_Manager","to":"/app/Tags-collection_Manager","section":"Tags & Collection Manager","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-18T05:34:06.041Z"}
+[2025-11-18 11:04:06] [INFO] TopNavbar navigation triggered{"from":"/app/Tags-collection_Manager","to":"/app/collections_list","section":"Tags & Collection Manager","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-18T05:34:06.955Z"}
+[2025-11-18 11:04:09] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:04:09] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:04:13] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 11:11:09] [INFO] TopNavbar navigation triggered{"from":"/app/collection-sort/302621327419","to":"/app/collections_list","section":"RE-SORT APP","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-18T05:41:09.849Z"}
+[2025-11-18 11:11:14] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:11:14] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:11:22] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 11:14:43] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:14:43] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-18 11:14:43] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-18 11:14:43] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:26:12] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 11:47:26] [INFO] [COLLECTIONS_LIST] Manual refresh triggered
+[2025-11-18 11:47:28] [INFO] [COLLECTIONS_LIST] Refresh completed
+[2025-11-18 11:47:44] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 11:48:40] [INFO] [COLLECTIONS_LIST] Refresh completed
+[2025-11-18 11:48:38] [INFO] [COLLECTIONS_LIST] Manual refresh triggered
+[2025-11-18 11:48:51] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 11:49:06] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 11:50:35] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 11:50:35] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 11:50:35] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 11:50:35] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 11:50:38] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:50:38] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 11:50:48] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 12:01:52] [INFO] TopNavbar navigation triggered{"from":"/app/collection-sort/302621327419","to":"/app/collections_list","section":"RE-SORT APP","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-18T06:31:52.395Z"}
+[2025-11-18 12:01:54] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 12:01:54] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 12:01:58] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 12:17:46] [INFO] TopNavbar navigation triggered{"from":"/app/collection-sort/302621327419","to":"/app/collections_list","section":"RE-SORT APP","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-18T06:47:46.101Z"}
+[2025-11-18 12:17:48] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 12:17:48] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 12:17:55] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 12:49:18] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 12:49:18] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 12:49:18] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 12:49:18] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 12:49:19] [INFO] TopNavbar navigation triggered{"from":"/app","to":"/app/collections_list","section":"RE-SORT APP","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-18T07:19:19.637Z"}
+[2025-11-18 12:49:22] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 12:49:22] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 12:49:29] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 12:50:05] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 12:58:57] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 12:58:57] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 12:58:57] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 12:58:57] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 12:59:01] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 12:59:01] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 12:59:11] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 13:00:06] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 13:12:10] [INFO] App component mounted{"currentPath":"/app/collection-sort/302621327419","apiKey":"set"}
+[2025-11-18 13:12:10] [INFO] App component mounted{"currentPath":"/app/collection-sort/302621327419","apiKey":"set"}
+[2025-11-18 13:12:45] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 13:12:45] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 13:13:00] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/302606352443","title":"Burn Care - Guard"}
+[2025-11-18 13:14:15] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/302606352443","title":"Burn Care - Guard"}
+[2025-11-18 13:14:25] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/302606352443","title":"Burn Care - Guard"}
+[2025-11-18 13:15:06] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302606352443","title":"Burn Care - Guard"}
+[2025-11-18 13:16:16] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 13:16:16] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":509}
+[2025-11-18 13:16:24] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Western Dress","statusFilter":"all"}
+[2025-11-18 13:16:24] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/302183481403","collectionTitle":"Western Dress"}
+[2025-11-18 13:16:27] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/302183481403","title":"Western Dress"}
+[2025-11-18 13:16:41] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/302183481403","collectionTitle":"Western Dress"}
+[2025-11-18 13:16:41] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Western Dress","statusFilter":"all"}
+[2025-11-18 13:16:42] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/302183481403","title":"Western Dress"}
+[2025-11-18 13:16:53] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302183481403","title":"Western Dress"}
+[2025-11-18 14:35:22] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 14:35:22] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 14:35:22] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 14:35:22] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 14:35:25] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 14:35:25] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 14:37:25] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Alphabets","statusFilter":"all"}
+[2025-11-18 14:37:25] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303004287035","collectionTitle":"Alphabets"}
+[2025-11-18 14:37:26] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Alphabets","statusFilter":"all"}
+[2025-11-18 14:37:26] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303004287035","collectionTitle":"Alphabets"}
+[2025-11-18 14:37:29] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303004287035","collectionTitle":"Alphabets"}
+[2025-11-18 14:37:29] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Alphabets","statusFilter":"all"}
+[2025-11-18 14:37:33] [INFO] [COLLECTIONS_LIST] Collection toggle triggered{"collectionId":"gid://shopify/Collection/303004287035","collectionTitle":"Alphabets","from":false,"to":true}
+[2025-11-18 14:37:35] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/303004287035","title":"Alphabets"}
+[2025-11-18 14:38:11] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/303004287035","title":"Alphabets"}
+[2025-11-18 14:38:42] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 14:38:42] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 14:39:02] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/303004287035","title":"Alphabets"}
+[2025-11-18 14:39:59] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/303004287035","title":"Alphabets"}
+[2025-11-18 15:26:27] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 15:26:27] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 15:26:27] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 15:26:27] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 15:26:33] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 15:26:33] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 15:29:16] [INFO] [COLLECTIONS_LIST] Search cleared
+[2025-11-18 15:29:16] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"","statusFilter":"all"}
+[2025-11-18 15:29:20] [INFO] [COLLECTIONS_LIST] Collections status filter changed{"from":"all","to":"enabled"}
+[2025-11-18 15:29:31] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/303004287035","title":"Alphabets"}
+[2025-11-18 15:30:25] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 15:30:25] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 15:31:15] [INFO] [COLLECTIONS_LIST] Collections status filter changed{"from":"all","to":"enabled"}
+[2025-11-18 15:31:25] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/303004287035","title":"Alphabets"}
+[2025-11-18 16:49:03] [INFO] App component mounted{"currentPath":"/app/collection-sort/303004287035","apiKey":"set"}
+[2025-11-18 16:49:03] [INFO] App component mounted{"currentPath":"/app/collection-sort/303004287035","apiKey":"set"}
+[2025-11-18 16:51:25] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 16:51:25] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 16:51:25] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-18 16:51:25] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-18 16:51:28] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 16:51:28] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 16:51:34] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 16:52:36] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 16:52:36] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 16:52:41] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 16:53:16] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 16:53:16] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 16:54:42] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 16:55:13] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 16:55:42] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-18 17:04:13] [INFO] TopNavbar navigation triggered{"from":"/app/collection-sort/302621327419","to":"/app/Tags-collection_Manager","section":"RE-SORT APP","userAgent":"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-18T11:34:13.521Z"}
+[2025-11-18 17:05:42] [INFO] TopNavbar navigation triggered{"from":"/app/Tags-collection_Manager","to":"/app/collections_list","section":"Tags & Collection Manager","userAgent":"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-18T11:35:42.510Z"}
+[2025-11-18 17:05:47] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 17:05:47] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 17:06:04] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302623621179","title":"Accessories Refreshing"}
+[2025-11-18 17:06:37] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 17:06:37] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 17:30:54] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 17:30:54] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-18 17:30:54] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-18 17:30:54] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-18 17:31:03] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}

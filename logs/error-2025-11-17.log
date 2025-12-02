@@ -1,0 +1,52 @@
+2025-11-17T08:23:03.872Z [ERROR] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: WARNING: API Rate limit warning
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "component": "TopNavbar",
+  "action": "test-error-button",
+  "severity": "high",
+  "apiEndpoint": "/admin/api/2024-01/graphql.json",
+  "shop": "resort-9336.myshopify.com",
+  "retryCount": 3,
+  "errorInfo": "Error: API Error: Shopify API rate limit exceeded | Stack: ShopifyAPIError: Rate limit 40/40\n  at ShopifyClient.fetch (shopify.js:112:30)\n  at CollectionsLoader.load (loader.js:67:15)\n  at TopNavbar.testErrorLogging (TopNavbar.tsx:85:25)",
+  "originalError": {}
+}
+----------------------------------------
+2025-11-17T08:23:03.871Z [ERROR] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: CRITICAL: Database connection failed
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "component": "TopNavbar",
+  "action": "test-error-button",
+  "severity": "critical",
+  "timestamp": "2025-11-17T08:23:03.871Z",
+  "environment": "development",
+  "user": "test-user",
+  "sessionId": "t9yhpzfezgd",
+  "page": "/app/collections_list",
+  "errorInfo": "Error: Critical Error: Database connection failed | Stack: DatabaseError: Connection timeout\n  at Database.connect (database.js:45:15)\n  at TopNavbar.testErrorLogging (TopNavbar.tsx:78:20)\n  at HTMLButtonElement.onClick",
+  "originalError": {}
+}
+----------------------------------------
+2025-11-17T08:23:33.747Z [ERROR] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=ce10ffd2f92a667bb35b2bccc5a72a6aa89fef9f296e74d4c7614282d4be1a04&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvcmVzb3J0LTkzMzYubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL3Jlc29ydC05MzM2Lm15c2hvcGlmeS5jb20iLCJhdWQiOiJlZjRmYjkyNGU1YmFhMzFjYjQyNjNiZDEwMDJkMzU4ZCIsInN1YiI6Ijg1NzMzMDE1NjExIiwiZXhwIjoxNzYzMzY3ODMyLCJuYmYiOjE3NjMzNjc3NzIsImlhdCI6MTc2MzM2Nzc3MiwianRpIjoiYjZmMzhkMDctOWQzNy00MDkzLTlmZjAtMDE2MjVhZWEyZTcxIiwic2lkIjoiYmVkZWMyZDMtMmM5MS00NDE4LTkzZmItOWUzYWVhYzc0MDhkIiwic2lnIjoiNGNmMDhhY2VjZjE3ZGY1Y2E0YmViMGQxNjZkMTIzN2Y5OTQzYmE4ODk5OGM1NmVjNmU1OWUyZDllMGQ4ZDI1ZiJ9.z4P-sgnOJR0rWnJEHQawl7JwE0QWps0rpcF_Oqqv3zg&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763367772
+Message: SYSTEM: Collections processor crashed
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "component": "TopNavbar",
+  "action": "test-all-button",
+  "severity": "critical",
+  "memoryUsage": "95%",
+  "processId": 45892,
+  "restartCount": 3,
+  "errorInfo": "Error: System malfunction in collections processor | Stack: SystemError: Memory overflow in collections processor\n  at CollectionsProcessor.process (processor.js:234:12)\n  at async JobRunner.execute (jobs.js:89:24)\n  at TopNavbar.testAllLogging (TopNavbar.tsx:167:15)",
+  "originalError": {}
+}
+----------------------------------------
+2025-11-17T10:50:14.247Z [ERROR] from https://prize-significant-candy-microphone.trycloudflare.com/app/collections_list?embedded=1&hmac=3552054c00ed259eefe8eb4e17b70e77449561b03a211534799020887adf149a&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvcmVzb3J0LTkzMzY&locale=en&session=df11aad00f50dadcfc259247e9b583bf015af1bb095ab165124a87d642716ec5&shop=resort-9336.myshopify.com&timestamp=1763376058
+Message: App ErrorBoundary caught an error
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0
+Meta: {
+  "errorInfo": "Error: Hydration failed because the initial UI does not match what was rendered on the server. | Stack: Error: Hydration failed because the initial UI does not match what was rendered on the server.\n    at throwOnHydrationMismatch (https://prize-significant-candy-microphone.trycloudflare.com/node_modules/.vite/deps/chunk-KPD4VVXB.js?v=0ba17a3e:9520:17)\n    at tryToClaimNextHydratableInstance (https://prize-significant-candy-microphone.trycloudflare.com/node_modules/.vite/deps/chunk-KPD4VVXB.js?v=0ba17a3e:9530:15)\n    at updateHostComponent (https://prize-significant-candy-microphone.trycloudflare.com/node_modules/.vite/deps/chunk-KPD4VVXB.js?v=0ba17a3e:14842:13)\n    at beginWork (https://prize-significant-candy-microphone.trycloudflare.com/node_modules/.vite/deps/chunk-KPD4VVXB.js?v=0ba17a3e:15983:22)\n    at beginWork$1 (https://prize-significant-candy-microphone.trycloudflare.com/node_modules/.vite/deps/chunk-KPD4VVXB.js?v=0ba17a3e:19806:22)\n    at performUnitOfWork (https://prize-significant-candy-microphone.trycloudflare.com/node_modules/.vite/deps/chunk-KPD4VVXB.js?v=0ba17a3e:19251:20)\n    at workLoopConcurrent (https://prize-significant-candy-microphone.trycloudflare.com/node_modules/.vite/deps/chunk-KPD4VVXB.js?v=0ba17a3e:19242:13)\n    at renderRootConcurrent (https://prize-significant-candy-microphone.trycloudflare.com/node_modules/.vite/deps/chunk-KPD4VVXB.js?v=0ba17a3e:19217:15)\n    at performConcurrentWorkOnRoot (https://prize-significant-candy-microphone.trycloudflare.com/node_modules/.vite/deps/chunk-KPD4VVXB.js?v=0ba17a3e:18728:46)\n    at workLoop (https://prize-significant-candy-microphone.trycloudflare.com/node_modules/.vite/deps/chunk-KPD4VVXB.js?v=0ba17a3e:197:42)",
+  "originalError": {}
+}
+----------------------------------------

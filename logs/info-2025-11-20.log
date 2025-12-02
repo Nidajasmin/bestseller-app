@@ -1,0 +1,309 @@
+[2025-11-20 09:02:07] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 09:02:07] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 09:02:07] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 09:02:07] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 09:03:35] [INFO] TopNavbar navigation triggered{"from":"/app/collections_list","to":"/app/Tags-collection_Manager","section":"Dashboard","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-20T03:33:35.515Z"}
+[2025-11-20 09:05:15] [INFO] TopNavbar navigation triggered{"from":"/app/Tags-collection_Manager","to":"/app/collections_list","section":"Tags & Collection Manager","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-20T03:35:15.643Z"}
+[2025-11-20 09:05:17] [INFO] TopNavbar navigation triggered{"from":"/app/Tags-collection_Manager","to":"/app/collections_list","section":"Tags & Collection Manager","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-20T03:35:17.264Z"}
+[2025-11-20 09:05:19] [INFO] TopNavbar navigation triggered{"from":"/app/Tags-collection_Manager","to":"/app/collections_list","section":"Tags & Collection Manager","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-20T03:35:19.873Z"}
+[2025-11-20 09:05:22] [INFO] TopNavbar navigation triggered{"from":"/app/Tags-collection_Manager","to":"/app/collections_list","section":"Tags & Collection Manager","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-20T03:35:22.323Z"}
+[2025-11-20 09:05:24] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-20 09:05:24] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-20 09:05:31] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-20 10:22:52] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 10:22:52] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 10:22:52] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 10:22:52] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 10:22:56] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-20 10:22:56] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-20 10:23:22] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-20 10:23:44] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-20 10:24:00] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-20 10:24:25] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-20 10:26:43] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-20 10:26:43] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-20 10:26:43] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-20 10:26:43] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-20 10:26:49] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-20 10:28:22] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-20 10:34:04] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 10:34:04] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 10:34:04] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 10:34:04] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 10:34:07] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-20 10:34:07] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-20 10:41:30] [INFO] [COLLECTIONS_LIST] Collection toggle triggered{"collectionId":"gid://shopify/Collection/302621327419","collectionTitle":"Accessories - Modern","from":false,"to":true}
+[2025-11-20 10:41:29] [INFO] [COLLECTIONS_LIST] Collection toggle triggered{"collectionId":"gid://shopify/Collection/302621327419","collectionTitle":"Accessories - Modern","from":true,"to":false}
+[2025-11-20 10:41:32] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-20 11:49:31] [INFO] App component mounted{"currentPath":"/app/collection-sort/302621327419","apiKey":"set"}
+[2025-11-20 11:49:31] [INFO] App component mounted{"currentPath":"/app/collection-sort/302621327419","apiKey":"set"}
+[2025-11-20 11:50:46] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 11:50:46] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 11:50:46] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 11:50:46] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 11:50:49] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-20 11:50:49] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":511}
+[2025-11-20 11:57:19] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-20 11:57:19] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-20 11:57:19] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 11:57:19] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 11:57:27] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303070314555","collectionTitle":"Fans"}
+[2025-11-20 11:57:27] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Fans","statusFilter":"all"}
+[2025-11-20 11:57:30] [INFO] [COLLECTIONS_LIST] Collection toggle triggered{"collectionId":"gid://shopify/Collection/303070314555","collectionTitle":"Fans","from":false,"to":true}
+[2025-11-20 11:57:33] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/303070314555","title":"Fans"}
+[2025-11-20 12:03:17] [INFO] App component mounted{"currentPath":"/app/collection-sort/303070314555","apiKey":"set"}
+[2025-11-20 12:03:17] [INFO] App component mounted{"currentPath":"/app/collection-sort/303070314555","apiKey":"set"}
+[2025-11-20 12:05:17] [INFO] App component mounted{"currentPath":"/app/collection-sort/303070314555","apiKey":"set"}
+[2025-11-20 12:05:17] [INFO] App component mounted{"currentPath":"/app/collection-sort/303070314555","apiKey":"set"}
+[2025-11-20 12:39:33] [INFO] App component mounted{"currentPath":"/app/collection-sort/303070314555","apiKey":"set"}
+[2025-11-20 12:39:33] [INFO] App component mounted{"currentPath":"/app/collection-sort/303070314555","apiKey":"set"}
+[2025-11-20 13:18:00] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 13:18:00] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 13:18:00] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 13:18:00] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 13:18:05] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 13:18:05] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 13:18:17] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-20 13:18:23] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/302621327419","title":"Accessories - Modern"}
+[2025-11-20 13:18:36] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303070314555","collectionTitle":"Fans"}
+[2025-11-20 13:18:35] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303070314555","collectionTitle":"Fans"}
+[2025-11-20 13:18:35] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Fans","statusFilter":"all"}
+[2025-11-20 13:18:36] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Fans","statusFilter":"all"}
+[2025-11-20 13:18:38] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/303070314555","title":"Fans"}
+[2025-11-20 13:18:43] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/303070314555","title":"Fans"}
+[2025-11-20 13:19:16] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/303070314555","title":"Fans"}
+[2025-11-20 13:19:24] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/303070314555","title":"Fans"}
+[2025-11-20 13:24:13] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 13:24:13] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 13:24:20] [INFO] [COLLECTIONS_LIST] Manual refresh triggered
+[2025-11-20 13:24:21] [INFO] [COLLECTIONS_LIST] Refresh completed
+[2025-11-20 13:24:27] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303072182331","collectionTitle":"Modern Fans"}
+[2025-11-20 13:24:27] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Modern Fans","statusFilter":"all"}
+[2025-11-20 13:24:33] [INFO] [COLLECTIONS_LIST] Edit collection in Shopify clicked{"collectionId":"gid://shopify/Collection/303072182331","title":"Modern Fans"}
+[2025-11-20 13:24:44] [INFO] [COLLECTIONS_LIST] Collection toggle triggered{"collectionId":"gid://shopify/Collection/303072182331","collectionTitle":"Modern Fans","from":false,"to":true}
+[2025-11-20 13:24:46] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/303072182331","title":"Modern Fans"}
+[2025-11-20 13:24:52] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/303072182331","title":"Modern Fans"}
+[2025-11-20 13:28:01] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 13:28:01] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 13:42:48] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 13:42:48] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 13:44:10] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 13:44:10] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 13:44:22] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303072182331","collectionTitle":"Modern Fans"}
+[2025-11-20 13:44:22] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Modern Fans","statusFilter":"all"}
+[2025-11-20 13:45:39] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/303072182331","title":"Modern Fans"}
+[2025-11-20 13:46:28] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 13:46:28] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 13:46:37] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 13:46:37] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 13:46:40] [INFO] [COLLECTIONS_LIST] Manual refresh triggered
+[2025-11-20 13:46:42] [INFO] [COLLECTIONS_LIST] Refresh completed
+[2025-11-20 13:46:52] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Modern Fans","statusFilter":"all"}
+[2025-11-20 13:46:52] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303072182331","collectionTitle":"Modern Fans"}
+[2025-11-20 13:46:53] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Modern Fans","statusFilter":"all"}
+[2025-11-20 13:46:53] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303072182331","collectionTitle":"Modern Fans"}
+[2025-11-20 13:46:55] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/303072182331","title":"Modern Fans"}
+[2025-11-20 15:10:16] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 15:10:16] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 15:23:34] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 15:23:34] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 15:23:34] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 15:23:34] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 15:23:37] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 15:23:37] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 15:24:52] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303072182331","collectionTitle":"Modern Fans"}
+[2025-11-20 15:24:52] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Modern Fans","statusFilter":"all"}
+[2025-11-20 15:25:02] [INFO] [COLLECTIONS_LIST] Search suggestion selected{"collectionId":"gid://shopify/Collection/303072182331","collectionTitle":"Modern Fans"}
+[2025-11-20 15:25:02] [INFO] [COLLECTIONS_LIST] Collections search submitted{"query":"Modern Fans","statusFilter":"all"}
+[2025-11-20 15:25:04] [INFO] [COLLECTIONS_LIST] Navigate to collection settings clicked{"collectionId":"gid://shopify/Collection/303072182331","title":"Modern Fans"}
+[2025-11-20 15:28:15] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 15:28:15] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 15:33:56] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 15:33:56] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 15:38:56] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 15:38:56] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 15:56:50] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 15:56:50] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 15:58:54] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 15:58:54] [INFO] App component mounted{"currentPath":"/app/collection-sort/303072182331","apiKey":"set"}
+[2025-11-20 17:20:26] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:20:26] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:20:26] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:20:26] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:20:29] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:20:29] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:30:04] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:04] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:04] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:04] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:30:04] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:30:04] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:04] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:04] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:05] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:05] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:05] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:05] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:29] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:29] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:29] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:30:29] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:29] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:30:29] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:29] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:29] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:29] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:29] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:29] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:29] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:50] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:50] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:30:50] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:50] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:30:50] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:50] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:50] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:50] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:51] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:51] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:51] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:30:51] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:31:18] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:31:18] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:31:18] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:31:18] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:31:21] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:31:21] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:40:57] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:40:57] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:40:57] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:40:57] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:40:59] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:40:59] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-20 17:40:59] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:42:14] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:42:14] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:42:14] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:42:14] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:42:18] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-20 17:42:18] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:42:18] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:45:25] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:45:25] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:45:25] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:45:25] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:45:28] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-20 17:45:28] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:45:28] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:48:47] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:48:47] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:48:47] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:48:47] [INFO] Redirecting from /app to /app/collections_list
+[2025-11-20 17:48:47] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:48:47] [INFO] App component mounted{"currentPath":"/app","apiKey":"set"}
+[2025-11-20 17:48:54] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:48:54] [INFO] App component mounted{"currentPath":"/app/collections_list","apiKey":"set"}
+[2025-11-20 17:48:54] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:52:21] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:52:21] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:52:21] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:52:21] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:52:23] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:52:23] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:35] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:35] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:35] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:35] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:36] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:35] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:35] [INFO] TopNavbar navigation triggered{"from":"/app","to":"/app/Bestsellers","section":"RE-SORT APP","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-20T12:23:35.536Z"}
+[2025-11-20 17:53:36] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:35] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:36] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:36] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:35] [INFO] TopNavbar submenu navigation{"from":"/app","to":"/app/Bestsellers","submenu":"Bestsellers","timestamp":"2025-11-20T12:23:35.536Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0"}
+[2025-11-20 17:53:38] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:38] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:41] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:41] [INFO] BestsellersPage component mounted{"initialBestsellers":15,"initialMonth":"6","initialPage":1,"initialSearch":""}
+[2025-11-20 17:53:41] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:41] [INFO] BestsellersPage component mounted{"initialBestsellers":15,"initialMonth":"6","initialPage":1,"initialSearch":""}
+[2025-11-20 17:53:41] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:41] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:56] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:56] [INFO] TopNavbar submenu navigation{"from":"/app/Bestsellers","to":"/app/Trending","submenu":"Trending","timestamp":"2025-11-20T12:23:56.916Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0"}
+[2025-11-20 17:53:56] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:56] [INFO] TopNavbar navigation triggered{"from":"/app/Bestsellers","to":"/app/Trending","section":"RE-SORT APP","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-20T12:23:56.917Z"}
+[2025-11-20 17:53:57] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:57] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:59] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:53:59] [INFO] [TRENDING] TrendingPage component mounted{"initialTrendingProducts":5,"initialPage":1,"initialSearch":""}
+[2025-11-20 17:53:59] [INFO] [TRENDING] TrendingPage component mounted{"initialTrendingProducts":5,"initialPage":1,"initialSearch":""}
+[2025-11-20 17:53:59] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:55:26] [INFO] TopNavbar navigation triggered{"from":"/app/Trending","to":"/app/NewArrivals","section":"RE-SORT APP","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-20T12:25:26.358Z"}
+[2025-11-20 17:55:26] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:55:26] [INFO] TopNavbar submenu navigation{"from":"/app/Trending","to":"/app/NewArrivals","submenu":"New Arrivals","timestamp":"2025-11-20T12:25:26.357Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0"}
+[2025-11-20 17:55:26] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:55:28] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:55:28] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:55:34] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:55:34] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:55:36] [INFO] [NEW_ARRIVALS] NewArrivalsPage component mounted{"initialNewArrivals":1016,"initialPeriod":"60","initialSearch":""}
+[2025-11-20 17:55:36] [INFO] [NEW_ARRIVALS] NewArrivalsPage component mounted{"initialNewArrivals":1016,"initialPeriod":"60","initialSearch":""}
+[2025-11-20 17:56:06] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:56:06] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:56:09] [INFO] [NEW_ARRIVALS] NewArrivalsPage component mounted{"initialNewArrivals":1016,"initialPeriod":"60","initialSearch":""}
+[2025-11-20 17:56:09] [INFO] [NEW_ARRIVALS] NewArrivalsPage component mounted{"initialNewArrivals":1016,"initialPeriod":"60","initialSearch":""}
+[2025-11-20 17:56:07] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:56:07] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:56:41] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:56:41] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:56:41] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:56:41] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":512}
+[2025-11-20 17:56:45] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:56:45] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:56:45] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:56:45] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:57:34] [INFO] TopNavbar submenu navigation{"from":"/app","to":"/app/Aging","submenu":"Aging Inventory","timestamp":"2025-11-20T12:27:34.789Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0"}
+[2025-11-20 17:57:34] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:57:34] [INFO] TopNavbar navigation triggered{"from":"/app","to":"/app/Aging","section":"RE-SORT APP","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-20T12:27:34.789Z"}
+[2025-11-20 17:57:34] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:57:36] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:57:36] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:57:41] [INFO] AgingPage component mounted{"initialAgedProducts":0,"initialSettings":{"minAgeDays":30,"maxSales":10,"requireInventory":false},"currentPage":1,"searchQuery":""}
+[2025-11-20 17:57:41] [INFO] Settings modal opened{"settings":{"minAgeDays":30,"maxSales":10,"requireInventory":false}}
+[2025-11-20 17:57:41] [INFO] Settings modal opened{"settings":{"minAgeDays":30,"maxSales":10,"requireInventory":false}}
+[2025-11-20 17:57:41] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:57:41] [INFO] AgingPage component mounted{"initialAgedProducts":0,"initialSettings":{"minAgeDays":30,"maxSales":10,"requireInventory":false},"currentPage":1,"searchQuery":""}
+[2025-11-20 17:57:41] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:57:41] [INFO] Aging page data loaded{"agedProductsCount":0,"totalProducts":0,"filters":{"minAgeDays":30,"maxSales":10,"requireInventory":false},"currentPage":1,"searchQuery":""}
+[2025-11-20 17:57:41] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:57:41] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:57:41] [INFO] Aging page data loaded{"agedProductsCount":0,"totalProducts":0,"filters":{"minAgeDays":30,"maxSales":10,"requireInventory":false},"currentPage":1,"searchQuery":""}
+[2025-11-20 17:57:43] [INFO] Settings button clicked
+[2025-11-20 17:57:43] [INFO] Settings modal opened{"settings":{"minAgeDays":30,"maxSales":10,"requireInventory":false}}
+[2025-11-20 17:57:56] [INFO] Saving new aging settings{"oldSettings":{"minAgeDays":30,"maxSales":10,"requireInventory":false},"newSettings":{"minAgeDays":1,"maxSales":10,"requireInventory":true}}
+[2025-11-20 17:57:56] [INFO] Settings modal opened{"settings":{"minAgeDays":1,"maxSales":10,"requireInventory":true}}
+[2025-11-20 17:57:56] [INFO] Aged products cache cleared
+[2025-11-20 17:57:56] [INFO] Submitting new settings to loader{"urlParams":{"minAgeDays":1,"maxSales":10,"requireInventory":true}}
+[2025-11-20 17:57:56] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:57:56] [INFO] Saving validated aging settings{"settings":{"minAgeDays":1,"maxSales":10,"requireInventory":true}}
+[2025-11-20 17:57:56] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:01] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:01] [INFO] Aging page data loaded{"agedProductsCount":5,"totalProducts":5,"filters":{"minAgeDays":1,"maxSales":10,"requireInventory":true},"currentPage":1,"searchQuery":""}
+[2025-11-20 17:58:01] [INFO] Settings modal opened{"settings":{"minAgeDays":1,"maxSales":10,"requireInventory":true}}
+[2025-11-20 17:58:01] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:09] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:09] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:09] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:09] [INFO] TopNavbar navigation triggered{"from":"/app/Aging","to":"/app/NewArrivals","section":"RE-SORT APP","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0","timestamp":"2025-11-20T12:28:09.192Z"}
+[2025-11-20 17:58:09] [INFO] TopNavbar submenu navigation{"from":"/app/Aging","to":"/app/NewArrivals","submenu":"New Arrivals","timestamp":"2025-11-20T12:28:09.192Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0"}
+[2025-11-20 17:58:09] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:14] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:13] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:14] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:13] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:14] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:14] [INFO] App component rendered{"apiKey":"set"}
+[2025-11-20 17:58:15] [INFO] [NEW_ARRIVALS] NewArrivalsPage component mounted{"initialNewArrivals":1016,"initialPeriod":"60","initialSearch":""}
+[2025-11-20 17:58:15] [INFO] [NEW_ARRIVALS] NewArrivalsPage component mounted{"initialNewArrivals":1016,"initialPeriod":"60","initialSearch":""}

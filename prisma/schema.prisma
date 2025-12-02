@@ -36,10 +36,13 @@ model CollectionSetting {
   shopifyDomain    String
   collectionId     String
   useCustomSorting Boolean       @default(false)
-  primarySortOrder String?
-  lookbackPeriod   Int           @default(30)
+  primarySortOrder String        @default("random-high-low")
+  sortCriteria     String?       // Add this field
+  sortOrderMode    String?       // Add this field
+  lookbackPeriod   Int           @default(180)
   includeDiscounts Boolean       @default(true)
   ordersRange      String        @default("all-orders")
+  manualSortOrder  Boolean       @default(false)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   appCollection    AppCollection @relation(fields: [shopifyDomain, collectionId], references: [shopifyDomain, collectionId], onDelete: Cascade)
@@ -64,12 +67,14 @@ model FeaturedProduct {
   @@unique([shopifyDomain, collectionId, productId])
 }
 
+// Add this field to your FeaturedSettings model
 model FeaturedSettings {
   id            Int           @id @default(autoincrement())
   shopifyDomain String
   collectionId  String
   sortOrder     String        @default("manual")
   limitFeatured Int           @default(0)
+  manualSortOrder Boolean     @default(false)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   appCollection AppCollection @relation(fields: [shopifyDomain, collectionId], references: [shopifyDomain, collectionId], onDelete: Cascade)
@@ -81,12 +86,12 @@ model ProductBehaviorRule {
   id                           Int           @id @default(autoincrement())
   shopifyDomain                String
   collectionId                 String
-  pushNewProductsUp            Boolean       @default(false)
+  pushNewProductsUp            Boolean       @default(true)
   newProductDays               Int           @default(7)
-  pushDownOutOfStock           Boolean       @default(false)
-  outOfStockVsNewPriority      String        @default("PUSH_DOWN")
-  outOfStockVsFeaturedPriority String        @default("KEEP_FEATURED")
-  outOfStockVsTagsPriority     String        @default("KEEP_TAGGED")
+  pushDownOutOfStock           Boolean       @default(true)
+  outOfStockVsNewPriority      String        @default("push-down")
+  outOfStockVsFeaturedPriority String        @default("push-down")
+  outOfStockVsTagsPriority     String        @default("position-defined")
   createdAt                    DateTime      @default(now())
   updatedAt                    DateTime      @updatedAt
   appCollection                AppCollection @relation(fields: [shopifyDomain, collectionId], references: [shopifyDomain, collectionId], onDelete: Cascade)

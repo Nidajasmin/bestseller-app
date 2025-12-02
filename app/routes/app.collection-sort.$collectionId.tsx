@@ -22,8 +22,6 @@ import {
   Collapsible,
   Grid,
   Checkbox,
-  Divider,
-  TextContainer,
   Tabs,
   LegacyCard,
   Modal,
@@ -36,12 +34,9 @@ import {
   CheckIcon,
   DragHandleIcon,
   CalendarIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
   EditIcon,
   ArrowDownIcon,
   ArrowUpIcon,
-  ArrowLeftIcon,
 } from "@shopify/polaris-icons";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
@@ -60,6 +55,18 @@ interface Product {
   startDate?: string;
   scheduleApplied?: boolean;
   position?: number;
+  tags?: string[];
+  totalInventory?: number;
+  createdAt?: string;
+  publishedAt?: string;
+  variants?: {
+    edges: Array<{
+      node: {
+        price: string;
+        compareAtPrice?: string;
+      };
+    }>;
+  };
 }
 
 interface CollectionDetails {
@@ -69,7 +76,7 @@ interface CollectionDetails {
   productsCount: {
     count: number;
   };
-  sortOrder?: string; // Add sortOrder to track collection's current sort order
+  sortOrder?: string;
 }
 
 interface TagRule {
@@ -109,6 +116,18 @@ const GET_COLLECTION_PRODUCTS = `#graphql
             featuredImage {
               url
               altText
+            }
+            tags
+            totalInventory
+            createdAt
+            publishedAt
+            variants(first: 10) {
+              edges {
+                node {
+                  price
+                  compareAtPrice
+                }
+              }
             }
           }
         }
@@ -183,7 +202,6 @@ const pollJobStatus = async (admin: any, jobId: string, maxAttempts = 30): Promi
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     console.log(`🔄 Checking job status (attempt ${attempt}/${maxAttempts})...`);
     
-    // Wait 2 seconds between attempts
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     try {
@@ -192,7 +210,6 @@ const pollJobStatus = async (admin: any, jobId: string, maxAttempts = 30): Promi
       });
       
       const jobData = await jobResponse.json() as any;
-      console.log(`📊 Job status response:`, JSON.stringify(jobData, null, 2));
       
       if (jobData.data?.job?.done) {
         console.log("✅ Job completed successfully!");
@@ -221,16 +238,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   try {
-    // Construct the full GID from the numeric ID
     const gid = constructGid(collectionId);
     
-    // Get URL parameters for pagination
     const url = new URL(request.url);
     const productsPage = parseInt(url.searchParams.get("productsPage") || "1");
-    const featuredPage = parseInt(url.searchParams.get("featuredPage") || "1");
     const productsCount = parseInt(url.searchParams.get("productsCount") || "250");
     const searchQuery = url.searchParams.get("search") || "";
     const after = url.searchParams.get("after") || null;
+
+    console.log("🔄 LOADER STARTED - Fetching collection data...");
+    console.log("🔍 Collection ID:", collectionId);
+    console.log("🔍 GID:", gid);
+    console.log("🏪 Shop:", session.shop);
 
     // Get collection details
     const collectionResponse = await admin.graphql(GET_COLLECTION, {
@@ -243,13 +262,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       throw new Response("Collection not found", { status: 404 });
     }
 
-    // Build search query if provided
-    let finalQuery = '';
-    if (searchQuery) {
-      finalQuery = `title:*${searchQuery}*`;
-    }
+    console.log("✅ Collection found:", collectionData.data.collection.title);
 
-    // Get collection products with pagination
+    // Get collection products
     const productsResponse = await admin.graphql(GET_COLLECTION_PRODUCTS, {
       variables: { 
         id: gid, 
@@ -266,7 +281,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       scheduleApplied: false
     })) || [];
 
-    // Get saved data from database - using correct Prisma model names (PascalCase)
+    console.log(`📦 Found ${products.length} products in collection`);
+
+    // Get saved data from database
+    console.log("🗃️ Fetching featured products from database...");
     const featuredProductsFromDb = await prisma.featuredProduct.findMany({
       where: {
         shopifyDomain: session.shop,
@@ -275,7 +293,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       orderBy: { position: 'asc' }
     });
 
-    // Get collection settings
+    console.log(`⭐ Found ${featuredProductsFromDb.length} featured products in DB`);
+
     const collectionSettingsFromDb = await prisma.collectionSetting.findUnique({
       where: {
         shopifyDomain_collectionId: {
@@ -285,7 +304,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }
     });
 
-    // Get featured settings
     const featuredSettingsFromDb = await prisma.featuredSettings.findUnique({
       where: {
         shopifyDomain_collectionId: {
@@ -295,7 +313,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }
     });
 
-    // Get product behavior rules
     const productBehaviorRulesFromDb = await prisma.productBehaviorRule.findUnique({
       where: {
         shopifyDomain_collectionId: {
@@ -306,6 +323,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     // Get tag rules
+    console.log("🏷️ Fetching tag rules from database...");
     const tagRulesFromDb = await prisma.tagSortingRule.findMany({
       where: {
         shopifyDomain: session.shop,
@@ -313,7 +331,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }
     });
 
-    // Transform featured products to match our Product type
+    console.log(`🏷️ Found ${tagRulesFromDb.length} tag rules in DB for this collection`);
+
+    // Transform featured products
     const featuredProducts: Product[] = featuredProductsFromDb.map((fp: any) => {
       const shopifyProduct = products.find((p: Product) => p.id === fp.productId);
       return {
@@ -349,7 +369,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       },
       pagination: {
         productsPage,
-        featuredPage,
         productsCount,
         searchQuery,
         hasNextPage: productsData.data?.collection?.products?.pageInfo?.hasNextPage || false,
@@ -358,7 +377,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }
     };
   } catch (error) {
-    console.error("Error loading collection data:", error);
+    console.error("❌ Error loading collection data:", error);
     throw new Response("Failed to load collection data", { status: 500 });
   }
 }
@@ -380,13 +399,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
     switch (intent) {
       case "update-collection-sort-order": {
         const manualSortOrder = formData.get("manualSortOrder") === "true";
+        const defaultSortOrder = formData.get("defaultSortOrder") as string || "BEST_SELLING";
         
         try {
           const response = await admin.graphql(UPDATE_COLLECTION_SORT_ORDER, {
             variables: {
               input: {
                 id: gid,
-                sortOrder: manualSortOrder ? "MANUAL" : "AUTOMATIC"
+                sortOrder: manualSortOrder ? "MANUAL" : defaultSortOrder
               }
             }
           });
@@ -400,7 +420,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
             return { success: false, error: errorMessage };
           }
           
-          // Update the database
           await prisma.featuredSettings.upsert({
             where: {
               shopifyDomain_collectionId: {
@@ -422,7 +441,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             success: true, 
             message: manualSortOrder ? 
               "Collection sort order updated to Manual. You can now organize products manually." : 
-              "Collection sort order updated to Automatic." 
+              `Collection sort order updated to ${defaultSortOrder.replace('_', ' ').toLowerCase()}.` 
           };
         } catch (error) {
           console.error("Failed to update collection sort order:", error);
@@ -436,8 +455,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "save-featured-products": {
         const featuredProducts = JSON.parse(formData.get("featuredProducts") as string);
         const featuredSettings = JSON.parse(formData.get("featuredSettings") as string);
+        const updateShopifySortOrder = formData.get("updateShopifySortOrder") === "true";
         
-        // Delete existing featured products
         await prisma.featuredProduct.deleteMany({
           where: {
             shopifyDomain: session.shop,
@@ -445,7 +464,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           }
         });
 
-        // Create new featured products with positions
         for (let i = 0; i < featuredProducts.length; i++) {
           const product = featuredProducts[i];
           await prisma.featuredProduct.create({
@@ -462,23 +480,201 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
         }
 
-        // Save featured settings
         await prisma.featuredSettings.upsert({
-          where: {
-            shopifyDomain_collectionId: {
+            where: {
+              shopifyDomain_collectionId: {
+                shopifyDomain: session.shop,
+                collectionId: gid
+              }
+            },
+            update: featuredSettings,
+            create: {
               shopifyDomain: session.shop,
-              collectionId: gid
+              collectionId: gid,
+              ...featuredSettings
             }
-          },
-          update: featuredSettings,
-          create: {
+          });
+
+        if (updateShopifySortOrder) {
+          const shouldBeManual = featuredProducts.length > 0;
+          const response = await admin.graphql(UPDATE_COLLECTION_SORT_ORDER, {
+            variables: {
+              input: {
+                id: gid,
+                sortOrder: shouldBeManual ? "MANUAL" : "BEST_SELLING"
+              }
+            }
+          });
+          
+          const data = await response.json() as any;
+          if (data.errors || data.data?.collectionUpdate?.userErrors?.length > 0) {
+            console.error("Failed to update Shopify sort order:", data.errors || data.data?.collectionUpdate?.userErrors);
+          }
+        }
+
+        return { success: true, message: "Featured products saved successfully!" };
+      }
+
+      case "clear-all-featured-products": {
+        // Delete all featured products
+        await prisma.featuredProduct.deleteMany({
+          where: {
             shopifyDomain: session.shop,
-            collectionId: gid,
-            ...featuredSettings
+            collectionId: gid
           }
         });
 
-        return { success: true, message: "Featured products saved successfully!" };
+        // Check if we have tag rules
+        const tagRules = await prisma.tagSortingRule.findMany({
+          where: {
+            shopifyDomain: session.shop,
+            collectionId: gid
+          }
+        });
+
+        // Only update Shopify sort order if we have tag rules to apply
+        if (tagRules.length > 0) {
+          try {
+            // Apply tag-based sorting
+            const collectionCheckResponse = await admin.graphql(`
+              query GetCollectionDetails($id: ID!) {
+                collection(id: $id) {
+                  id
+                  title
+                  sortOrder
+                  productsCount {
+                    count
+                  }
+                }
+              }
+            `, { variables: { id: gid } });
+
+            const collectionDetails = await collectionCheckResponse.json() as any;
+            const collection = collectionDetails.data?.collection;
+
+            if (collection) {
+              // Get all products from collection
+              const productsResponse = await admin.graphql(`
+                query GetCollectionProductsWithDetails($id: ID!, $first: Int!) {
+                  collection(id: $id) {
+                    products(first: $first) {
+                      edges {
+                        node {
+                          id
+                          title
+                          tags
+                          totalInventory
+                        }
+                      }
+                    }
+                  }
+                }
+              `, { variables: { id: gid, first: 250 } });
+              
+              const productsData = await productsResponse.json() as any;
+              const allProducts = productsData.data?.collection?.products?.edges?.map((edge: any) => edge.node) || [];
+
+              if (allProducts.length > 0) {
+                // Apply tag-based sorting logic
+                const topTagProducts: any[] = [];
+                const afterNewTagProducts: any[] = [];
+                const beforeOutOfStockTagProducts: any[] = [];
+                const bottomTagProducts: any[] = [];
+                const untaggedProducts: any[] = [];
+
+                // Categorize products by tag rules
+                allProducts.forEach((product: any) => {
+                  let matchedPosition: string | null = null;
+                  
+                  for (const tagRule of tagRules) {
+                    if (product.tags && product.tags.includes(tagRule.tagName)) {
+                      matchedPosition = tagRule.position;
+                      break;
+                    }
+                  }
+
+                  switch (matchedPosition) {
+                    case 'top':
+                      topTagProducts.push(product);
+                      break;
+                    case 'after-new':
+                      afterNewTagProducts.push(product);
+                      break;
+                    case 'before-out-of-stock':
+                      beforeOutOfStockTagProducts.push(product);
+                      break;
+                    case 'bottom':
+                      bottomTagProducts.push(product);
+                      break;
+                    default:
+                      untaggedProducts.push(product);
+                  }
+                });
+
+                // Create final order
+                const productIds: string[] = [
+                  ...topTagProducts,
+                  ...afterNewTagProducts,
+                  ...untaggedProducts,
+                  ...beforeOutOfStockTagProducts,
+                  ...bottomTagProducts
+                ].map(p => p.id);
+
+                // Apply new order to Shopify
+                const moves = productIds.map((productId, index) => ({
+                  id: productId,
+                  newPosition: index.toString()
+                }));
+
+                const reorderResponse = await admin.graphql(`
+                  mutation collectionReorderProducts($id: ID!, $moves: [MoveInput!]!) {
+                    collectionReorderProducts(id: $id, moves: $moves) {
+                      job {
+                        id
+                        done
+                      }
+                      userErrors {
+                        field
+                        message
+                      }
+                    }
+                  }
+                `, { variables: { id: gid, moves: moves } });
+
+                const reorderData = await reorderResponse.json() as any;
+
+                if (reorderData.data?.collectionReorderProducts?.job?.id) {
+                  await pollJobStatus(admin, reorderData.data.collectionReorderProducts.job.id);
+                }
+
+                return { 
+                  success: true, 
+                  message: `All featured products removed and collection reordered based on ${tagRules.length} tag rule(s).` 
+                };
+              }
+            }
+          } catch (error) {
+            console.error("Error applying tag sorting after clearing featured products:", error);
+            // Continue with manual sort order update even if tag sorting fails
+          }
+        }
+
+        // If no tag rules or tag sorting failed, set to default sort order
+        const response = await admin.graphql(UPDATE_COLLECTION_SORT_ORDER, {
+          variables: {
+            input: {
+              id: gid,
+              sortOrder: "BEST_SELLING"
+            }
+          }
+        });
+
+        return { 
+          success: true, 
+          message: tagRules.length > 0 
+            ? "All featured products removed. Collection will use tag-based sorting."
+            : "All featured products removed. Collection reverted to default sorting." 
+        };
       }
 
       case "save-collection-settings": {
@@ -521,7 +717,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "save-tag-rules": {
         const tagRules = JSON.parse(formData.get("tagRules") as string);
         
-        // Delete existing tag rules
+        console.log("💾 SAVING TAG RULES TO DATABASE");
+        console.log("🔍 Tag rules to save:", tagRules);
+
+        // Delete ALL existing tag rules for this collection
         await prisma.tagSortingRule.deleteMany({
           where: {
             shopifyDomain: session.shop,
@@ -529,29 +728,49 @@ export async function action({ request, params }: ActionFunctionArgs) {
           }
         });
 
-        // Create new tag rules
-        for (const rule of tagRules) {
-          await prisma.tagSortingRule.create({
-            data: {
-              shopifyDomain: session.shop,
-              collectionId: gid,
-              tagName: rule.name,
-              position: rule.position
-            }
-          });
+        console.log(`🗑️ Deleted all existing tag rules for collection ${gid}`);
+
+        // Create new tag rules from the submitted data
+        if (tagRules && tagRules.length > 0) {
+          for (const rule of tagRules) {
+            console.log(`➕ Creating tag rule: ${rule.name} -> ${rule.position}`);
+            await prisma.tagSortingRule.create({
+              data: {
+                shopifyDomain: session.shop,
+                collectionId: gid,
+                tagName: rule.name.trim(),
+                position: rule.position
+              }
+            });
+          }
+          console.log(`✅ Created ${tagRules.length} tag rules in database`);
+        } else {
+          console.log("ℹ️ No tag rules to save - collection will use default sorting");
         }
 
-        return { success: true, message: "Tag rules saved successfully!" };
+        // Verify the save by reading back from database
+        const savedRules = await prisma.tagSortingRule.findMany({
+          where: {
+            shopifyDomain: session.shop,
+            collectionId: gid
+          }
+        });
+
+        console.log("🔍 VERIFICATION - Tag rules in database after save:", savedRules);
+
+        return { 
+          success: true, 
+          message: tagRules.length > 0 
+            ? `Tag rules saved successfully! ${tagRules.length} rule(s) active.` 
+            : "All tag rules removed. Collection will use default sorting."
+        };
       }
 
       case "resort-collection": {
         console.log("🚀 STARTING RESORT COLLECTION");
-        console.log("Collection ID:", gid);
-        console.log("Shop:", session.shop);
         
         try {
-          // 1. First, check collection type and details
-          console.log("📋 Step 1: Checking collection details...");
+          // Check collection details
           const collectionCheckResponse = await admin.graphql(`
             query GetCollectionDetails($id: ID!) {
               collection(id: $id) {
@@ -566,29 +785,40 @@ export async function action({ request, params }: ActionFunctionArgs) {
           `, { variables: { id: gid } });
 
           const collectionDetails = await collectionCheckResponse.json() as any;
-          console.log("📊 Collection Details:", JSON.stringify(collectionDetails, null, 2));
-
+          
           if (!collectionDetails.data?.collection) {
-            console.log("❌ Collection not found!");
             return { success: false, error: "Collection not found" };
           }
 
           const collection = collectionDetails.data.collection;
-          console.log(`🏷️ Collection: ${collection.title}`);
-          console.log(`🔀 Sort Order: ${collection.sortOrder}`);
-          console.log(`📦 Products Count: ${collection.productsCount.count}`);
 
           // Check if collection is manual
-          if (collection.sortOrder !== "MANUAL") {
-            console.log("❌ Collection is not manual - cannot reorder!");
+          const featuredProducts = await prisma.featuredProduct.findMany({
+            where: {
+              shopifyDomain: session.shop,
+              collectionId: gid
+            },
+            orderBy: { position: 'asc' }
+          });
+
+          if (featuredProducts.length > 0 && collection.sortOrder !== "MANUAL") {
             return { 
               success: false, 
-              error: `This is an ${collection.sortOrder?.toLowerCase()} collection. Only manual collections can be reordered. Please change it to a manual collection in Shopify admin.` 
+              error: `This is an ${collection.sortOrder?.toLowerCase()} collection. Only manual collections can have featured products. Please change it to a manual collection in Shopify admin.` 
             };
           }
 
-          // 2. Get behavior rules from database
-          console.log("📋 Step 2: Getting behavior rules from database...");
+          // Get collection settings
+          const collectionSettings = await prisma.collectionSetting.findUnique({
+            where: {
+              shopifyDomain_collectionId: {
+                shopifyDomain: session.shop,
+                collectionId: gid
+              }
+            }
+          });
+
+          // Get behavior rules
           const behaviorRules = await prisma.productBehaviorRule.findUnique({
             where: {
               shopifyDomain_collectionId: {
@@ -598,24 +828,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
             }
           });
 
-          console.log("📋 Behavior Rules:", behaviorRules);
+          // Get featured settings
+          const featuredSettings = await prisma.featuredSettings.findUnique({
+            where: {
+              shopifyDomain_collectionId: {
+                shopifyDomain: session.shop,
+                collectionId: gid
+              }
+            }
+          });
 
-          // 3. Get featured products from database
-          console.log("📋 Step 3: Getting featured products from database...");
-          const featuredProducts = await prisma.featuredProduct.findMany({
+          // Get CURRENT tag rules from database
+          const tagRules = await prisma.tagSortingRule.findMany({
             where: {
               shopifyDomain: session.shop,
               collectionId: gid
-            },
-            orderBy: { position: 'asc' }
+            }
           });
-          
-          console.log(`⭐ Featured products in DB: ${featuredProducts.length}`);
 
-          // 4. Get all products from collection with inventory data
-          console.log("📋 Step 4: Getting products from Shopify collection with inventory...");
+          console.log(`🏷️ RESORT: Processing ${tagRules.length} CURRENT tag rules from database`);
+          console.log("🏷️ RESORT: Tag rules details:", tagRules);
+
+          // Get all products from collection
           const productsResponse = await admin.graphql(`
-            query GetCollectionProductsWithInventory($id: ID!, $first: Int!) {
+            query GetCollectionProductsWithDetails($id: ID!, $first: Int!) {
               collection(id: $id) {
                 products(first: $first) {
                   edges {
@@ -630,33 +866,81 @@ export async function action({ request, params }: ActionFunctionArgs) {
                       totalInventory
                       createdAt
                       publishedAt
+                      tags
+                      variants(first: 10) {
+                        edges {
+                          node {
+                            price
+                            compareAtPrice
+                          }
+                        }
+                      }
                     }
                   }
                 }
               }
             }
-          `, {
-            variables: { id: gid, first: 250 }
-          });
+          `, { variables: { id: gid, first: 250 } });
           
           const productsData = await productsResponse.json() as any;
           const allProducts = productsData.data?.collection?.products?.edges?.map((edge: any) => edge.node) || [];
           
-          console.log(`🛍️ Products in Shopify collection: ${allProducts.length}`);
-
           if (allProducts.length === 0) {
-            console.log("❌ No products found in collection!");
             return { success: false, error: "No products found in this collection" };
           }
 
-          // 5. Apply out-of-stock logic based on behavior rules
-          console.log("📋 Step 5: Applying out-of-stock logic...");
-          
+          console.log(`📦 RESORT: Processing ${allProducts.length} total products`);
+
+          // Apply primary sort order
+          let sortedProducts = [...allProducts];
+
+          if (collectionSettings?.useCustomSorting && collectionSettings?.primarySortOrder) {
+            console.log(`🔄 Applying primary sort order: ${collectionSettings.primarySortOrder}`);
+            switch (collectionSettings.primarySortOrder) {
+              case "creation-new-old":
+                sortedProducts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                break;
+              case "creation-old-new":
+                sortedProducts.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                break;
+              case "publish-new-old":
+                sortedProducts.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+                break;
+              case "publish-old-new":
+                sortedProducts.sort((a, b) => new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime());
+                break;
+              case "price-high-low":
+                sortedProducts.sort((a, b) => {
+                  const priceA = parseFloat(a.variants?.edges[0]?.node?.price || "0");
+                  const priceB = parseFloat(b.variants?.edges[0]?.node?.price || "0");
+                  return priceB - priceA;
+                });
+                break;
+              case "price-low-high":
+                sortedProducts.sort((a, b) => {
+                  const priceA = parseFloat(a.variants?.edges[0]?.node?.price || "0");
+                  const priceB = parseFloat(b.variants?.edges[0]?.node?.price || "0");
+                  return priceA - priceB;
+                });
+                break;
+              case "inventory-high-low":
+                sortedProducts.sort((a, b) => (b.totalInventory || 0) - (a.totalInventory || 0));
+                break;
+              case "inventory-low-high":
+                sortedProducts.sort((a, b) => (a.totalInventory || 0) - (b.totalInventory || 0));
+                break;
+              case "random-high-low":
+              case "random-low-high":
+                sortedProducts = sortedProducts.sort(() => Math.random() - 0.5);
+                break;
+            }
+          }
+
+          // Apply out-of-stock logic
           let inStockProducts: any[] = [];
           let outOfStockProducts: any[] = [];
 
-          // Separate products based on inventory
-          allProducts.forEach((product: any) => {
+          sortedProducts.forEach((product: any) => {
             if (product.totalInventory > 0) {
               inStockProducts.push(product);
             } else {
@@ -664,80 +948,229 @@ export async function action({ request, params }: ActionFunctionArgs) {
             }
           });
 
-          console.log(`✅ In-stock products: ${inStockProducts.length}`);
-          console.log(`❌ Out-of-stock products: ${outOfStockProducts.length}`);
+          console.log(`📊 RESORT: ${inStockProducts.length} in-stock, ${outOfStockProducts.length} out-of-stock`);
 
-          // 6. Create product order based on behavior rules - FIXED VERSION
-          console.log("📋 Step 6: Creating product order with proper out-of-stock logic...");
+          // Apply new products logic
+          let newProducts: any[] = [];
+          let regularProducts: any[] = [];
+
+          if (behaviorRules?.pushNewProductsUp) {
+            const newProductDays = behaviorRules.newProductDays || 7;
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - newProductDays);
+            
+            inStockProducts.forEach((product: any) => {
+              const productDate = new Date(product.createdAt);
+              if (productDate > cutoffDate) {
+                newProducts.push(product);
+              } else {
+                regularProducts.push(product);
+              }
+            });
+          } else {
+            regularProducts = inStockProducts;
+          }
+
+          console.log(`🆕 RESORT: ${newProducts.length} new products, ${regularProducts.length} regular products`);
+
+          // FIXED: Apply CURRENT tag rules from database to ALL products
+          const topTagProducts: any[] = [];
+          const afterNewTagProducts: any[] = [];
+          const beforeOutOfStockTagProducts: any[] = [];
+          const bottomTagProducts: any[] = [];
+          const untaggedProducts: any[] = [];
+
+          console.log(`🔍 RESORT: Processing ${allProducts.length} total products for ${tagRules.length} tag rules`);
+
+          // Create a function to check if product matches any CURRENT tag rule
+          const getProductTagPosition = (product: any): string | null => {
+            if (!product.tags || product.tags.length === 0) return null;
+            
+            for (const tagRule of tagRules) {
+              if (product.tags.includes(tagRule.tagName)) {
+                console.log(`✅ RESORT: Product "${product.title}" matches CURRENT tag rule: ${tagRule.tagName} -> ${tagRule.position}`);
+                return tagRule.position;
+              }
+            }
+            return null;
+          };
+
+          // Process ALL products for CURRENT tag rules
+          allProducts.forEach((product: any) => {
+            const tagPosition = getProductTagPosition(product);
+            
+            switch (tagPosition) {
+              case 'top':
+                topTagProducts.push(product);
+                break;
+              case 'after-new':
+                afterNewTagProducts.push(product);
+                break;
+              case 'before-out-of-stock':
+                beforeOutOfStockTagProducts.push(product);
+                break;
+              case 'bottom':
+                bottomTagProducts.push(product);
+                break;
+              default:
+                untaggedProducts.push(product);
+            }
+          });
+
+          console.log(`📊 RESORT: Tag-based categorization:`);
+          console.log(`   Top: ${topTagProducts.length} products`);
+          console.log(`   After New: ${afterNewTagProducts.length} products`);
+          console.log(`   Before Out-of-Stock: ${beforeOutOfStockTagProducts.length} products`);
+          console.log(`   Bottom: ${bottomTagProducts.length} products`);
+          console.log(`   No Tag Rules: ${untaggedProducts.length} products`);
+
+          // Create final product order - FIXED LOGIC
           const productIds: string[] = [];
+          const processedProducts = new Set();
 
-          // Track which featured products we've processed
-          const processedFeaturedProducts = new Set();
+          const addProductsToFinalList = (products: any[]) => {
+            products.forEach((product: any) => {
+              if (!processedProducts.has(product.id)) {
+                productIds.push(product.id);
+                processedProducts.add(product.id);
+              }
+            });
+          };
+
+          // Apply featured products limit
+          const featuredLimit = featuredSettings?.limitFeatured || 0;
+          const effectiveFeaturedProducts = featuredLimit > 0 ? 
+            featuredProducts.slice(0, featuredLimit) : 
+            featuredProducts;
+
+          console.log(`⭐ RESORT: ${effectiveFeaturedProducts.length} featured products to display`);
 
           // Step 1: Add featured products that should stay at top
-          featuredProducts.forEach((fp: any) => {
+          effectiveFeaturedProducts.forEach((fp: any) => {
             const product = allProducts.find((p: any) => p.id === fp.productId);
             if (product) {
               const isOutOfStock = product.totalInventory <= 0;
               
-              // Check if we should keep this featured product at top despite being out-of-stock
               const shouldKeepFeaturedAtTop = 
-                !behaviorRules?.pushDownOutOfStock || // If push down is disabled, keep all featured
-                !isOutOfStock || // If product is in stock, keep it
-                (isOutOfStock && behaviorRules.outOfStockVsFeaturedPriority === "push-featured"); // Explicitly keep out-of-stock featured
+                !behaviorRules?.pushDownOutOfStock ||
+                !isOutOfStock ||
+                (isOutOfStock && behaviorRules.outOfStockVsFeaturedPriority === "push-featured");
               
               if (shouldKeepFeaturedAtTop) {
                 productIds.push(fp.productId);
-                processedFeaturedProducts.add(fp.productId);
-                console.log(`⭐ ${isOutOfStock ? 'Out-of-stock ' : ''}Featured product at top: ${product.title}`);
-              } else {
-                console.log(`📥 Featured product pushed down (out-of-stock): ${product.title}`);
-                // Don't add to productIds here - it will be added later with out-of-stock products
+                processedProducts.add(fp.productId);
+                console.log(`⭐ RESORT: Featured product "${product.title}" added to top`);
               }
             }
           });
 
-          // Step 2: Add remaining in-stock products (non-featured)
-          inStockProducts.forEach((product: any) => {
-            if (!processedFeaturedProducts.has(product.id) && !productIds.includes(product.id)) {
-              productIds.push(product.id);
-            }
-          });
+          // Step 2: Add top-tagged products (after featured)
+          console.log(`⬆️ RESORT: Adding ${topTagProducts.length} top-tagged products`);
+          addProductsToFinalList(topTagProducts);
 
-          // Step 3: Add out-of-stock products at the end
-          if (behaviorRules?.pushDownOutOfStock) {
-            outOfStockProducts.forEach((product: any) => {
-              if (!productIds.includes(product.id)) {
-                productIds.push(product.id);
-                console.log(`📥 Adding out-of-stock product to bottom: ${product.title}`);
-              }
-            });
-          } else {
-            // If push down out-of-stock is disabled, mix out-of-stock products normally
-            outOfStockProducts.forEach((product: any) => {
-              if (!productIds.includes(product.id)) {
-                productIds.push(product.id);
-              }
-            });
+          // Step 3: Add new products (if enabled)
+          if (behaviorRules?.pushNewProductsUp) {
+            console.log(`🆕 RESORT: Adding ${newProducts.length} new products`);
+            addProductsToFinalList(newProducts);
           }
 
-          console.log(`📋 Final product order: ${productIds.length} products`);
-          console.log("First 10 products in order:");
-          productIds.slice(0, 10).forEach((id, index) => {
-            const product = allProducts.find((p: any) => p.id === id);
-            const isOutOfStock = product?.totalInventory <= 0;
-            console.log(`   ${index + 1}. ${product?.title} ${isOutOfStock ? '(OUT OF STOCK)' : ''}`);
-          });
+          // Step 4: Add after-new tagged products
+          console.log(`🔤 RESORT: Adding ${afterNewTagProducts.length} after-new tagged products`);
+          addProductsToFinalList(afterNewTagProducts);
 
-          // 7. Apply new order to Shopify
-          console.log("📋 Step 7: Calling Shopify API to reorder...");
-          
+          // Step 5: Add regular in-stock products (not new, not tagged)
+          const regularInStockProducts = untaggedProducts.filter(product => 
+            !processedProducts.has(product.id) && 
+            product.totalInventory > 0 &&
+            !newProducts.find(np => np.id === product.id)
+          );
+          console.log(`📦 RESORT: Adding ${regularInStockProducts.length} regular in-stock products`);
+          addProductsToFinalList(regularInStockProducts);
+
+          // Step 6: Add before-out-of-stock tagged products
+          // FIXED: These should come BEFORE the out-of-stock section
+          console.log(`🔽 RESORT: Adding ${beforeOutOfStockTagProducts.length} before-out-of-stock tagged products`);
+          addProductsToFinalList(beforeOutOfStockTagProducts);
+
+          // Step 7: Handle out-of-stock products
+          if (behaviorRules?.pushDownOutOfStock) {
+            console.log(`📭 RESORT: Processing ${outOfStockProducts.length} out-of-stock products with push down`);
+            
+            // Separate out-of-stock products by their tag positions
+            const outOfStockTop: any[] = [];
+            const outOfStockAfterNew: any[] = [];
+            const outOfStockBeforeOutOfStock: any[] = [];
+            const outOfStockBottom: any[] = [];
+            const outOfStockUntagged: any[] = [];
+
+            outOfStockProducts.forEach((product: any) => {
+              if (processedProducts.has(product.id)) return;
+              
+              const tagPosition = getProductTagPosition(product);
+              
+              switch (tagPosition) {
+                case 'top':
+                  outOfStockTop.push(product);
+                  break;
+                case 'after-new':
+                  outOfStockAfterNew.push(product);
+                  break;
+                case 'before-out-of-stock':
+                  outOfStockBeforeOutOfStock.push(product);
+                  break;
+                case 'bottom':
+                  outOfStockBottom.push(product);
+                  break;
+                default:
+                  outOfStockUntagged.push(product);
+              }
+            });
+
+            console.log(`📭 RESORT: Out-of-stock breakdown - Top: ${outOfStockTop.length}, After New: ${outOfStockAfterNew.length}, Before OOS: ${outOfStockBeforeOutOfStock.length}, Bottom: ${outOfStockBottom.length}, Untagged: ${outOfStockUntagged.length}`);
+
+            // Apply out-of-stock priority rules
+            if (behaviorRules.outOfStockVsTagsPriority === "position-defined") {
+              // Keep position defined by tag even for out-of-stock
+              console.log(`📭 RESORT: Keeping tag-defined positions for out-of-stock products`);
+              addProductsToFinalList(outOfStockTop);
+              addProductsToFinalList(outOfStockAfterNew);
+              addProductsToFinalList(outOfStockBeforeOutOfStock);
+              addProductsToFinalList(outOfStockBottom);
+              addProductsToFinalList(outOfStockUntagged);
+            } else {
+              // Push down all out-of-stock regardless of tags
+              console.log(`📭 RESORT: Pushing down ALL out-of-stock products regardless of tags`);
+              addProductsToFinalList(outOfStockUntagged);
+              addProductsToFinalList(outOfStockTop);
+              addProductsToFinalList(outOfStockAfterNew);
+              addProductsToFinalList(outOfStockBeforeOutOfStock);
+              addProductsToFinalList(outOfStockBottom);
+            }
+          } else {
+            // If push down is disabled, add out-of-stock in their natural positions
+            console.log(`📭 RESORT: Adding ${outOfStockProducts.length} out-of-stock products without push down`);
+            addProductsToFinalList(outOfStockProducts);
+          }
+
+          // Step 8: Add bottom-tagged products
+          // FIXED: These should come AFTER the out-of-stock section
+          console.log(`⬇️ RESORT: Adding ${bottomTagProducts.length} bottom-tagged products`);
+          addProductsToFinalList(bottomTagProducts);
+
+          // Step 9: Add any remaining products that weren't processed
+          const remainingProducts = allProducts.filter((product: any) => !processedProducts.has(product.id));
+          console.log(`🔍 RESORT: Adding ${remainingProducts.length} remaining unprocessed products`);
+          addProductsToFinalList(remainingProducts);
+
+          console.log(`📋 RESORT: Final product order has ${productIds.length} products`);
+
+          // Apply new order to Shopify
           const moves = productIds.map((productId, index) => ({
             id: productId,
             newPosition: index.toString()
           }));
 
-          console.log("🔄 Sending moves to Shopify...");
+          console.log("🔄 RESORT: Sending reorder request to Shopify...");
 
           const reorderResponse = await admin.graphql(`
             mutation collectionReorderProducts($id: ID!, $moves: [MoveInput!]!) {
@@ -752,47 +1185,41 @@ export async function action({ request, params }: ActionFunctionArgs) {
                 }
               }
             }
-          `, {
-            variables: {
-              id: gid,
-              moves: moves
-            }
-          });
+          `, { variables: { id: gid, moves: moves } });
 
           const reorderData = await reorderResponse.json() as any;
-          console.log("📨 Shopify API Response:", JSON.stringify(reorderData, null, 2));
 
-          // Check for errors
           if (reorderData.errors) {
-            console.error("❌ GraphQL Errors:", reorderData.errors);
             const errorMessage = reorderData.errors.map((err: any) => err.message).join(', ');
+            console.error("❌ RESORT ERROR: GraphQL errors:", reorderData.errors);
             return { success: false, error: "GraphQL error: " + errorMessage };
           }
 
           if (reorderData.data?.collectionReorderProducts?.userErrors?.length > 0) {
-            console.error("❌ Shopify User Errors:", reorderData.data.collectionReorderProducts.userErrors);
             const errorMessage = reorderData.data.collectionReorderProducts.userErrors[0].message;
+            console.error("❌ RESORT ERROR: Shopify user errors:", reorderData.data.collectionReorderProducts.userErrors);
             return { success: false, error: "Shopify error: " + errorMessage };
           }
 
           // Wait for job completion
           const jobId = reorderData.data?.collectionReorderProducts?.job?.id;
           if (jobId) {
-            console.log("⏳ Reorder job started with ID:", jobId);
+            console.log(`⏳ RESORT: Waiting for job ${jobId} to complete...`);
             const jobCompleted = await pollJobStatus(admin, jobId);
             
             if (jobCompleted) {
-              console.log("✅ Job completed successfully!");
+              console.log("✅ RESORT: Job completed successfully");
               await new Promise(resolve => setTimeout(resolve, 2000));
             } else {
-              console.log("⚠️ Job polling timed out");
+              console.log("⚠️ RESORT: Job may not have completed fully");
             }
           }
 
-          console.log("🎉 COLLECTION REORDER PROCESS COMPLETED!");
           return { 
             success: true,
-            message: "✅ Collection successfully reordered with out-of-stock rules applied!",
+            message: tagRules.length > 0 
+              ? `✅ Collection successfully reordered with ${tagRules.length} tag rule(s) applied!` 
+              : "✅ Collection successfully reordered with featured products!",
             jobId: jobId || null
           };
           
@@ -803,258 +1230,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
             error: error instanceof Error ? error.message : "Failed to resort collection" 
           };
         }
-      }
-
-      case "import-featured-products": {
-        const file = formData.get("featuredProductsFile") as File;
-        if (!file) {
-          return { success: false, error: "No file uploaded" };
-        }
-
-        console.log("📥 Starting featured products import...");
-        
-        // Get current products for validation
-        const productsResponse = await admin.graphql(GET_COLLECTION_PRODUCTS, {
-          variables: { id: gid, first: 250 }
-        });
-        const productsData = await productsResponse.json() as any;
-        const allProducts = productsData.data?.collection?.products?.edges?.map((edge: any) => edge.node) || [];
-
-        const content = await file.text();
-        const lines = content.split('\n').filter(line => line.trim());
-        
-        if (lines.length < 2) {
-          return { success: false, error: "CSV file is empty or invalid" };
-        }
-
-        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
-        console.log("📋 CSV Headers:", headers);
-        
-        const importedProducts: any[] = [];
-        
-        for (let i = 1; i < lines.length; i++) {
-          const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
-          const product: any = {};
-          
-          headers.forEach((header, index) => {
-            const cleanHeader = header.toLowerCase().replace(/\s+/g, '');
-            product[cleanHeader] = values[index];
-          });
-          
-          console.log(`📦 Processing product ${i}:`, product);
-          
-          // Validate required fields
-          if (!product.productid) {
-            console.log("❌ Missing product ID, skipping row:", product);
-            continue;
-          }
-
-          // Find the product in the available products
-          const existingProduct = allProducts.find((p: any) => p.id === product.productid);
-          if (existingProduct) {
-            const importedProduct = {
-              id: product.productid,
-              title: existingProduct.title,
-              handle: existingProduct.handle,
-              featuredImage: existingProduct.featuredImage,
-              position: parseInt(product.position) || importedProducts.length,
-              featuredType: (product.featuretype || "manual") as "manual" | "scheduled",
-              daysToFeature: product.daystofeature ? parseInt(product.daystofeature) : undefined,
-              startDate: product.startdate || undefined,
-              scheduleApplied: product.scheduleapplied?.toLowerCase() === "true"
-            };
-            
-            console.log("✅ Valid product found:", importedProduct);
-            importedProducts.push(importedProduct);
-          } else {
-            console.log("❌ Product not found in collection:", product.productid);
-          }
-        }
-
-        console.log(`📊 Total products to import: ${importedProducts.length}`);
-
-        if (importedProducts.length === 0) {
-          return { success: false, error: "No valid products found in CSV file" };
-        }
-
-        // Delete existing featured products
-        console.log("🗑️ Deleting existing featured products...");
-        await prisma.featuredProduct.deleteMany({
-          where: {
-            shopifyDomain: session.shop,
-            collectionId: gid
-          }
-        });
-
-        // Create new featured products with positions from CSV
-        console.log("💾 Saving imported products to database...");
-        for (let i = 0; i < importedProducts.length; i++) {
-          const product = importedProducts[i];
-          await prisma.featuredProduct.create({
-            data: {
-              shopifyDomain: session.shop,
-              collectionId: gid,
-              productId: product.id,
-              position: product.position,
-              featuredType: product.featuredType,
-              daysToFeature: product.daysToFeature,
-              startDate: product.startDate ? new Date(product.startDate) : null,
-              scheduleApplied: product.scheduleApplied || false
-            }
-          });
-          console.log(`✅ Saved product: ${product.title} at position ${product.position}`);
-        }
-
-        console.log("🎉 Featured products import completed!");
-
-        // Auto re-sort collection after import
-        console.log("🔄 Auto re-sorting collection after import...");
-        try {
-          const resortResult = await action({ 
-            request: new Request(request.url, { 
-              method: 'POST',
-              body: new URLSearchParams({ intent: 'resort-collection' })
-            }), 
-            params 
-          } as ActionFunctionArgs);
-          
-          if (resortResult.success) {
-            console.log("✅ Auto re-sort completed after import!");
-          } else {
-            console.log("⚠️ Auto re-sort failed:", resortResult.error);
-          }
-        } catch (resortError) {
-          console.log("⚠️ Auto re-sort error:", resortError);
-        }
-
-        return { 
-          success: true, 
-          importedCount: importedProducts.length, 
-          message: `Successfully imported ${importedProducts.length} featured products and re-sorted collection!` 
-        };
-      }
-
-      case "import-products": {
-        const file = formData.get("productsFile") as File;
-        if (!file) {
-          return { success: false, error: "No file uploaded" };
-        }
-
-        // Get current products for validation
-        const productsResponse = await admin.graphql(GET_COLLECTION_PRODUCTS, {
-          variables: { id: gid, first: 250 }
-        });
-        const productsData = await productsResponse.json() as any;
-        const products = productsData.data?.collection?.products?.edges?.map((edge: any) => edge.node) || [];
-
-        const content = await file.text();
-        const lines = content.split('\n').filter(line => line.trim());
-        if (lines.length < 2) {
-          return { success: false, error: "CSV file is empty or invalid" };
-        }
-
-        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-        
-        const importedProducts: Product[] = [];
-        
-        for (let i = 1; i < lines.length; i++) {
-          const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
-          const product: any = {};
-          
-          headers.forEach((header, index) => {
-            product[header.toLowerCase().replace(/\s+/g, '')] = values[index];
-          });
-          
-          // Find the product in the available products
-          const existingProduct = products.find((p: any) => p.id === product.productid);
-          if (existingProduct) {
-            importedProducts.push({
-              ...existingProduct,
-              position: parseInt(product.position) || importedProducts.length,
-              featuredType: "manual",
-              scheduleApplied: false
-            });
-          }
-        }
-
-        // Update featured products with imported data
-        await prisma.featuredProduct.deleteMany({
-          where: {
-            shopifyDomain: session.shop,
-            collectionId: gid
-          }
-        });
-
-        for (let i = 0; i < importedProducts.length; i++) {
-          const product = importedProducts[i];
-          await prisma.featuredProduct.create({
-            data: {
-              shopifyDomain: session.shop,
-              collectionId: gid,
-              productId: product.id,
-              position: i,
-              featuredType: product.featuredType,
-              daysToFeature: product.daysToFeature,
-              startDate: product.startDate ? new Date(product.startDate) : null,
-              scheduleApplied: product.scheduleApplied || false
-            }
-          });
-        }
-
-        return { success: true, importedCount: importedProducts.length, message: `Successfully imported ${importedProducts.length} products` };
-      }
-
-      case "import-tags": {
-        const file = formData.get("tagsFile") as File;
-        if (!file) {
-          return { success: false, error: "No file uploaded" };
-        }
-
-        const content = await file.text();
-        const lines = content.split('\n').filter(line => line.trim());
-        if (lines.length < 2) {
-          return { success: false, error: "CSV file is empty or invalid" };
-        }
-
-        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-        
-        const importedTags: TagRule[] = [];
-        
-        for (let i = 1; i < lines.length; i++) {
-          const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
-          const tag: any = {};
-          
-          headers.forEach((header, index) => {
-            tag[header.toLowerCase().replace(/\s+/g, '')] = values[index];
-          });
-          
-          importedTags.push({
-            id: Date.now().toString() + i,
-            name: tag.tagname || tag.name,
-            position: tag.position || 'top'
-          });
-        }
-
-        // Update tag rules with imported data
-        await prisma.tagSortingRule.deleteMany({
-          where: {
-            shopifyDomain: session.shop,
-            collectionId: gid
-          }
-        });
-
-        for (const tag of importedTags) {
-          await prisma.tagSortingRule.create({
-            data: {
-              shopifyDomain: session.shop,
-              collectionId: gid,
-              tagName: tag.name,
-              position: tag.position
-            }
-          });
-        }
-
-        return { success: true, importedCount: importedTags.length, message: `Successfully imported ${importedTags.length} tag rules` };
       }
 
       default:
@@ -1075,7 +1250,6 @@ const reorder = (list: Product[], startIndex: number, endIndex: number): Product
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
   
-  // Update positions
   return result.map((product, index) => ({
     ...product,
     position: index
@@ -1097,7 +1271,7 @@ const CollectionSort = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [searchQuery, setSearchQuery] = useState(pagination.searchQuery || "");
   const [showDropdown, setShowDropdown] = useState(false);
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>(savedData.featuredProducts);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [resortModalActive, setResortModalActive] = useState(false);
@@ -1107,53 +1281,57 @@ const CollectionSort = () => {
   const [resortMessage, setResortMessage] = useState<string>("");
   const [actionMessage, setActionMessage] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  
-  // NEW: Featured products search state
   const [featuredSearchQuery, setFeaturedSearchQuery] = useState("");
-  
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(pagination.productsPage || 1);
   const [productsPerPage, setProductsPerPage] = useState(pagination.productsCount || 250);
-  const [hasNextPage, setHasNextPage] = useState(pagination.hasNextPage || false);
-  const [hasPreviousPage, setHasPreviousPage] = useState(pagination.hasPreviousPage || false);
-  
-  // NEW STATE: For manual position selection after import
   const [showPositionModal, setShowPositionModal] = useState(false);
   const [importedProducts, setImportedProducts] = useState<Product[]>([]);
   const [productPositions, setProductPositions] = useState<{[key: string]: number}>({});
-  
-  // Featured Products Settings
-  const [sortOrder, setSortOrder] = useState(savedData.featuredSettings?.sortOrder || "manual");
-  const [limitFeatured, setLimitFeatured] = useState(
-    savedData.featuredSettings?.limitFeatured ? savedData.featuredSettings.limitFeatured.toString() : "0"
-  );
-  
-  // NEW: Manual sort order state
-  const [manualSortOrder, setManualSortOrder] = useState(
-    savedData.featuredSettings?.manualSortOrder || 
-    collection.sortOrder === "MANUAL"
-  );
-  
-  // Collection Settings State
+  const [sortOrder, setSortOrder] = useState("manual");
+  const [limitFeatured, setLimitFeatured] = useState("0");
+  const [manualSortOrder, setManualSortOrder] = useState(false);
   const [loadFromCollection, setLoadFromCollection] = useState("");
-  const [useCustomSorting, setUseCustomSorting] = useState(savedData.collectionSettings?.useCustomSorting || true);
-  const [primarySortOrder, setPrimarySortOrder] = useState(savedData.collectionSettings?.primarySortOrder || "random-high-low");
-  const [lookbackPeriod, setLookbackPeriod] = useState(savedData.collectionSettings?.lookbackPeriod?.toString() || "180");
-  const [ordersRange, setOrdersRange] = useState(savedData.collectionSettings?.ordersRange || "all-orders");
-  const [productGrouping, setProductGrouping] = useState(savedData.collectionSettings?.includeDiscounts || true);
-  
-  // Product Behavior Rules
-  const [pushNewProducts, setPushNewProducts] = useState(savedData.productBehaviorRules?.pushNewProductsUp || true);
-  const [pushNewProductsDays, setPushNewProductsDays] = useState(savedData.productBehaviorRules?.newProductDays?.toString() || "7");
-  const [pushDownOutOfStock, setPushDownOutOfStock] = useState(savedData.productBehaviorRules?.pushDownOutOfStock || true);
-  const [outOfStockNew, setOutOfStockNew] = useState(savedData.productBehaviorRules?.outOfStockVsNewPriority || "push-down");
-  const [outOfStockFeatured, setOutOfStockFeatured] = useState(savedData.productBehaviorRules?.outOfStockVsFeaturedPriority || "push-down");
-  const [outOfStockTags, setOutOfStockTags] = useState(savedData.productBehaviorRules?.outOfStockVsTagsPriority || "position-defined");  
-  // Manage Tags State
-  const [sortByTags, setSortByTags] = useState(savedData.tagRules.length > 0);
+  const [useCustomSorting, setUseCustomSorting] = useState(true);
+  const [primarySortOrder, setPrimarySortOrder] = useState("random-high-low");
+  const [lookbackPeriod, setLookbackPeriod] = useState("180");
+  const [ordersRange, setOrdersRange] = useState("all-orders");
+  const [productGrouping, setProductGrouping] = useState(true);
+  const [pushNewProducts, setPushNewProducts] = useState(true);
+  const [pushNewProductsDays, setPushNewProductsDays] = useState("7");
+  const [pushDownOutOfStock, setPushDownOutOfStock] = useState(true);
+  const [outOfStockNew, setOutOfStockNew] = useState("push-down");
+  const [outOfStockFeatured, setOutOfStockFeatured] = useState("push-down");
+  const [outOfStockTags, setOutOfStockTags] = useState("position-defined");
+  const [sortByTags, setSortByTags] = useState(false);
   const [tagName, setTagName] = useState("");
   const [tagPosition, setTagPosition] = useState("top");
-  const [tagRules, setTagRules] = useState<TagRule[]>(savedData.tagRules);
+  const [tagRules, setTagRules] = useState<TagRule[]>([]);
+  const [clearFeaturedModalActive, setClearFeaturedModalActive] = useState(false);
+
+  // Sync all states with loader data
+  useEffect(() => {
+    console.log("🔄 DEBUG: Syncing component state with loader data...");
+    console.log("🏷️ DEBUG: Saved tag rules from loader:", savedData.tagRules);
+    
+    setFeaturedProducts(savedData.featuredProducts || []);
+    setTagRules(savedData.tagRules || []);
+    setManualSortOrder(collection.sortOrder === "MANUAL");
+    setSortOrder(savedData.featuredSettings?.sortOrder || "manual");
+    setLimitFeatured(savedData.featuredSettings?.limitFeatured?.toString() || "0");
+    setUseCustomSorting(savedData.collectionSettings?.useCustomSorting ?? true);
+    setPrimarySortOrder(savedData.collectionSettings?.primarySortOrder || "random-high-low");
+    setLookbackPeriod(savedData.collectionSettings?.lookbackPeriod?.toString() || "180");
+    setOrdersRange(savedData.collectionSettings?.ordersRange || "all-orders");
+    setProductGrouping(savedData.collectionSettings?.includeDiscounts ?? true);
+    setPushNewProducts(savedData.productBehaviorRules?.pushNewProductsUp ?? true);
+    setPushNewProductsDays(savedData.productBehaviorRules?.newProductDays?.toString() || "7");
+    setPushDownOutOfStock(savedData.productBehaviorRules?.pushDownOutOfStock ?? true);
+    setOutOfStockNew(savedData.productBehaviorRules?.outOfStockVsNewPriority || "push-down");
+    setOutOfStockFeatured(savedData.productBehaviorRules?.outOfStockVsFeaturedPriority || "push-down");
+    setOutOfStockTags(savedData.productBehaviorRules?.outOfStockVsTagsPriority || "position-defined");
+    setSortByTags((savedData.tagRules?.length || 0) > 0);
+    
+  }, [savedData, collection]);
 
   // Handle search with debounce
   useEffect(() => {
@@ -1175,39 +1353,62 @@ const CollectionSort = () => {
     return () => clearTimeout(timer);
   }, [searchQuery, navigate]);
 
-  // Handle page change
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    
-    const params = new URLSearchParams(window.location.search);
-    params.set("productsPage", page.toString());
-    params.set("productsCount", productsPerPage.toString());
-    if (searchQuery) {
-      params.set("search", searchQuery);
-    }
-    
-    navigate(`?${params.toString()}`, { replace: true });
-  };
+  // Filter products
+  const filteredProducts = products.filter((p: Product) => 
+    p.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    !featuredProducts.find((fp: Product) => fp.id === p.id)
+  );
 
-  // Handle products per page change
-  const handleProductsPerPageChange = (value: string) => {
-    const newCount = parseInt(value);
-    setProductsPerPage(newCount);
-    
-    const params = new URLSearchParams(window.location.search);
-    params.set("productsCount", value);
-    params.set("productsPage", "1");
-    if (searchQuery) {
-      params.set("search", searchQuery);
-    }
-    
-    navigate(`?${params.toString()}`, { replace: true });
-  };
+  const filteredFeaturedProducts = featuredProducts.filter((p: Product) => 
+    p.title.toLowerCase().includes(featuredSearchQuery.toLowerCase())
+  );
 
-  // Generate products per page options
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+  // Options
+  const sortOrderOptions = [
+    { label: "Revenue Generated - High to Low", value: "random-high-low" },
+    { label: "Revenue Generated - Low to High", value: "random-low-high" },
+    { label: "Number of Sales - High to Low", value: "number-sales-high" },
+    { label: "Number of Sales - Low to High", value: "number-sales-low" },
+    { label: "Creation Date - New to Old", value: "creation-new-old" },
+    { label: "Creation Date - Old to New", value: "creation-old-new" },
+    { label: "Publish Date - New to Old", value: "publish-new-old" },
+    { label: "Publish Date - Old to New", value: "publish-old-new" },
+    { label: "Price - High to Low", value: "price-high-low" },
+    { label: "Price - Low to High", value: "price-low-high" },
+    { label: "Inventory - High to Low", value: "inventory-high-low" },
+    { label: "Inventory - Low to High", value: "inventory-low-high" },
+  ];
+
+  const lookbackPeriodOptions = [
+    { label: "180", value: "180" },
+    { label: "90", value: "90" },
+    { label: "60", value: "60" },
+    { label: "30", value: "30" },
+  ];
+
+  const ordersRangeOptions = [
+    { label: "All Orders", value: "all-orders" },
+    { label: "Paid Orders Only", value: "paid-orders" },
+  ];
+
+  const positions = [
+    { value: "top", label: "Top of collection / After featured products" },
+    { value: "after-new", label: "After new products" },
+    { value: "before-out-of-stock", label: "Before out of stock products" },
+    { value: "bottom", label: "Bottom of collection / After out of stock products" },
+  ];
+
+  const positionOptions = positions.map((pos) => ({
+    label: pos.label,
+    value: pos.value,
+  }));
+
   const generateProductsPerPageOptions = () => {
     const options = [];
-    
     const commonIncrements = [50, 100, 250, 500];
     
     commonIncrements.forEach(count => {
@@ -1227,83 +1428,6 @@ const CollectionSort = () => {
     return options.sort((a, b) => parseInt(a.value) - parseInt(b.value));
   };
 
-  // Filter available products based on search and pagination
-  const filteredProducts = products.filter((p: Product) => 
-    p.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    !featuredProducts.find((fp: Product) => fp.id === p.id)
-  );
-
-  // NEW: Filter featured products based on search
-  const filteredFeaturedProducts = featuredProducts.filter((p: Product) => 
-    p.title.toLowerCase().includes(featuredSearchQuery.toLowerCase())
-  );
-
-  // Calculate paginated products
-  const startIndex = (currentPage - 1) * productsPerPage;
-  const endIndex = startIndex + productsPerPage;
-  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-
-  // Options
-  const collectionOptions = [
-    { label: "Collection 1", value: "collection-1" },
-    { label: "Collection 2", value: "collection-2" },
-    { label: "Collection 3", value: "collection-3" },
-  ];
-
-  const sortOrderOptions = [
-    { label: "Revenue Generated - High to Low", value: "random-high-low" },
-    { label: "Revenue Generated - Low to High", value: "random-low-high" },
-    { label: "Number of Sales - High to Low", value: "number-sales-high" },
-    { label: "Number of Sales - Low to High", value: "number-sales-low" },
-    { label: "Creation Date - New to Old", value: "creation-new-old" },
-    { label: "Creation Date - Old to New", value: "creation-old-new" },
-    { label: "Publish Date - New to Old", value: "publish-new-old" },
-    { label: "Publish Date - Old to New", value: "publish-old-new" },
-  ];
-
-  const lookbackPeriodOptions = [
-    { label: "180", value: "180" },
-    { label: "90", value: "90" },
-    { label: "60", value: "60" },
-    { label: "30", value: "30" },
-  ];
-
-  const ordersRangeOptions = [
-    { label: "All Orders", value: "all-orders" },
-    { label: "Paid Orders Only", value: "paid-orders" },
-  ];
-
-  const outOfStockNewOptions = [
-    { label: "Push down out-of-stock even if new", value: "push-down" },
-    { label: "Push down later of stock even if new", value: "push-down-later" },
-    { label: "Push up new even if out-of-stock", value: "push-new" },
-  ];
-
-  const outOfStockFeaturedOptions = [
-    { label: "Push down out-of-stock even if featured", value: "push-down" },
-    { label: "Push down later of stock even if featured", value: "push-down-later" },
-    { label: "Push up featured even if out-of-stock", value: "push-featured" },
-  ];
-
-  const outOfStockTagsOptions = [
-    { label: "Keep position defined by a tag", value: "position-defined" },
-    { label: "Push down out-of-stock", value: "push-down" },
-    { label: "Keep position defined by a tag", value: "position-defined-tag" },
-  ];
-
-  const positions = [
-    { value: "top", label: "Top of collection / After featured products" },
-    { value: "after-new", label: "After new products" },
-    { value: "before-out-of-stock", label: "Before out of stock products" },
-    { value: "bottom", label: "Bottom of collection / After out of stock products" },
-  ];
-
-  const positionOptions = positions.map((pos) => ({
-    label: pos.label,
-    value: pos.value,
-  }));
-
-  // NEW: Generate position options for dropdown
   const generatePositionOptions = (count: number) => {
     return Array.from({ length: count }, (_, i) => ({
       label: `Position ${i + 1}`,
@@ -1316,7 +1440,30 @@ const CollectionSort = () => {
     pointerEvents: "none" as const,
   };
 
-  // Handle file selection
+  // Handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    const params = new URLSearchParams(window.location.search);
+    params.set("productsPage", page.toString());
+    params.set("productsCount", productsPerPage.toString());
+    if (searchQuery) {
+      params.set("search", searchQuery);
+    }
+    navigate(`?${params.toString()}`, { replace: true });
+  };
+
+  const handleProductsPerPageChange = (value: string) => {
+    const newCount = parseInt(value);
+    setProductsPerPage(newCount);
+    const params = new URLSearchParams(window.location.search);
+    params.set("productsCount", value);
+    params.set("productsPage", "1");
+    if (searchQuery) {
+      params.set("search", searchQuery);
+    }
+    navigate(`?${params.toString()}`, { replace: true });
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -1324,7 +1471,6 @@ const CollectionSort = () => {
     }
   };
 
-  // Handle remove file
   const handleRemoveFile = () => {
     setSelectedFile(null);
     if (featuredProductsFileInputRef.current) {
@@ -1332,16 +1478,16 @@ const CollectionSort = () => {
     }
   };
 
-  // NEW: Handle sort order change
   const handleSortOrderChange = async (value: boolean) => {
     setManualSortOrder(value);
     setActionMessage(value ? 
-      "Updating collection to Manual sort order..." : 
-      "Updating collection to Automatic sort order...");
+      "Updating collection to Manual sort order in Shopify..." : 
+      "Updating collection to default sort order in Shopify...");
     
     const formData = new FormData();
     formData.append("intent", "update-collection-sort-order");
     formData.append("manualSortOrder", value.toString());
+    formData.append("defaultSortOrder", "BEST_SELLING");
     
     try {
       submit(formData, { 
@@ -1354,199 +1500,46 @@ const CollectionSort = () => {
     }
   };
 
-  // NEW: Process imported products and show position modal
-  const processImportedProducts = (products: Product[]) => {
-    setImportedProducts(products);
-    
-    // Initialize positions with current order
-    const initialPositions: {[key: string]: number} = {};
-    products.forEach((product, index) => {
-      initialPositions[product.id] = index + 1;
-    });
-    setProductPositions(initialPositions);
-    
-    setShowPositionModal(true);
-  };
-
-  // NEW: Handle position change for individual product
-  const handlePositionChange = (productId: string, newPosition: string) => {
-    setProductPositions(prev => ({
-      ...prev,
-      [productId]: parseInt(newPosition)
-    }));
-  };
-
-  // NEW: Apply positions and save imported products
-  const handleApplyPositions = async () => {
-    setImportLoading(true);
-    
-    try {
-      // Sort imported products by selected positions
-      const sortedProducts = [...importedProducts].sort((a, b) => {
-        return productPositions[a.id] - productPositions[b.id];
-      });
-
-      // Update positions in sorted products
-      const productsWithUpdatedPositions = sortedProducts.map((product, index) => ({
-        ...product,
-        position: index
-      }));
-
-      // Save to database
-      const formData = new FormData();
-      formData.append("intent", "save-featured-products");
-      formData.append("featuredProducts", JSON.stringify(productsWithUpdatedPositions));
-      formData.append("featuredSettings", JSON.stringify({
-        sortOrder,
-        limitFeatured: parseInt(limitFeatured) || 0,
-        manualSortOrder
-      }));
-
-      submit(formData, { 
-        method: "POST",
-        replace: true 
-      });
-
-      setFeaturedProducts(productsWithUpdatedPositions);
-      setShowPositionModal(false);
-      setSaveSuccess(true);
-      setActionMessage(`Successfully imported ${importedProducts.length} products with custom positions!`);
-      
-      // Auto re-sort collection
-      setTimeout(() => {
-        const resortFormData = new FormData();
-        resortFormData.append("intent", "resort-collection");
-        submit(resortFormData, { 
-          method: "POST",
-          replace: true 
-        });
-      }, 1000);
-
-    } catch (error) {
-      console.error("Failed to apply positions:", error);
-      setActionMessage("Failed to apply positions");
-    } finally {
-      setImportLoading(false);
-    }
-  };
-
-  // Handle import featured products
-  const handleImportFeaturedProducts = async () => {
-    if (!selectedFile) {
-      setActionMessage("Please select a file first");
-      return;
-    }
-
-    setImportLoading(true);
-    setActionMessage("Importing featured products...");
-
-    try {
-      const content = await selectedFile.text();
-      const lines = content.split('\n').filter(line => line.trim());
-      
-      if (lines.length < 2) {
-        setActionMessage("CSV file is empty or invalid");
-        return;
-      }
-
-      const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
-      
-      const importedProducts: Product[] = [];
-      
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
-        const product: any = {};
-        
-        headers.forEach((header, index) => {
-          const cleanHeader = header.toLowerCase().replace(/\s+/g, '');
-          product[cleanHeader] = values[index];
-        });
-        
-        if (!product.productid) continue;
-
-        // Find the product in the available products
-        const existingProduct = products.find((p: Product) => p.id === product.productid);
-        if (existingProduct) {
-          const importedProduct: Product = {
-            id: product.productid,
-            title: existingProduct.title,
-            handle: existingProduct.handle,
-            featuredImage: existingProduct.featuredImage,
-            position: parseInt(product.position) || 0,
-            featuredType: (product.featuretype || "manual") as "manual" | "scheduled",
-            daysToFeature: product.daystofeature ? parseInt(product.daystofeature) : undefined,
-            startDate: product.startdate || undefined,
-            scheduleApplied: product.scheduleapplied?.toLowerCase() === "true"
-          };
-          
-          importedProducts.push(importedProduct);
-        }
-      }
-
-      if (importedProducts.length === 0) {
-        setActionMessage("No valid products found in CSV file");
-        return;
-      }
-
-      // Process imported products and show position modal
-      processImportedProducts(importedProducts);
-      
-      // Clear file after import
-      setSelectedFile(null);
-      if (featuredProductsFileInputRef.current) {
-        featuredProductsFileInputRef.current.value = '';
-      }
-      
-    } catch (error) {
-      console.error("Import failed:", error);
-      setActionMessage("Failed to import featured products");
-    } finally {
-      setImportLoading(false);
-    }
-  };
-
-  // Handle adding product to featured
   const handleAddProduct = (product: Product) => {
-    setFeaturedProducts([...featuredProducts, {
+    const newFeaturedProducts = [...featuredProducts, {
       ...product,
       featuredType: "manual",
       scheduleApplied: false,
       position: featuredProducts.length
-    }]);
+    }];
+    setFeaturedProducts(newFeaturedProducts);
     setSearchQuery("");
     setShowDropdown(false);
   };
 
-  // Handle removing product from featured
   const handleRemoveProduct = (id: string) => {
-    setFeaturedProducts(featuredProducts.filter(p => p.id !== id));
+    const newFeaturedProducts = featuredProducts.filter(p => p.id !== id);
+    setFeaturedProducts(newFeaturedProducts);
+    
+    // Don't automatically disable manual sort order when removing featured products
+    // Manual sort order should only be disabled when user manually disables it
   };
 
-  // Update product settings
   const updateProduct = (id: string, updates: Partial<Product>) => {
     setFeaturedProducts(featuredProducts.map(p => 
       p.id === id ? { ...p, ...updates } : p
     ));
   };
 
-  // Toggle date details visibility
   const toggleDateDetails = (id: string) => {
     setShowDateDetails(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Apply schedule and hide date details
   const applySchedule = (id: string) => {
     updateProduct(id, { scheduleApplied: true });
     setShowDateDetails(prev => ({ ...prev, [id]: false }));
   };
 
-  // Edit schedule
   const editSchedule = (id: string) => {
     updateProduct(id, { scheduleApplied: false });
     setShowDateDetails(prev => ({ ...prev, [id]: true }));
   };
 
-  // Drag and drop handlers
   const handleDragStart = (e: React.DragEvent, productId: string) => {
     setDraggedProduct(productId);
     e.dataTransfer.effectAllowed = "move";
@@ -1572,7 +1565,6 @@ const CollectionSort = () => {
     setDraggedProduct(null);
   };
 
-  // File import handlers for other types
   const handleImportProductsClick = () => {
     productsFileInputRef.current?.click();
   };
@@ -1585,7 +1577,7 @@ const CollectionSort = () => {
     featuredProductsFileInputRef.current?.click();
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'products' | 'tags') => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'products' | 'tags' | 'featured-products') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -1594,10 +1586,12 @@ const CollectionSort = () => {
 
     const formData = new FormData();
     formData.append("intent", 
-      type === 'products' ? "import-products" : "import-tags"
+      type === 'products' ? "import-products" : 
+      type === 'tags' ? "import-tags" : "import-featured-products"
     );
     formData.append(
-      type === 'products' ? "productsFile" : "tagsFile", 
+      type === 'products' ? "productsFile" : 
+      type === 'tags' ? "tagsFile" : "featuredProductsFile", 
       file
     );
 
@@ -1607,11 +1601,9 @@ const CollectionSort = () => {
         replace: true 
       });
       
-      // Show immediate feedback
       setSaveSuccess(true);
-      setActionMessage(`${type === 'products' ? 'Products' : 'Tags'} imported successfully!`);
+      setActionMessage(`${type === 'products' ? 'Products' : type === 'tags' ? 'Tags' : 'Featured products'} imported successfully!`);
       
-      // Reload the page to get updated data after a short delay
       setTimeout(() => {
         window.location.reload();
       }, 2000);
@@ -1620,12 +1612,10 @@ const CollectionSort = () => {
       setActionMessage(`Failed to import ${type}`);
     } finally {
       setImportLoading(false);
-      // Reset file input
       if (e.target) e.target.value = '';
     }
   };
 
-  // Export CSV functions
   const exportFeaturedProductsCSV = () => {
     const headers = ['Product ID', 'Title', 'Handle', 'Position', 'Featured Type', 'Days to Feature', 'Start Date', 'Schedule Applied'];
     const csvData = featuredProducts.map(p => [
@@ -1691,7 +1681,6 @@ const CollectionSort = () => {
     URL.revokeObjectURL(url);
   };
 
-  // Save featured products
   const handleSaveFeaturedProducts = async () => {
     setIsSaving(true);
     setActionMessage("Saving featured products...");
@@ -1699,13 +1688,14 @@ const CollectionSort = () => {
     const featuredSettings = {
       sortOrder,
       limitFeatured: parseInt(limitFeatured) || 0,
-      manualSortOrder // Add this new field
+      manualSortOrder
     };
     
     const formData = new FormData();
     formData.append("intent", "save-featured-products");
     formData.append("featuredProducts", JSON.stringify(featuredProducts));
     formData.append("featuredSettings", JSON.stringify(featuredSettings));
+    formData.append("updateShopifySortOrder", "true");
     
     try {
       submit(formData, { 
@@ -1727,7 +1717,36 @@ const CollectionSort = () => {
     }
   };
 
-  // Save collection settings
+  const handleClearAllFeaturedProducts = async () => {
+    setIsSaving(true);
+    setActionMessage("Clearing all featured products...");
+    
+    const formData = new FormData();
+    formData.append("intent", "clear-all-featured-products");
+    
+    try {
+      submit(formData, { 
+        method: "POST",
+        replace: true 
+      });
+      
+      setSaveSuccess(true);
+      setActionMessage("All featured products cleared successfully!");
+      setClearFeaturedModalActive(false);
+      setFeaturedProducts([]);
+      
+      setTimeout(() => {
+        setSaveSuccess(false);
+        setActionMessage("");
+      }, 3000);
+    } catch (error) {
+      console.error("Clear failed:", error);
+      setActionMessage("Failed to clear featured products");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleSaveCollectionSettings = async () => {
     setIsSaving(true);
     setActionMessage("Saving collection settings...");
@@ -1774,23 +1793,27 @@ const CollectionSort = () => {
     }
   };
 
-  // Save tag rules
   const handleSaveTagRules = async () => {
     setIsSaving(true);
     setActionMessage("Saving tag rules...");
+    
+    console.log("💾 UI DEBUG: Saving tag rules to database:", tagRules);
     
     const formData = new FormData();
     formData.append("intent", "save-tag-rules");
     formData.append("tagRules", JSON.stringify(tagRules));
     
     try {
-      submit(formData, { 
+      const result = await submit(formData, { 
         method: "POST",
         replace: true 
       });
       
       setSaveSuccess(true);
-      setActionMessage("Tag rules saved successfully!");
+      setActionMessage(tagRules.length > 0 
+        ? `Tag rules saved successfully! ${tagRules.length} rule(s) active.` 
+        : "All tag rules removed. Collection will use default sorting."
+      );
       setTimeout(() => {
         setSaveSuccess(false);
         setActionMessage("");
@@ -1803,7 +1826,6 @@ const CollectionSort = () => {
     }
   };
 
-  // Handle resort collection
   const handleResortCollection = async () => {
     setIsSaving(true);
     setResortMessage("");
@@ -1818,7 +1840,6 @@ const CollectionSort = () => {
         replace: true 
       });
       
-      // Show immediate feedback
       setResortMessage("Collection reordering started... This may take a few moments.");
       setTimeout(() => {
         setResortModalActive(false);
@@ -1826,7 +1847,6 @@ const CollectionSort = () => {
         setActionMessage("Collection successfully reordered! Changes should now be visible in Shopify.");
       }, 2000);
       
-      // Clear messages after delay
       setTimeout(() => {
         setSaveSuccess(false);
         setActionMessage("");
@@ -1841,24 +1861,31 @@ const CollectionSort = () => {
     }
   };
 
-  // Add tag rule
   const handleAddTag = () => {
     if (tagName.trim()) {
+      const newTagRule = {
+        id: `temp-${Date.now()}`,
+        name: tagName.trim(),
+        position: tagPosition,
+      };
+      
+      console.log("➕ UI DEBUG: Adding new tag rule:", newTagRule);
+      
       setTagRules([
         ...tagRules,
-        {
-          id: Date.now().toString(),
-          name: tagName,
-          position: tagPosition,
-        },
+        newTagRule
       ]);
       setTagName("");
+      setTagPosition("top");
+      setSortByTags(true);
     }
   };
 
-  // Handle clear position
-  const handleClearPosition = (position: string) => {
-    setTagRules(tagRules.filter((rule) => rule.position !== position));
+  const handleRemoveTag = (id: string) => {
+    console.log("🗑️ UI DEBUG: Removing tag rule with ID:", id);
+    const newTagRules = tagRules.filter(rule => rule.id !== id);
+    setTagRules(newTagRules);
+    setSortByTags(newTagRules.length > 0);
   };
 
   const tabs = [
@@ -1906,6 +1933,50 @@ const CollectionSort = () => {
       }}
     >
       <Layout>
+        {/* Manual Sort Order Control */}
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="300">
+              <Text as="h2" variant="headingMd">
+                Collection Sort Order Control
+              </Text>
+              <Text as="p" tone="subdued">
+                This setting automatically syncs with your Shopify collection. When enabled, the collection will be set to Manual sort order in Shopify. When disabled, it will revert to the default sort order.
+              </Text>
+              <InlineStack align="space-between">
+                <Checkbox
+                  label="Manual Sort Order"
+                  checked={manualSortOrder}
+                  onChange={handleSortOrderChange}
+                  helpText={manualSortOrder ? 
+                    "✅ Collection is set to Manual sort order in Shopify" : 
+                    "⚠️ Collection is using default Shopify sort order"}
+                />
+                <Button
+                  variant="plain"
+                  onClick={() => window.open(`https://${shopDomain}/admin/collections/${collectionId}`, '_blank')}
+                >
+                  View in Shopify Admin
+                </Button>
+              </InlineStack>
+              {manualSortOrder && (
+                <Banner tone="success">
+                  <Text as="p">
+                    ✅ This collection is set to Manual sort order in Shopify. You can now organize products manually using all sections below.
+                  </Text>
+                </Banner>
+              )}
+              {!manualSortOrder && (
+                <Banner tone="warning">
+                  <Text as="p">
+                    ⚠️ This collection is not set to Manual sort order. Enable "Manual Sort Order" to use featured products and manual organization. Current Shopify sort order: <strong>{collection.sortOrder?.replace('_', ' ').toLowerCase()}</strong>
+                  </Text>
+                </Banner>
+              )}
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+
         {/* Info Banner */}
         <Layout.Section>
           <Banner>
@@ -1936,69 +2007,48 @@ const CollectionSort = () => {
                       <Text as="h2" variant="headingMd">
                         Featured Products
                       </Text>
-                      <Button 
-                        onClick={handleSaveFeaturedProducts}
-                        variant="primary"
-                        loading={isSaving}
-                      >
-                        Save Featured Products
-                      </Button>
+                      <InlineStack gap="200">
+                        <Button 
+                          onClick={() => setClearFeaturedModalActive(true)}
+                          variant="secondary"
+                          tone="critical"
+                          disabled={featuredProducts.length === 0 || !manualSortOrder}
+                        >
+                          Clear All Featured
+                        </Button>
+                        <Button 
+                          onClick={handleSaveFeaturedProducts}
+                          variant="primary"
+                          loading={isSaving}
+                          disabled={!manualSortOrder}
+                        >
+                          Save Featured Products
+                        </Button>
+                      </InlineStack>
                     </InlineStack>
 
-                    {/* NEW: Sort Order Section */}
-                    <Card>
-                      <BlockStack gap="300">
-                        <Text as="h3" variant="headingSm">
-                          Sort Order
+                    {!manualSortOrder && (
+                      <Banner tone="critical">
+                        <Text as="p">
+                          ⚠️ You cannot manage featured products because this collection is not set to Manual sort order in Shopify. Please enable "Manual Sort Order" in the section above first.
                         </Text>
-                        <Text as="p" tone="subdued">
-                          Set this collection to Manual sort order to organize products manually. This is required for the app to properly organize products in your collection.
-                        </Text>
-                        <InlineStack align="space-between">
-                          <Checkbox
-                            label="Manual"
-                            checked={manualSortOrder}
-                            onChange={handleSortOrderChange}
-                          />
-                          <Button
-                            variant="plain"
-                            onClick={() => window.open(`https://${shopDomain}/admin/collections/${collectionId}`, '_blank')}
-                          >
-                            View in Shopify Admin
-                          </Button>
-                        </InlineStack>
-                        {manualSortOrder && (
-                          <Banner status="info">
-                            <Text as="p">
-                              This collection is set to Manual sort order. You can now organize products using this app.
-                            </Text>
-                          </Banner>
-                        )}
-                        {!manualSortOrder && (
-                          <Banner status="warning">
-                            <Text as="p">
-                              This collection is not set to Manual sort order. Check the "Manual" box above to enable manual organization of products.
-                            </Text>
-                          </Banner>
-                        )}
-                      </BlockStack>
-                    </Card>
+                      </Banner>
+                    )}
 
-                    {/* Import/Export Section for Featured Products */}
+                    {/* Import/Export Section */}
                     <Card>
                       <BlockStack gap="200">
                         <Text as="h3" variant="headingSm">
                           Import/Export Featured Products
                         </Text>
                         <Text as="p" tone="subdued">
-                          Export your current featured products to a CSV file, or import featured products from a CSV file. The CSV should include Product ID, Title, Handle, Position, Featured Type, Days to Feature, Start Date, and Schedule Applied.
+                          Export your current featured products to a CSV file, or import featured products from a CSV file.
                         </Text>
-                        
-                        {/* Export Section */}
                         <InlineStack gap="200">
                           <Button 
                             onClick={exportFeaturedProductsCSV}
                             icon={ArrowDownIcon}
+                            disabled={!manualSortOrder}
                           >
                             Export Featured Products
                           </Button>
@@ -2006,20 +2056,19 @@ const CollectionSort = () => {
                           <Button 
                             onClick={handleImportFeaturedProductsClick}
                             icon={ArrowUpIcon}
+                            disabled={!manualSortOrder}
                           >
                             Select CSV File
                           </Button>
-                          {/* Hidden file input for featured products */}
                           <input
                             type="file"
                             ref={featuredProductsFileInputRef}
                             style={{ display: 'none' }}
                             accept=".csv"
-                            onChange={handleFileSelect}
+                            onChange={(e) => handleFileUpload(e, 'featured-products')}
                           />
                         </InlineStack>
 
-                        {/* Selected File Display */}
                         {selectedFile && (
                           <Card>
                             <InlineStack align="space-between" blockAlign="center">
@@ -2031,9 +2080,10 @@ const CollectionSort = () => {
                               </InlineStack>
                               <InlineStack gap="200">
                                 <Button 
-                                  onClick={handleImportFeaturedProducts}
+                                  onClick={() => handleFileUpload({ target: { files: [selectedFile] } } as any, 'featured-products')}
                                   variant="primary"
                                   loading={importLoading}
+                                  disabled={!manualSortOrder}
                                 >
                                   Import Now
                                 </Button>
@@ -2050,16 +2100,15 @@ const CollectionSort = () => {
                           </Card>
                         )}
 
-                        <Button variant="plain">
+                        <Button variant="plain" disabled={!manualSortOrder}>
                           How to create a correct .CSV file for import?
                         </Button>
                       </BlockStack>
                     </Card>
 
-                    {/* Search and Pagination Controls */}
+                    {/* Search and Pagination */}
                     <Card>
                       <BlockStack gap="400">
-                        {/* Search and Products Per Page */}
                         <InlineStack align="space-between" blockAlign="center">
                           <div style={{ width: '320px' }}>
                             <TextField
@@ -2071,6 +2120,7 @@ const CollectionSort = () => {
                               onFocus={() => setShowDropdown(true)}
                               prefix={<Icon source={SearchIcon} />}
                               autoComplete="off"
+                              disabled={!manualSortOrder}
                             />
                           </div>
                           
@@ -2090,7 +2140,6 @@ const CollectionSort = () => {
                           </InlineStack>
                         </InlineStack>
 
-                        {/* Pagination */}
                         {filteredProducts.length > productsPerPage && (
                           <InlineStack align="center">
                             <Pagination
@@ -2103,7 +2152,6 @@ const CollectionSort = () => {
                           </InlineStack>
                         )}
 
-                        {/* Search Results Info */}
                         <InlineStack align="space-between">
                           <Text as="span" variant="bodySm" tone="subdued">
                             {searchQuery ? (
@@ -2120,7 +2168,7 @@ const CollectionSort = () => {
                     </Card>
 
                     {/* Search Dropdown */}
-                    {showDropdown && (
+                    {showDropdown && manualSortOrder && (
                       <div style={{
                         position: 'relative',
                         zIndex: 1000,
@@ -2178,7 +2226,7 @@ const CollectionSort = () => {
                       At the end of this period a product will be removed from featured automatically.
                     </Text>
 
-                    {/* NEW: Featured Products Search Bar */}
+                    {/* Featured Products Search */}
                     <Card>
                       <BlockStack gap="200">
                         <Text as="h3" variant="headingSm">
@@ -2194,6 +2242,7 @@ const CollectionSort = () => {
                           autoComplete="off"
                           clearButton
                           onClearButtonClick={() => setFeaturedSearchQuery("")}
+                          disabled={!manualSortOrder}
                         />
                         {featuredSearchQuery && (
                           <Text as="span" variant="bodySm" tone="subdued">
@@ -2203,10 +2252,11 @@ const CollectionSort = () => {
                       </BlockStack>
                     </Card>
 
-                    {/* Featured Products List with Drag & Drop */}
+                    {/* Featured Products List */}
                     <BlockStack gap="400">
                       <Text as="h3" variant="headingSm">
                         Featured Products ({featuredProducts.length})
+                        {parseInt(limitFeatured) > 0 && ` • Showing first ${Math.min(featuredProducts.length, parseInt(limitFeatured))} in collection`}
                       </Text>
                       
                       {featuredProducts.length === 0 ? (
@@ -2218,29 +2268,32 @@ const CollectionSort = () => {
                       ) : (
                         <BlockStack gap="200">
                           {filteredFeaturedProducts.map((product, index) => {
-                            // Find the actual index in the full array for position display
                             const actualIndex = featuredProducts.findIndex(p => p.id === product.id);
+                            const isBeyondLimit = parseInt(limitFeatured) > 0 && actualIndex >= parseInt(limitFeatured);
                             
                             return (
                               <div
                                 key={product.id}
-                                draggable
-                                onDragStart={(e) => handleDragStart(e, product.id)}
-                                onDragOver={handleDragOver}
-                                onDrop={(e) => handleDrop(e, product.id)}
+                                draggable={!isBeyondLimit}
+                                onDragStart={(e) => !isBeyondLimit && handleDragStart(e, product.id)}
+                                onDragOver={!isBeyondLimit ? handleDragOver : undefined}
+                                onDrop={!isBeyondLimit ? (e) => handleDrop(e, product.id) : undefined}
                                 style={{
-                                  cursor: 'grab',
+                                  cursor: isBeyondLimit ? 'not-allowed' : 'grab',
                                   padding: '12px',
                                   border: '1px solid var(--p-color-border)',
                                   borderRadius: '8px',
-                                  backgroundColor: draggedProduct === product.id ? 'var(--p-color-bg-surface-hover)' : 'var(--p-color-bg)',
+                                  backgroundColor: draggedProduct === product.id ? 'var(--p-color-bg-surface-hover)' : 
+                                                 isBeyondLimit ? 'var(--p-color-bg-surface-secondary)' : 'var(--p-color-bg)',
+                                  opacity: isBeyondLimit ? 0.6 : 1,
                                   transition: 'background-color 0.2s ease',
                                 }}
                               >
                                 <Card padding="200">
                                   <InlineStack align="space-between" blockAlign="center">
                                     <InlineStack gap="400" blockAlign="center">
-                                      <Icon source={DragHandleIcon} />
+                                      {!isBeyondLimit && <Icon source={DragHandleIcon} />}
+                                      {isBeyondLimit && <div style={{ width: '20px' }} />}
                                       <Thumbnail
                                         source={product.featuredImage?.url || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product_small.png"}
                                         alt={product.featuredImage?.altText || product.title}
@@ -2249,6 +2302,7 @@ const CollectionSort = () => {
                                       <BlockStack gap="100">
                                         <Text as="span" variant="bodyMd" fontWeight="medium">
                                           {product.title}
+                                          {isBeyondLimit && <Badge tone="attention">Beyond limit</Badge>}
                                         </Text>
                                         <Text as="span" variant="bodySm" tone="subdued">
                                           {product.handle}
@@ -2257,19 +2311,16 @@ const CollectionSort = () => {
                                     </InlineStack>
                                     
                                     <InlineStack gap="200" blockAlign="center">
-                                      {/* Badge for scheduled products */}
                                       {product.featuredType === "scheduled" && (
                                         <Badge tone="info">
                                           Scheduled
                                         </Badge>
                                       )}
                                      
-                                      {/* Position indicator */}
-                                      <Badge>
+                                      <Badge tone={isBeyondLimit ? "attention" : "success"}>
                                         {`Position: ${actualIndex + 1}`}
                                       </Badge>
                                       
-                                      {/* Radio Options */}
                                       <ChoiceList
                                         title="Feature type"
                                         titleHidden
@@ -2294,13 +2345,12 @@ const CollectionSort = () => {
                                             })
                                           })
                                         }
+                                        disabled={!manualSortOrder}
                                       />
                                       
-                                      {/* Schedule Section */}
                                       {product.featuredType === "scheduled" && (
                                         <InlineStack gap="200">
                                           {!product.scheduleApplied ? (
-                                            // Show date details form
                                             <Collapsible
                                               open={showDateDetails[product.id]}
                                               id={`date-details-${product.id}`}
@@ -2316,6 +2366,7 @@ const CollectionSort = () => {
                                                   autoComplete="off"
                                                   min={1}
                                                   placeholder="# of days"
+                                                  disabled={!manualSortOrder}
                                                 />
                                                 <TextField
                                                   label="Start date"
@@ -2325,18 +2376,19 @@ const CollectionSort = () => {
                                                     startDate: value 
                                                   })}
                                                   autoComplete="off"
+                                                  disabled={!manualSortOrder}
                                                 />
                                                 <Button 
                                                   size="slim"
                                                   variant="primary" 
                                                   onClick={() => applySchedule(product.id)}
+                                                  disabled={!manualSortOrder}
                                                 >
                                                   Apply
                                                 </Button>
                                               </InlineStack>
                                             </Collapsible>
                                           ) : (
-                                            // Show applied schedule with edit button
                                             <InlineStack gap="100" blockAlign="center">
                                               <Icon source={CalendarIcon} />
                                               <Text as="span" variant="bodyXs">
@@ -2347,16 +2399,17 @@ const CollectionSort = () => {
                                                 variant="plain"
                                                 icon={EditIcon}
                                                 onClick={() => editSchedule(product.id)}
+                                                disabled={!manualSortOrder}
                                               />
                                             </InlineStack>
                                           )}
                                           
-                                          {/* Toggle button for date details */}
                                           {!product.scheduleApplied && (
                                             <Button
                                               size="slim"
                                               variant="plain"
                                               onClick={() => toggleDateDetails(product.id)}
+                                              disabled={!manualSortOrder}
                                             >
                                               {showDateDetails[product.id] ? "Hide" : "Show"} dates
                                             </Button>
@@ -2364,13 +2417,13 @@ const CollectionSort = () => {
                                         </InlineStack>
                                       )}
                                       
-                                      {/* Remove Button */}
                                       <Button
                                         size="slim"
                                         icon={DeleteIcon}
                                         variant="plain"
                                         tone="critical"
                                         onClick={() => handleRemoveProduct(product.id)}
+                                        disabled={!manualSortOrder}
                                       >
                                         Remove
                                       </Button>
@@ -2388,13 +2441,12 @@ const CollectionSort = () => {
                     <BlockStack gap="600">
                       <Box paddingBlockStart="600">
                         <BlockStack gap="400">
-
                           <Box>
                             <Text as="h3" variant="headingSm">
-                              Limit Featured
+                              Limit Featured Products
                             </Text>
                             <Text as="p" tone="subdued">
-                              Max # of products to feature each time. If Random Order for Featured products is enabled, the app will choose this amount of products from the setlist above and pin them at the top of the collection. Each reSort (Automated or Manual) will alternate those products randomly. Set "0" to show all.
+                              Max # of products to feature each time. If you have 5 featured products but set limit to 2, only the first 2 products will appear as featured in the collection. The remaining 3 will follow the default sort order. Set "0" to show all featured products.
                             </Text>
                             <Box maxWidth="320px">
                               <TextField
@@ -2405,6 +2457,10 @@ const CollectionSort = () => {
                                 onChange={setLimitFeatured}
                                 autoComplete="off"
                                 min={0}
+                                disabled={!manualSortOrder}
+                                helpText={parseInt(limitFeatured) > 0 ? 
+                                  `Only first ${limitFeatured} featured products will be displayed` : 
+                                  "All featured products will be displayed"}
                               />
                             </Box>
                           </Box>
@@ -2414,7 +2470,7 @@ const CollectionSort = () => {
                   </BlockStack>
                 )}
 
-                {/* Collection Settings Tab - Remains the same */}
+                {/* Collection Settings Tab */}
                 {selectedTab === 1 && (
                   <BlockStack gap="400">
                     <InlineStack align="space-between">
@@ -2431,7 +2487,6 @@ const CollectionSort = () => {
                     </InlineStack>
 
                     <BlockStack gap="400">
-                      {/* Use Custom Sorting */}
                       <Card>
                         <InlineStack align="space-between">
                           <BlockStack gap="200">
@@ -2450,9 +2505,7 @@ const CollectionSort = () => {
                         </InlineStack>
                       </Card>
 
-                      {/* Content that should be disabled when useCustomSorting is false */}
                       <div style={useCustomSorting ? {} : disabledSectionStyle}>
-                        {/* Primary Sort Order */}
                         <Card>
                           <BlockStack gap="200">
                             <Text as="h3" variant="headingSm">
@@ -2471,7 +2524,6 @@ const CollectionSort = () => {
                           </BlockStack>
                         </Card>
 
-                        {/* Import/Export Products Order */}
                         <Card>
                           <BlockStack gap="200">
                             <Text as="h3" variant="headingSm">
@@ -2497,7 +2549,6 @@ const CollectionSort = () => {
                               >
                                 Import Rearranged
                               </Button>
-                              {/* Hidden file input for products */}
                               <input
                                 type="file"
                                 ref={productsFileInputRef}
@@ -2512,7 +2563,6 @@ const CollectionSort = () => {
                           </BlockStack>
                         </Card>
 
-                        {/* Lookback Period */}
                         <Card>
                           <BlockStack gap="200">
                             <Text as="h3" variant="headingSm">
@@ -2534,7 +2584,6 @@ const CollectionSort = () => {
                           </BlockStack>
                         </Card>
 
-                        {/* Orders Status */}
                         <Card>
                           <BlockStack gap="200">
                             <Text as="h3" variant="headingSm">
@@ -2553,7 +2602,6 @@ const CollectionSort = () => {
                           </BlockStack>
                         </Card>
 
-                        {/* Product Grouping */}
                         <Card>
                           <InlineStack align="space-between">
                             <BlockStack gap="200">
@@ -2565,7 +2613,7 @@ const CollectionSort = () => {
                               </Text>
                             </BlockStack>
                             <Checkbox
-                              label="Enable product grouping"
+                              label="Include discounts in revenue"
                               checked={productGrouping}
                               onChange={setProductGrouping}
                               disabled={!useCustomSorting}
@@ -2573,7 +2621,6 @@ const CollectionSort = () => {
                           </InlineStack>
                         </Card>
 
-                        {/* Push New Products Up */}
                         <Card>
                           <BlockStack gap="200">
                             <InlineStack align="space-between">
@@ -2582,7 +2629,7 @@ const CollectionSort = () => {
                                   Push New Products Up
                                 </Text>
                                 <Text as="p" tone="subdued">
-                                  Automatically push newly added products to the collection for the product to be completed area.
+                                  Automatically push newly added products to the top of the collection for a specified period.
                                 </Text>
                               </BlockStack>
                               <Checkbox
@@ -2592,26 +2639,31 @@ const CollectionSort = () => {
                                 disabled={!useCustomSorting}
                               />
                             </InlineStack>
-                            <Text as="p" tone="subdued">
-                              Allow priority to latest from the global website?
-                            </Text>
-                            {/* Days field - only enabled when pushNewProducts is true */}
-                            <InlineStack gap="200">
-                              <TextField
-                                label="Days"
-                                type="number"
-                                value={pushNewProductsDays}
-                                onChange={setPushNewProductsDays}
-                                disabled={!useCustomSorting || !pushNewProducts}
-                                placeholder="7"
-                                autoComplete="off"
-                              />
-                              <Text as="span">days</Text>
-                            </InlineStack>
+                            
+                            {pushNewProducts && (
+                              <BlockStack gap="200">
+                                <Text as="p" tone="subdued">
+                                  Number of days to consider a product as "new":
+                                </Text>
+                                <InlineStack gap="200">
+                                  <TextField
+                                    label="Days"
+                                    type="number"
+                                    value={pushNewProductsDays}
+                                    onChange={setPushNewProductsDays}
+                                    disabled={!useCustomSorting || !pushNewProducts}
+                                    placeholder="7"
+                                    autoComplete="off"
+                                    min="1"
+                                    max="365"
+                                  />
+                                  <Text as="span">days</Text>
+                                </InlineStack>
+                              </BlockStack>
+                            )}
                           </BlockStack>
                         </Card>
 
-                        {/* Push Down Out of Stock */}
                         <Card>
                           <InlineStack align="space-between">
                             <BlockStack gap="200">
@@ -2619,7 +2671,7 @@ const CollectionSort = () => {
                                 Push Down Out of Stock
                               </Text>
                               <Text as="p" tone="subdued">
-                                Automatically push out-of-stock goods to the bottom or hide out-of-stock, push products.
+                                Automatically push out-of-stock products to the bottom of the collection.
                               </Text>
                             </BlockStack>
                             <Checkbox
@@ -2631,19 +2683,21 @@ const CollectionSort = () => {
                           </InlineStack>
                         </Card>
 
-                        {/* Out-of-Stock in New - FIXED: Only show when both pushNewProducts AND pushDownOutOfStock are enabled */}
                         {pushNewProducts && pushDownOutOfStock && (
                           <Card>
                             <BlockStack gap="200">
                               <Text as="h3" variant="headingSm">
-                                Out-of-Stock in New
+                                Out-of-Stock vs New Products
                               </Text>
                               <Text as="p" tone="subdued">
-                                Available when 'Push New Products Up' and 'Push Out-of-Stock' are both enabled.
+                                How to handle products that are both new and out-of-stock.
                               </Text>
                               <Select
-                                label="Out of stock in new"
-                                options={outOfStockNewOptions}
+                                label="Priority for new out-of-stock products"
+                                options={[
+                                  { label: "Push down out-of-stock even if new", value: "push-down" },
+                                  { label: "Keep new products at top even if out-of-stock", value: "push-new" },
+                                ]}
                                 value={outOfStockNew}
                                 onChange={setOutOfStockNew}
                                 disabled={!useCustomSorting}
@@ -2652,7 +2706,6 @@ const CollectionSort = () => {
                           </Card>
                         )}
 
-                        {/* Out-of-Stock in Featured - FIXED: Only show when pushDownOutOfStock is enabled */}
                         {pushDownOutOfStock && (
                           <Card>
                             <BlockStack gap="200">
@@ -2660,11 +2713,14 @@ const CollectionSort = () => {
                                 Out-of-Stock vs Featured
                               </Text>
                               <Text as="p" tone="subdued">
-                                Available for any primary sorting order except "Manual". Featured products are set per collection. Choose your preference.
+                                How to handle featured products that are out-of-stock.
                               </Text>
                               <Select
-                                label="Out of stock in featured"
-                                options={outOfStockFeaturedOptions}
+                                label="Priority for featured out-of-stock products"
+                                options={[
+                                  { label: "Push down out-of-stock even if featured", value: "push-down" },
+                                  { label: "Keep featured products at top even if out-of-stock", value: "push-featured" },
+                                ]}
                                 value={outOfStockFeatured}
                                 onChange={setOutOfStockFeatured}
                                 disabled={!useCustomSorting}
@@ -2673,7 +2729,6 @@ const CollectionSort = () => {
                           </Card>
                         )}
 
-                        {/* Out-of-Stock in Tags - FIXED: Only show when pushDownOutOfStock is enabled */}
                         {pushDownOutOfStock && (
                           <Card>
                             <BlockStack gap="200">
@@ -2681,11 +2736,14 @@ const CollectionSort = () => {
                                 Out-of-Stock vs Tags
                               </Text>
                               <Text as="p" tone="subdued">
-                                Applies if you use tags to place products in specific positions. Choose your preference when a product with this tag is out-of-stock.
+                                How to handle tagged products that are out-of-stock.
                               </Text>
                               <Select
-                                label="Out of stock in tags"
-                                options={outOfStockTagsOptions}
+                                label="Priority for tagged out-of-stock products"
+                                options={[
+                                  { label: "Keep position defined by tag", value: "position-defined" },
+                                  { label: "Push down out-of-stock", value: "push-down" },
+                                ]}
                                 value={outOfStockTags}
                                 onChange={setOutOfStockTags}
                                 disabled={!useCustomSorting}
@@ -2698,7 +2756,7 @@ const CollectionSort = () => {
                   </BlockStack>
                 )}
 
-                {/* Manage Tags Tab - Remains the same */}
+                {/* Manage Tags Tab */}
                 {selectedTab === 2 && (
                   <BlockStack gap="400">
                     <InlineStack align="space-between">
@@ -2715,7 +2773,6 @@ const CollectionSort = () => {
                     </InlineStack>
 
                     <BlockStack gap="400">
-                      {/* Sort by Tags Toggle */}
                       <Card>
                         <InlineStack align="space-between">
                           <BlockStack gap="200">
@@ -2734,7 +2791,6 @@ const CollectionSort = () => {
                         </InlineStack>
                       </Card>
 
-                      {/* Specify Tags */}
                       <Card>
                         <BlockStack gap="300">
                           <Text as="h3" variant="headingSm">
@@ -2750,7 +2806,7 @@ const CollectionSort = () => {
                                 label="Tag name"
                                 value={tagName}
                                 onChange={setTagName}
-                                placeholder="Tag name"
+                                placeholder="Enter tag name (e.g., 'sale', 'new')"
                                 disabled={!sortByTags}
                                 autoComplete="off"
                               />
@@ -2771,7 +2827,7 @@ const CollectionSort = () => {
                                   disabled={!sortByTags || !tagName.trim()}
                                   fullWidth
                                 >
-                                  Add a Tag
+                                  Add Tag Rule
                                 </Button>
                               </div>
                             </Grid.Cell>
@@ -2779,39 +2835,48 @@ const CollectionSort = () => {
                         </BlockStack>
                       </Card>
 
-                      {/* Tag Rules List */}
                       <Card>
-                        <BlockStack gap="200">
-                          {positions.map((pos) => {
-                            const rulesAtPosition = tagRules.filter((rule) => rule.position === pos.value);
-                            return (
-                              <div key={pos.value}>
-                                <InlineStack align="space-between">
-                                  <TextContainer>
-                                    <span style={{ fontWeight: '500' }}>{pos.label}</span>
-                                    {rulesAtPosition.length > 0 && (
-                                      <span style={{ color: "#6d7175", fontSize: "14px" }}>
-                                        (if they are set)
-                                      </span>
-                                    )}
-                                  </TextContainer>
-                                  {rulesAtPosition.length > 0 && (
+                        <BlockStack gap="300">
+                          <Text as="h3" variant="headingSm">
+                            Active Tag Rules ({tagRules.length})
+                          </Text>
+                          
+                          {tagRules.length === 0 ? (
+                            <Box padding="400" background="bg-surface-secondary">
+                              <Text as="p" tone="subdued" alignment="center">
+                                No tag rules yet. Add tag rules above to organize products by tags.
+                              </Text>
+                            </Box>
+                          ) : (
+                            <BlockStack gap="200">
+                              {tagRules.map((rule) => (
+                                <Card key={rule.id} padding="300">
+                                  <InlineStack align="space-between" blockAlign="center">
+                                    <BlockStack gap="100">
+                                      <Text as="span" variant="bodyMd" fontWeight="medium">
+                                        Tag: {rule.name}
+                                      </Text>
+                                      <Text as="span" variant="bodySm" tone="subdued">
+                                        Position: {positions.find(p => p.value === rule.position)?.label}
+                                      </Text>
+                                    </BlockStack>
                                     <Button
                                       variant="plain"
-                                      onClick={() => handleClearPosition(pos.value)}
+                                      tone="critical"
+                                      icon={DeleteIcon}
+                                      onClick={() => handleRemoveTag(rule.id)}
                                       disabled={!sortByTags}
                                     >
-                                      clear
+                                      Remove
                                     </Button>
-                                  )}
-                                </InlineStack>
-                              </div>
-                            );
-                          })}
+                                  </InlineStack>
+                                </Card>
+                              ))}
+                            </BlockStack>
+                          )}
                         </BlockStack>
                       </Card>
 
-                      {/* Import/Export Tags List */}
                       <Card>
                         <BlockStack gap="200">
                           <Text as="h3" variant="headingSm">
@@ -2833,7 +2898,6 @@ const CollectionSort = () => {
                             >
                               Import Tags
                             </Button>
-                            {/* Hidden file input for tags */}
                             <input
                               type="file"
                               ref={tagsFileInputRef}
@@ -2845,6 +2909,28 @@ const CollectionSort = () => {
                           <Button variant="plain" disabled={!sortByTags}>
                             How to create a correct .CSV file?
                           </Button>
+                        </BlockStack>
+                      </Card>
+
+                      <Card>
+                        <BlockStack gap="200">
+                          <Text as="h3" variant="headingSm">
+                            How Tag Rules Work
+                          </Text>
+                          <Text as="p" tone="subdued">
+                            When you re-sort the collection, products with tags matching your rules will be positioned as follows:
+                          </Text>
+                          <List type="bullet">
+                            <List.Item>Top: Products appear after featured products</List.Item>
+                            <List.Item>After New: Products appear after new products section</List.Item>
+                            <List.Item>Before Out-of-Stock: Products appear before out-of-stock section</List.Item>
+                            <List.Item>Bottom: Products appear at the very end of collection</List.Item>
+                          </List>
+                          <Banner tone="info">
+                            <Text as="p">
+                              <strong>Tip:</strong> Make sure your products have the specified tags in Shopify. The app will only apply rules to products that actually have these tags.
+                            </Text>
+                          </Banner>
                         </BlockStack>
                       </Card>
                     </BlockStack>
@@ -2883,66 +2969,34 @@ const CollectionSort = () => {
         </Modal.Section>
       </Modal>
 
-      {/* NEW: Position Selection Modal */}
+      {/* Clear All Featured Products Modal */}
       <Modal
-        open={showPositionModal}
-        onClose={() => setShowPositionModal(false)}
-        title="Set Product Positions"
+        open={clearFeaturedModalActive}
+        onClose={() => setClearFeaturedModalActive(false)}
+        title="Clear All Featured Products?"
         primaryAction={{
-          content: "Apply Positions",
-          onAction: handleApplyPositions,
-          loading: importLoading,
+          content: "Yes, Clear All",
+          onAction: handleClearAllFeaturedProducts,
+          loading: isSaving,
+          tone: "critical" as any,
         }}
         secondaryActions={[{
           content: "Cancel",
-          onAction: () => setShowPositionModal(false),
+          onAction: () => setClearFeaturedModalActive(false),
         }]}
-        size="large"
       >
         <Modal.Section>
-          <BlockStack gap="400">
+          <Text as="p">
+            This will remove all featured products from this collection. 
+            {tagRules.length > 0 
+              ? ` The collection will be reordered based on your ${tagRules.length} tag rule(s).` 
+              : " The collection will revert to the default sort order."}
+          </Text>
+          <Banner tone="warning">
             <Text as="p">
-              Set the positions for your imported products. Products will be displayed in the order you specify below.
+              <strong>Note:</strong> Manual sort order will not be automatically disabled. You can manually disable it in the "Collection Sort Order Control" section above if needed.
             </Text>
-            
-            <BlockStack gap="300">
-              {importedProducts.map((product, index) => (
-                <Card key={product.id} padding="300">
-                  <InlineStack align="space-between" blockAlign="center">
-                    <InlineStack gap="300" blockAlign="center">
-                      <Thumbnail
-                        source={product.featuredImage?.url || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product_small.png"}
-                        alt={product.featuredImage?.altText || product.title}
-                        size="small"
-                      />
-                      <BlockStack gap="100">
-                        <Text as="span" variant="bodyMd" fontWeight="medium">
-                          {product.title}
-                        </Text>
-                        <Text as="span" variant="bodySm" tone="subdued">
-                          {product.handle}
-                        </Text>
-                      </BlockStack>
-                    </InlineStack>
-                    
-                    <Select
-                      label="Position"
-                      labelHidden
-                      options={generatePositionOptions(importedProducts.length)}
-                      value={productPositions[product.id]?.toString() || (index + 1).toString()}
-                      onChange={(value) => handlePositionChange(product.id, value)}
-                    />
-                  </InlineStack>
-                </Card>
-              ))}
-            </BlockStack>
-            
-            <Banner tone="info">
-              <Text as="p">
-                Products will be sorted by the positions you set above. Lower numbers appear first.
-              </Text>
-            </Banner>
-          </BlockStack>
+          </Banner>
         </Modal.Section>
       </Modal>
 
