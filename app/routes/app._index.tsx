@@ -718,7 +718,6 @@ function CollectionRow({
       <IndexTable.Cell>
         <BlockStack gap="100">
           <Text as="span" variant="bodyMd" fontWeight="semibold">{title}</Text>
-          <Text as="span" tone="subdued" variant="bodySm">/{handle}</Text>
         </BlockStack>
       </IndexTable.Cell>
       <IndexTable.Cell>

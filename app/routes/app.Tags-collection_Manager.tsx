@@ -1728,7 +1728,7 @@ export async function action({ request }: { request: Request }) {
   }
 }
 
-// The component code remains exactly the same as before
+// The component code with simplified styling
 export default function CollectionManager() {
   const { shop, collections, settings, shopifyDomain } = useLoaderData();
   const actionData = useActionData();
@@ -1876,6 +1876,7 @@ export default function CollectionManager() {
     <Toast content={toastMessage} onDismiss={toggleToast} error={toastError} />
   ) : null;
 
+  // Tab definitions with simple text
   const tabs = [
     {
       id: 'bestsellers',
@@ -1904,10 +1905,44 @@ export default function CollectionManager() {
     },
   ];
 
+  // Simple CSS for black and white theme
+  const pageStyles = `
+    .black-white-card {
+      border: 2px solid #000000 !important;
+      border-radius: 8px !important;
+    }
+    
+    .black-white-primary-btn {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    
+    .black-white-primary-btn:hover {
+      background-color: #333333 !important;
+    }
+    
+    .black-white-outline-btn {
+      background-color: transparent !important;
+      color: #000000 !important;
+      border: 2px solid #000000 !important;
+    }
+    
+    .black-white-outline-btn:hover {
+      background-color: #f5f5f5 !important;
+    }
+    
+    .black-white-section {
+      background-color: #f8f8f8 !important;
+      border: 1px solid #e5e5e5 !important;
+      border-radius: 6px !important;
+    }
+  `;
+
   return (
     <Page
       title="Collection Manager"
     >
+      <style>{pageStyles}</style>
       <Layout>
         <Layout.Section>
           <Banner tone="info">
@@ -1918,13 +1953,18 @@ export default function CollectionManager() {
         </Layout.Section>
 
         <Layout.Section>
-          <Tabs tabs={tabs} selected={selectedTab} onSelect={setSelectedTab}>
+          <Tabs 
+            tabs={tabs} 
+            selected={selectedTab} 
+            onSelect={setSelectedTab}
+            fitted
+          >
             {selectedTab === 0 && (
               <Card>
-                <Box padding="400">
-                  <BlockStack gap="400">
+                <Box padding="500">
+                  <BlockStack gap="500">
                     <FormLayout>
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <Box paddingBlockStart="400">
                           <TextField
                             label="Tag"
@@ -1932,13 +1972,13 @@ export default function CollectionManager() {
                             onChange={setBestsellersTag}
                             autoComplete="off"
                           />
-                          <Text variant="bodySm" as="p">
+                          <Text variant="bodySm" as="p" tone="subdued" fontWeight="medium">
                             Letters, numbers, dashes or underscores only as recommended by Shopify
                           </Text>
                         </Box>
                       </div>
 
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <TextField
                           label="Number of top bestsellers to tag"
                           type="number"
@@ -1948,24 +1988,19 @@ export default function CollectionManager() {
                         />
                       </div>
 
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <BlockStack gap="200">
-                          <Text variant="bodyMd" as="p" fontWeight="semibold">Bestsellers Criteria</Text>
-                          <Text variant="bodySm" as="p">
+                          <Text variant="bodyMd" as="p" fontWeight="bold">Bestsellers Criteria</Text>
+                          <Text variant="bodySm" as="p" tone="subdued">
                             Products are ranked by the number of units sold in the last 6 months (180 days). The more units sold, the higher the ranking.
                           </Text>
                           
-                          <Box paddingBlockStart="200">
-                            <div style={{ 
-                              padding: '12px', 
-                              backgroundColor: '#f6f6f7', 
-                              borderRadius: '6px',
-                              border: '1px solid #e1e3e5'
-                            }}>
-                              <Text variant="bodyMd" as="p" fontWeight="medium">
+                          <Box paddingBlockStart="300">
+                            <div className="black-white-section" style={{ padding: '16px' }}>
+                              <Text variant="bodyMd" as="p" fontWeight="semibold">
                                 Lookback Period: <Badge tone="success">180 days (6 months) - Fixed</Badge>
                               </Text>
-                              <Text variant="bodySm" as="p">
+                              <Text variant="bodySm" as="p" tone="subdued">
                                 Bestsellers are calculated based on sales data from the last 6 months to ensure consistent performance measurement.
                               </Text>
                             </div>
@@ -1973,7 +2008,7 @@ export default function CollectionManager() {
                         </BlockStack>
                       </div>
 
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <Checkbox
                           label="Exclude Out-of-Stock Products"
                           helpText="Enable this option to exclude products that are out of stock from being tagged as bestsellers."
@@ -1983,15 +2018,19 @@ export default function CollectionManager() {
                       </div>
                     </FormLayout>
                     
-                    <div style={{ padding: '16px', borderTop: '1px solid #e1e3e5' }}>
-                      <InlineStack align="end" gap="200">
+                    <div style={{ paddingTop: '20px', borderTop: '2px solid #e5e5e5' }}>
+                      <InlineStack align="end" gap="300">
                         <Button 
                           onClick={handleProcessBestsellers}
                           loading={processing && processingType === 'bestsellers'}
+                          variant="secondary"
                         >
                           Process Now
                         </Button>
-                        <Button variant="primary" onClick={handleSaveSettings}>
+                        <Button 
+                          variant="primary" 
+                          onClick={handleSaveSettings}
+                        >
                           Save Settings
                         </Button>
                       </InlineStack>
@@ -2003,10 +2042,10 @@ export default function CollectionManager() {
             
             {selectedTab === 1 && (
               <Card>
-                <Box padding="400">
-                  <BlockStack gap="400">
+                <Box padding="500">
+                  <BlockStack gap="500">
                     <FormLayout>
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <Box paddingBlockStart="400">
                           <TextField
                             label="Tag Name"
@@ -2014,13 +2053,13 @@ export default function CollectionManager() {
                             onChange={setTrendingTag}
                             autoComplete="off"
                           />
-                          <Text variant="bodySm" as="p">
+                          <Text variant="bodySm" as="p" tone="subdued" fontWeight="medium">
                             Letters, numbers, dashes or underscores only as recommended by Shopify
                           </Text>
                         </Box>
                       </div>
 
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <TextField
                           label="Number of Top Trending to Tag"
                           type="number"
@@ -2031,27 +2070,22 @@ export default function CollectionManager() {
                         />
                       </div>
 
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <BlockStack gap="200">
-                          <Text variant="bodyMd" as="p" fontWeight="semibold">Trending Criteria</Text>
+                          <Text variant="bodyMd" as="p" fontWeight="bold">Trending Criteria</Text>
                           
-                          <div style={{ 
-                            padding: '12px', 
-                            backgroundColor: '#f6f6f7', 
-                            borderRadius: '6px',
-                            border: '1px solid #e1e3e5'
-                          }}>
-                            <Text variant="bodyMd" as="p" fontWeight="medium">
+                          <div className="black-white-section" style={{ padding: '16px' }}>
+                            <Text variant="bodyMd" as="p" fontWeight="semibold">
                               Lookback Period: <Badge tone="success">7 days - Fixed</Badge>
                             </Text>
-                            <Text variant="bodySm" as="p">
+                            <Text variant="bodySm" as="p" tone="subdued">
                               Trending products are identified based on sales from the last 7 days to capture current popularity and momentum.
                             </Text>
                           </div>
                         </BlockStack>
                       </div>
 
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <Checkbox
                           label="Exclude Out-of-Stock Products"
                           helpText="Enable this option to exclude sold-out items from the trending list. Keeps your Trending collection clean and relevant with only products customers can buy."
@@ -2061,24 +2095,28 @@ export default function CollectionManager() {
                       </div>
                     </FormLayout>
                     
-                    <div style={{ padding: '16px', backgroundColor: '#f6f6f7', borderRadius: '8px', marginTop: '16px' }}>
-                      <Text variant="bodyMd" as="p" fontWeight="semibold">💡 How Trending Works:</Text>
-                      <Text variant="bodySm" as="p">
+                    <div className="black-white-section" style={{ padding: '16px', marginTop: '16px' }}>
+                      <Text variant="bodyMd" as="p" fontWeight="bold">💡 How Trending Works:</Text>
+                      <Text variant="bodySm" as="p" tone="subdued">
                         The Trending Section automatically finds and tags your most recently popular or fast-selling products — items that are currently gaining traction. 
                         It helps highlight products that recently started selling well (not just your all-time bestsellers). 
                         When new products become popular, they get the tag — and older ones may lose it, so the list keeps updating automatically.
                       </Text>
                     </div>
                     
-                    <div style={{ padding: '16px', borderTop: '1px solid #e1e3e5' }}>
-                      <InlineStack align="end" gap="200">
+                    <div style={{ paddingTop: '20px', borderTop: '2px solid #e5e5e5' }}>
+                      <InlineStack align="end" gap="300">
                         <Button 
                           onClick={handleProcessTrending}
                           loading={processing && processingType === 'trending'}
+                          variant="secondary"
                         >
                           Process Now
                         </Button>
-                        <Button variant="primary" onClick={handleSaveSettings}>
+                        <Button 
+                          variant="primary" 
+                          onClick={handleSaveSettings}
+                        >
                           Save Settings
                         </Button>
                       </InlineStack>
@@ -2090,10 +2128,10 @@ export default function CollectionManager() {
             
             {selectedTab === 2 && (
               <Card>
-                <Box padding="400">
-                  <BlockStack gap="400">
+                <Box padding="500">
+                  <BlockStack gap="500">
                     <FormLayout>
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <Box paddingBlockStart="400">
                           <TextField
                             label="Tag"
@@ -2101,13 +2139,13 @@ export default function CollectionManager() {
                             onChange={setNewArrivalsTag}
                             autoComplete="off"
                           />
-                          <Text variant="bodySm" as="p">
+                          <Text variant="bodySm" as="p" tone="subdued" fontWeight="medium">
                             Letters, numbers, dashes or underscores only as recommended by Shopify
                           </Text>
                         </Box>
                       </div>
 
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <TextField
                           label="Number of new products to tag"
                           type="number"
@@ -2117,7 +2155,7 @@ export default function CollectionManager() {
                         />
                       </div>
 
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <TextField
                           label="New Arrivals Period"
                           type="number"
@@ -2129,7 +2167,7 @@ export default function CollectionManager() {
                         />
                       </div>
 
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <Checkbox
                           label="Exclude Out-of-Stock Products"
                           helpText="Enable this option to exclude new arrival products that are currently out of stock from being tagged."
@@ -2139,15 +2177,19 @@ export default function CollectionManager() {
                       </div>
                     </FormLayout>
                     
-                    <div style={{ padding: '16px', borderTop: '1px solid #e1e3e5' }}>
-                      <InlineStack align="end" gap="200">
+                    <div style={{ paddingTop: '20px', borderTop: '2px solid #e5e5e5' }}>
+                      <InlineStack align="end" gap="300">
                         <Button 
                           onClick={handleProcessNewArrivals}
                           loading={processing && processingType === 'newArrivals'}
+                          variant="secondary"
                         >
                           Process Now
                         </Button>
-                        <Button variant="primary" onClick={handleSaveSettings}>
+                        <Button 
+                          variant="primary" 
+                          onClick={handleSaveSettings}
+                        >
                           Save Settings
                         </Button>
                       </InlineStack>
@@ -2159,10 +2201,10 @@ export default function CollectionManager() {
             
             {selectedTab === 3 && (
               <Card>
-                <Box padding="400">
-                  <BlockStack gap="400">
+                <Box padding="500">
+                  <BlockStack gap="500">
                     <FormLayout>
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <Box paddingBlockStart="400">
                           <TextField
                             label="Tag"
@@ -2170,13 +2212,13 @@ export default function CollectionManager() {
                             onChange={setAgingTag}
                             autoComplete="off"
                           />
-                          <Text variant="bodySm" as="p">
+                          <Text variant="bodySm" as="p" tone="subdued" fontWeight="medium">
                             Letters, numbers, dashes or underscores only as recommended by Shopify
                           </Text>
                         </Box>
                       </div>
 
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <TextField
                           label="Number of aging stock products to tag"
                           type="number"
@@ -2186,7 +2228,7 @@ export default function CollectionManager() {
                         />
                       </div>
 
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <TextField
                           label="Lookback Period"
                           type="number"
@@ -2199,15 +2241,19 @@ export default function CollectionManager() {
                       </div>
                     </FormLayout>
                     
-                    <div style={{ padding: '16px', borderTop: '1px solid #e1e3e5' }}>
-                      <InlineStack align="end" gap="200">
+                    <div style={{ paddingTop: '20px', borderTop: '2px solid #e5e5e5' }}>
+                      <InlineStack align="end" gap="300">
                         <Button 
                           onClick={handleProcessAging}
                           loading={processing && processingType === 'aging'}
+                          variant="secondary"
                         >
                           Process Now
                         </Button>
-                        <Button variant="primary" onClick={handleSaveSettings}>
+                        <Button 
+                          variant="primary" 
+                          onClick={handleSaveSettings}
+                        >
                           Save Settings
                         </Button>
                       </InlineStack>
@@ -2219,27 +2265,27 @@ export default function CollectionManager() {
             
             {selectedTab === 4 && (
               <Card>
-                <Box padding="400">
-                  <Text variant="headingLg" as="h2">⚙️ Additional Settings</Text>
+                <Box padding="500">
+                  <Text variant="headingLg" as="h2" fontWeight="bold">⚙️ Additional Settings</Text>
                   
-                  <BlockStack gap="400">
+                  <BlockStack gap="500">
                     <FormLayout>
-                      <div style={{ padding: '16px', borderBottom: '1px solid #e1e3e5' }}>
+                      <div style={{ padding: '20px 0', borderBottom: '1px solid #e5e5e5' }}>
                         <BlockStack gap="200">
                           <Checkbox
                             label="Exclude Products"
                             checked={excludeEnabled}
                             onChange={setExcludeEnabled}
                           />
-                          <Text variant="bodySm" as="p">
+                          <Text variant="bodySm" as="p" tone="subdued">
                             Do not tag products if they already have specific tag(s) assigned.
                           </Text>
                         </BlockStack>
                         
                         <Box paddingBlockStart="400">
-                          <Text variant="bodyMd" as="p">Exclude tags</Text>
+                          <Text variant="bodyMd" as="p" fontWeight="medium">Exclude tags</Text>
                           <Box paddingBlockStart="200">
-                            <InlineStack gap="200">
+                            <InlineStack gap="200" align="start">
                               <TextField
                                 label="Enter tag to exclude"
                                 value={newExcludeTag}
@@ -2247,34 +2293,43 @@ export default function CollectionManager() {
                                 placeholder="Enter tag to exclude"
                                 autoComplete="off"
                               />
-                              <Button onClick={handleAddExcludeTag}>Add a Tag</Button>
+                              <Button 
+                                onClick={handleAddExcludeTag}
+                                variant="secondary"
+                              >
+                                Add a Tag
+                              </Button>
                             </InlineStack>
                           </Box>
                           
                           {excludeTags.length > 0 && (
-                            <Box paddingBlockStart="200">
+                            <Box paddingBlockStart="300">
                               <InlineStack gap="200" wrap>
                                 {excludeTags.map((tag: string, index: number) => (
                                   <div key={index} style={{ position: 'relative', display: 'inline-block' }}>
-                                    <Badge>{tag}</Badge>
+                                    <Badge tone="success">{tag}</Badge>
                                     <button
                                       onClick={() => handleRemoveExcludeTag(tag)}
                                       style={{
                                         position: 'absolute',
                                         top: '-8px',
                                         right: '-8px',
-                                        background: '#fff',
-                                        border: '1px solid #ddd',
+                                        background: '#ffffff',
+                                        border: '1px solid #000000',
                                         borderRadius: '50%',
-                                        width: '16px',
-                                        height: '16px',
+                                        width: '20px',
+                                        height: '20px',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         cursor: 'pointer',
-                                        fontSize: '12px',
-                                        lineHeight: '1'
+                                        fontSize: '14px',
+                                        lineHeight: '1',
+                                        fontWeight: 'bold',
+                                        color: '#000000',
+                                        padding: 0
                                       }}
+                                      aria-label={`Remove ${tag} tag`}
                                     >
                                       ×
                                     </button>
@@ -2287,9 +2342,12 @@ export default function CollectionManager() {
                       </div>
                     </FormLayout>
                     
-                    <div style={{ padding: '16px', borderTop: '1px solid #e1e3e5' }}>
+                    <div style={{ paddingTop: '20px', borderTop: '2px solid #e5e5e5' }}>
                       <InlineStack align="end">
-                        <Button variant="primary" onClick={handleSaveSettings}>
+                        <Button 
+                          variant="primary" 
+                          onClick={handleSaveSettings}
+                        >
                           Save Settings
                         </Button>
                       </InlineStack>

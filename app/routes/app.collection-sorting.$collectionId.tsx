@@ -1,4 +1,4 @@
-// app/routes/app.collection-settings.$collectionId.tsx
+// app/routes/app.collection-sort.$collectionId.tsx
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
 import { useLoaderData, useParams, useNavigate, useSubmit } from "react-router";
 import { useState, useEffect } from "react";
@@ -79,6 +79,7 @@ interface ProductVariant {
   compareAtPrice?: string;
 }
 
+// FIXED: Created a more flexible Product interface to handle different types
 interface Product {
   id: string;
   title: string;
@@ -98,6 +99,31 @@ interface Product {
   totalSales?: number;
   totalRevenue?: number;
   discountedRevenue?: number;
+  handle?: string;
+  // FIXED: Changed to string to be more flexible
+  featuredType?: string;
+  scheduleApplied?: boolean;
+  position?: number;
+}
+
+// FIXED: Created a specific type for products with additional properties
+interface EnhancedProduct extends Product {
+  featuredType: string;
+  scheduleApplied: boolean;
+  position: number;
+}
+
+// FIXED: Added PreviewProduct interface for preview data
+interface PreviewProduct {
+  id: string;
+  title: string;
+  price: string;
+  inventory: number;
+  createdAt: string;
+  publishedAt: string;
+  totalSales: number;
+  totalRevenue: number;
+  discountedRevenue: number;
 }
 
 // GraphQL Queries
@@ -162,7 +188,6 @@ const GET_COLLECTION_PRODUCTS = `#graphql
   }
 `;
 
-// FIXED: Removed financialStatus field from query
 const GET_ORDERS_WITH_PRODUCTS = `#graphql
   query GetOrdersWithProducts($first: Int!, $query: String) {
     orders(first: $first, query: $query) {
@@ -230,7 +255,13 @@ const extractProductId = (gid: string): string => {
 
 // Updated helper function with better error handling
 const fetchProductMetrics = async (admin: any, lookbackDays: number, ordersRange: string, includeDiscounts: boolean) => {
-  const productMetrics = new Map();
+  const productMetrics = new Map<string, {
+    productId: string;
+    totalSales: number;
+    totalRevenue: number;
+    discountedRevenue: number;
+    orderCount: number;
+  }>();
   
   // Calculate date for lookback
   const lookbackDate = new Date();
@@ -315,7 +346,7 @@ const fetchProductMetrics = async (admin: any, lookbackDays: number, ordersRange
             }
             
             if (productMetrics.has(productId)) {
-              const existing = productMetrics.get(productId);
+              const existing = productMetrics.get(productId)!;
               existing.totalSales += quantity;
               existing.totalRevenue += revenue;
               existing.orderCount += 1;
@@ -326,10 +357,11 @@ const fetchProductMetrics = async (admin: any, lookbackDays: number, ordersRange
                 existing.discountedRevenue = (existing.discountedRevenue || 0) + discountedAmount;
               }
             } else {
-              const metrics: any = {
+              const metrics = {
                 productId,
                 totalSales: quantity,
                 totalRevenue: revenue,
+                discountedRevenue: 0,
                 orderCount: 1
               };
               
@@ -572,7 +604,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             return { success: false, error: "No products found in this collection" };
           }
 
-          let sortedProducts = [...allProducts];
+          let sortedProducts: Product[] = [...allProducts];
 
           // For revenue and sales criteria, fetch actual order data
           if (sortCriteria === "revenue" || sortCriteria === "sales") {
@@ -714,7 +746,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
           console.log(`📦 RESORT: Processing ${allProducts.length} total products`);
 
-          let sortedProducts = [...allProducts];
+          let sortedProducts: Product[] = [...allProducts];
 
           // Check sorting method
           const primarySortOrder = collectionSettings?.primarySortOrder || "random-high-low";
@@ -800,6 +832,117 @@ export async function action({ request, params }: ActionFunctionArgs) {
                   break;
               }
             }
+          } else if (primarySortOrder === "position-based") {
+            // FIXED: Implement proper position-based sorting
+            console.log("🔄 Applying position-based sort");
+            
+            const pushNewProducts = behaviorRules?.pushNewProductsUp ?? true;
+            const newProductDays = behaviorRules?.newProductDays ?? 7;
+            const pushDownOutOfStock = behaviorRules?.pushDownOutOfStock ?? true;
+            const outOfStockVsNewPriority = behaviorRules?.outOfStockVsNewPriority ?? "push-down";
+            const outOfStockVsFeaturedPriority = behaviorRules?.outOfStockVsFeaturedPriority ?? "push-down";
+            const outOfStockVsTagsPriority = behaviorRules?.outOfStockVsTagsPriority ?? "position-defined";
+            
+            // Calculate the cutoff date for new products
+            const newProductCutoffDate = new Date();
+            newProductCutoffDate.setDate(newProductCutoffDate.getDate() - newProductDays);
+            
+            // Helper function to check if a product is new
+            const isProductNew = (product: Product) => {
+              return new Date(product.createdAt) > newProductCutoffDate;
+            };
+            
+            // Helper function to check if a product is out of stock
+            const isProductOutOfStock = (product: Product) => {
+              return product.totalInventory <= 0;
+            };
+            
+            // Helper function to check if a product is featured
+            const isProductFeatured = (product: Product) => {
+              return product.tags.includes("featured") || product.tags.includes("Featured");
+            };
+            
+            // Create separate arrays for different product categories
+            const newProducts: Product[] = [];
+            const featuredProducts: Product[] = [];
+            const taggedProducts: Product[] = [];
+            const inStockProducts: Product[] = [];
+            const outOfStockProducts: Product[] = [];
+            
+            // Categorize products
+            allProducts.forEach((product: Product) => {
+              const isNew = isProductNew(product);
+              const isOutOfStock = isProductOutOfStock(product);
+              const isFeatured = isProductFeatured(product);
+              const hasTag = product.tags.length > 0;
+              
+              // Handle new out-of-stock products based on priority setting
+              if (isNew && isOutOfStock) {
+                if (outOfStockVsNewPriority === "push-new") {
+                  newProducts.push(product);
+                } else {
+                  outOfStockProducts.push(product);
+                }
+              }
+              // Handle featured out-of-stock products based on priority setting
+              else if (isFeatured && isOutOfStock) {
+                if (outOfStockVsFeaturedPriority === "push-featured") {
+                  featuredProducts.push(product);
+                } else {
+                  outOfStockProducts.push(product);
+                }
+              }
+              // Handle tagged out-of-stock products based on priority setting
+              else if (hasTag && isOutOfStock) {
+                if (outOfStockVsTagsPriority === "position-defined") {
+                  taggedProducts.push(product);
+                } else {
+                  outOfStockProducts.push(product);
+                }
+              }
+              // Handle new products
+              else if (isNew && pushNewProducts) {
+                newProducts.push(product);
+              }
+              // Handle featured products
+              else if (isFeatured) {
+                featuredProducts.push(product);
+              }
+              // Handle tagged products
+              else if (hasTag) {
+                taggedProducts.push(product);
+              }
+              // Handle out-of-stock products
+              else if (isOutOfStock && pushDownOutOfStock) {
+                outOfStockProducts.push(product);
+              }
+              // Default to in-stock products
+              else {
+                inStockProducts.push(product);
+              }
+            });
+            
+            // Sort each category by creation date (newest first)
+            const sortByCreationDate = (a: Product, b: Product) => {
+              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            };
+            
+            newProducts.sort(sortByCreationDate);
+            featuredProducts.sort(sortByCreationDate);
+            taggedProducts.sort(sortByCreationDate);
+            inStockProducts.sort(sortByCreationDate);
+            outOfStockProducts.sort(sortByCreationDate);
+            
+            // Combine all products in the correct order
+            sortedProducts = [
+              ...newProducts,
+              ...featuredProducts,
+              ...taggedProducts,
+              ...inStockProducts,
+              ...outOfStockProducts
+            ];
+            
+            console.log(`📦 Position-based sort: ${newProducts.length} new, ${featuredProducts.length} featured, ${taggedProducts.length} tagged, ${inStockProducts.length} in-stock, ${outOfStockProducts.length} out-of-stock`);
           } else {
             // Default to random sorting for position-based
             sortedProducts = sortedProducts.sort(() => Math.random() - 0.5);
@@ -905,7 +1048,7 @@ const CollectionSettings = () => {
   const [sortLookbackDays, setSortLookbackDays] = useState("30");
   const [ordersRange, setOrdersRange] = useState("all-orders");
   const [includeDiscounts, setIncludeDiscounts] = useState(true);
-  const [previewData, setPreviewData] = useState<any[]>([]);
+  const [previewData, setPreviewData] = useState<PreviewProduct[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
   
@@ -1492,7 +1635,7 @@ const CollectionSettings = () => {
                                 Include discounts: {includeDiscounts ? "Yes (net revenue)" : "No (gross revenue)"}
                               </Text>
                               
-                              {previewData.map((product, index) => (
+                              {previewData.map((product: PreviewProduct, index: number) => (
                                 <Card key={product.id}>
                                   <InlineStack align="space-between">
                                     <InlineStack gap="200">
@@ -1554,6 +1697,7 @@ const CollectionSettings = () => {
         open={resortModalActive}
         onClose={() => setResortModalActive(false)}
         title="Re-Sort Collection?"
+        // FIXED: Removed the 'tone' property from primaryAction
         primaryAction={{
           content: "Yes, Re-Sort",
           onAction: handleResortCollection,

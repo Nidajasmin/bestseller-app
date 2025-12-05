@@ -1,5 +1,6 @@
+// app/routes/app.featured-products.$collectionId.tsx
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
-import { useLoaderData, useParams, useNavigate, useSubmit,useRevalidator } from "react-router";
+import { useLoaderData, useParams, useNavigate, useSubmit, useRevalidator, useActionData } from "react-router"; // Add useActionData
 import { useState, useEffect, useRef } from "react";
 
 import {
@@ -37,7 +38,7 @@ import {
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
-// Types
+// Types remain the same
 interface Product {
   id: string;
   title: string;
@@ -74,7 +75,7 @@ interface LoaderData {
   };
 }
 
-// GraphQL Queries (same as before)
+// GraphQL Queries remain the same
 const GET_COLLECTION_PRODUCTS = `#graphql
   query GetCollectionProducts($id: ID!, $first: Int!, $after: String) {
     collection(id: $id) {
@@ -162,16 +163,16 @@ const constructGid = (id: string) => {
   return `gid://shopify/Collection/${id}`;
 };
 
-// Loader function (same as before)
+// Updated Loader function with improved session handling
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { admin, session } = await authenticate.admin(request);
-  const { collectionId } = params;
-
-  if (!collectionId) {
-    throw new Response("Collection ID is required", { status: 400 });
-  }
-
   try {
+    const { admin, session } = await authenticate.admin(request);
+    const { collectionId } = params;
+
+    if (!collectionId) {
+      throw new Response("Collection ID is required", { status: 400 });
+    }
+
     const gid = constructGid(collectionId);
     
     const url = new URL(request.url);
@@ -266,25 +267,37 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }
     };
   } catch (error) {
-    console.error("❌ Error loading collection data:", error);
-    throw new Response("Failed to load collection data", { status: 500 });
+    console.error("❌ Error in loader:", error);
+    
+    // Let Shopify handle authentication errors
+    if (error instanceof Response) {
+      throw error;
+    }
+    
+    // For other errors, provide a user-friendly message
+    throw new Response("Failed to load collection data. Please try again.", { 
+      status: 500,
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    });
   }
 }
 
-// Action function for saving data (same as before)
+// Updated Action function with improved session handling
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { admin, session } = await authenticate.admin(request);
-  const { collectionId } = params;
-  const formData = await request.formData();
-  const intent = formData.get("intent");
-
-  if (!collectionId) {
-    throw new Response("Collection ID is required", { status: 400 });
-  }
-
-  const gid = constructGid(collectionId);
-
   try {
+    const { admin, session } = await authenticate.admin(request);
+    const { collectionId } = params;
+    const formData = await request.formData();
+    const intent = formData.get("intent");
+
+    if (!collectionId) {
+      throw new Response("Collection ID is required", { status: 400 });
+    }
+
+    const gid = constructGid(collectionId);
+
     switch (intent) {
       case "update-manual-sort-order": {
         const manualSortOrder = formData.get("manualSortOrder") === "true";
@@ -341,126 +354,129 @@ export async function action({ request, params }: ActionFunctionArgs) {
           };
         }
       }
-case "save-featured-products": {
-  const featuredProducts = JSON.parse(formData.get("featuredProducts") as string);
-  const limitFeatured = parseInt(formData.get("limitFeatured") as string) || 0;
-  
-  console.log("💾 Saving featured products:", featuredProducts.length);
 
-  // Get ALL products from collection
-  const productsResponse = await admin.graphql(`
-    query GetCollectionProducts($id: ID!, $first: Int!) {
-      collection(id: $id) {
-        products(first: $first) {
-          edges {
-            node {
-              id
-              title
+      case "save-featured-products": {
+        const featuredProducts = JSON.parse(formData.get("featuredProducts") as string);
+        const limitFeatured = parseInt(formData.get("limitFeatured") as string) || 0;
+        
+        console.log("💾 Saving featured products:", featuredProducts.length);
+
+        // Get ALL products from collection
+        const productsResponse = await admin.graphql(`
+          query GetCollectionProducts($id: ID!, $first: Int!) {
+            collection(id: $id) {
+              products(first: $first) {
+                edges {
+                  node {
+                    id
+                    title
+                  }
+                }
+              }
             }
           }
+        `, { variables: { id: gid, first: 250 } });
+        
+        const productsData = await productsResponse.json() as any;
+        const allProducts = productsData.data?.collection?.products?.edges?.map((edge: any) => edge.node) || [];
+        
+        console.log(`📦 Total products in collection: ${allProducts.length}`);
+
+        // Delete all existing featured products from DB
+        await prisma.featuredProduct.deleteMany({
+          where: {
+            shopifyDomain: session.shop,
+            collectionId: gid
+          }
+        });
+
+        // Create new featured products
+        for (let i = 0; i < featuredProducts.length; i++) {
+          const product = featuredProducts[i];
+          await prisma.featuredProduct.create({
+            data: {
+              shopifyDomain: session.shop,
+              collectionId: gid,
+              productId: product.id,
+              position: i,
+              featuredType: product.featuredType,
+              daysToFeature: product.daysToFeature,
+              startDate: product.startDate ? new Date(product.startDate) : null,
+              scheduleApplied: product.scheduleApplied || false
+            }
+          });
         }
+
+        // Update featured settings
+        await prisma.featuredSettings.upsert({
+          where: {
+            shopifyDomain_collectionId: {
+              shopifyDomain: session.shop,
+              collectionId: gid
+            }
+          },
+          update: { 
+            limitFeatured,
+            manualSortOrder: featuredProducts.length > 0
+          },
+          create: {
+            shopifyDomain: session.shop,
+            collectionId: gid,
+            sortOrder: "manual",
+            limitFeatured,
+            manualSortOrder: featuredProducts.length > 0
+          }
+        });
+
+        // SIMPLE APPROACH: Build order from scratch
+        const productIds: string[] = [];
+        const processedIds = new Set();
+
+        // Step 1: Add featured products within limit
+        const featuredToShow = limitFeatured > 0 ? 
+          featuredProducts.slice(0, limitFeatured) : 
+          featuredProducts;
+        
+        featuredToShow.forEach((fp: Product) => {
+          productIds.push(fp.id);
+          processedIds.add(fp.id);
+        });
+
+        // Step 2: Add ALL other products in their current order
+        allProducts.forEach((product: any) => {
+          if (!processedIds.has(product.id)) {
+            productIds.push(product.id);
+          }
+        });
+
+        console.log(`📋 Final order: ${productIds.length} products, ${featuredToShow.length} featured at top`);
+
+        // Apply new order
+        const moves = productIds.map((productId, index) => ({
+          id: productId,
+          newPosition: index.toString()
+        }));
+
+        const reorderResponse = await admin.graphql(SET_COLLECTION_PRODUCTS_ORDER, {
+          variables: { id: gid, moves: moves }
+        });
+
+        await admin.graphql(UPDATE_COLLECTION_SORT_ORDER, {
+          variables: {
+            input: {
+              id: gid,
+              sortOrder: "MANUAL"
+            }
+          }
+        });
+
+        return { 
+          success: true, 
+          message: `Featured products saved! ${featuredToShow.length} product(s) displayed as featured.`,
+          redirectUrl: `/app` // Add redirect URL for navigation
+        };
       }
-    }
-  `, { variables: { id: gid, first: 250 } });
-  
-  const productsData = await productsResponse.json() as any;
-  const allProducts = productsData.data?.collection?.products?.edges?.map((edge: any) => edge.node) || [];
-  
-  console.log(`📦 Total products in collection: ${allProducts.length}`);
 
-  // Delete all existing featured products from DB
-  await prisma.featuredProduct.deleteMany({
-    where: {
-      shopifyDomain: session.shop,
-      collectionId: gid
-    }
-  });
-
-  // Create new featured products
-  for (let i = 0; i < featuredProducts.length; i++) {
-    const product = featuredProducts[i];
-    await prisma.featuredProduct.create({
-      data: {
-        shopifyDomain: session.shop,
-        collectionId: gid,
-        productId: product.id,
-        position: i,
-        featuredType: product.featuredType,
-        daysToFeature: product.daysToFeature,
-        startDate: product.startDate ? new Date(product.startDate) : null,
-        scheduleApplied: product.scheduleApplied || false
-      }
-    });
-  }
-
-  // Update featured settings
-  await prisma.featuredSettings.upsert({
-    where: {
-      shopifyDomain_collectionId: {
-        shopifyDomain: session.shop,
-        collectionId: gid
-      }
-    },
-    update: { 
-      limitFeatured,
-      manualSortOrder: featuredProducts.length > 0
-    },
-    create: {
-      shopifyDomain: session.shop,
-      collectionId: gid,
-      sortOrder: "manual",
-      limitFeatured,
-      manualSortOrder: featuredProducts.length > 0
-    }
-  });
-
-  // SIMPLE APPROACH: Build order from scratch
-  const productIds: string[] = [];
-  const processedIds = new Set();
-
-  // Step 1: Add featured products within limit
-  const featuredToShow = limitFeatured > 0 ? 
-    featuredProducts.slice(0, limitFeatured) : 
-    featuredProducts;
-  
-  featuredToShow.forEach((fp: Product) => {
-    productIds.push(fp.id);
-    processedIds.add(fp.id);
-  });
-
-  // Step 2: Add ALL other products in their current order
-  allProducts.forEach((product: any) => {
-    if (!processedIds.has(product.id)) {
-      productIds.push(product.id);
-    }
-  });
-
-  console.log(`📋 Final order: ${productIds.length} products, ${featuredToShow.length} featured at top`);
-
-  // Apply new order
-  const moves = productIds.map((productId, index) => ({
-    id: productId,
-    newPosition: index.toString()
-  }));
-
-  const reorderResponse = await admin.graphql(SET_COLLECTION_PRODUCTS_ORDER, {
-    variables: { id: gid, moves: moves }
-  });
-
-  await admin.graphql(UPDATE_COLLECTION_SORT_ORDER, {
-    variables: {
-      input: {
-        id: gid,
-        sortOrder: "MANUAL"
-      }
-    }
-  });
-
-  return { 
-    success: true, 
-    message: `Featured products saved! ${featuredToShow.length} product(s) displayed as featured.`
-  };
-}
       case "clear-all-featured-products": {
         // Delete all featured products
         await prisma.featuredProduct.deleteMany({
@@ -512,6 +528,12 @@ case "save-featured-products": {
     }
   } catch (error) {
     console.error("Action failed:", error);
+    
+    // Let Shopify handle authentication errors
+    if (error instanceof Response) {
+      throw error;
+    }
+    
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Action failed" 
@@ -519,7 +541,7 @@ case "save-featured-products": {
   }
 }
 
-// Drag and drop utilities
+// Drag and drop utilities remain the same
 const reorder = (list: Product[], startIndex: number, endIndex: number): Product[] => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
@@ -532,7 +554,8 @@ const reorder = (list: Product[], startIndex: number, endIndex: number): Product
 };
 
 const FeaturedProductsPage = () => {
-  const { collection, products, shopDomain, featuredProducts: initialFeaturedProducts, featuredSettings, pagination } = useLoaderData() as LoaderData & { pagination: any };
+  const loaderData = useLoaderData() as LoaderData & { pagination: any };
+  const actionData = useActionData() as { success?: boolean; message?: string; error?: string; redirectUrl?: string }; // Add useActionData
   const { collectionId } = useParams();
   const navigate = useNavigate();
   const submit = useSubmit();
@@ -542,9 +565,9 @@ const FeaturedProductsPage = () => {
   const featuredProductsFileInputRef = useRef<HTMLInputElement>(null);
   
   // State
-  const [searchQuery, setSearchQuery] = useState(pagination.searchQuery || "");
+  const [searchQuery, setSearchQuery] = useState(loaderData?.pagination?.searchQuery || "");
   const [showDropdown, setShowDropdown] = useState(false);
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>(loaderData?.featuredProducts || []);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showDateDetails, setShowDateDetails] = useState<{ [key: string]: boolean }>({});
@@ -553,28 +576,63 @@ const FeaturedProductsPage = () => {
   const [actionMessage, setActionMessage] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [featuredSearchQuery, setFeaturedSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(pagination.productsPage || 1);
-  const [productsPerPage, setProductsPerPage] = useState(pagination.productsCount || 250);
-  const [limitFeatured, setLimitFeatured] = useState(featuredSettings.limitFeatured.toString() || "0");
-  const [manualSortOrder, setManualSortOrder] = useState(featuredSettings.manualSortOrder);
+  const [currentPage, setCurrentPage] = useState(loaderData?.pagination?.productsPage || 1);
+  const [productsPerPage, setProductsPerPage] = useState(loaderData?.pagination?.productsCount || 250);
+  const [limitFeatured, setLimitFeatured] = useState(loaderData?.featuredSettings?.limitFeatured?.toString() || "0");
+  const [manualSortOrder, setManualSortOrder] = useState(loaderData?.featuredSettings?.manualSortOrder || false);
   const [clearFeaturedModalActive, setClearFeaturedModalActive] = useState(false);
 
-  /// Sync state with loader data - with better debugging
-useEffect(() => {
-  console.log("🔄 DEBUG: Syncing component state with loader data...");
-  console.log("🏷️ DEBUG: Saved tag rules from loader:", initialFeaturedProducts?.length || 0);
-  
-  if (initialFeaturedProducts) {
-    setFeaturedProducts(initialFeaturedProducts);
-    console.log("✅ DEBUG: State synced with loader data");
-  }
-  
-  setManualSortOrder(featuredSettings.manualSortOrder);
-  setLimitFeatured(featuredSettings.limitFeatured.toString() || "0");
-}, [initialFeaturedProducts, featuredSettings]);
+  // Handle action data to reset loading state
+  useEffect(() => {
+    if (actionData) {
+      setIsSaving(false);
+      setImportLoading(false);
+      
+      if (actionData.success) {
+        setSaveSuccess(true);
+        setActionMessage(actionData.message || "Operation completed successfully!");
+        
+        // Handle redirect if present
+        if (actionData.redirectUrl) {
+          setTimeout(() => {
+            navigate(actionData.redirectUrl!);
+          }, 1500);
+        } else {
+          // Revalidate data if no redirect
+          setTimeout(() => {
+            revalidate();
+          }, 1500);
+        }
+      } else if (actionData.error) {
+        setActionMessage(actionData.error);
+      }
+      
+      // Clear success message after 3 seconds
+      if (actionData.success || actionData.error) {
+        setTimeout(() => {
+          setSaveSuccess(false);
+          setActionMessage("");
+        }, 3000);
+      }
+    }
+  }, [actionData, navigate, revalidate]);
+
+  // Handle loader data safely
+  useEffect(() => {
+    if (loaderData) {
+      console.log("🔄 DEBUG: Syncing component state with loader data...");
+      console.log("🏷️ DEBUG: Saved featured products from loader:", loaderData.featuredProducts?.length || 0);
+      
+      setFeaturedProducts(loaderData.featuredProducts || []);
+      setManualSortOrder(loaderData.featuredSettings?.manualSortOrder || false);
+      setLimitFeatured(loaderData.featuredSettings?.limitFeatured?.toString() || "0");
+      
+      console.log("✅ DEBUG: State synced with loader data");
+    }
+  }, [loaderData]);
 
   // Filter products
-  const filteredProducts = products.filter((p: Product) => 
+  const filteredProducts = (loaderData?.products || []).filter((p: Product) => 
     p.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
     !featuredProducts.find((fp: Product) => fp.id === p.id)
   );
@@ -654,11 +712,11 @@ useEffect(() => {
     }
   };
 
-  // FIXED: Type-safe handleAddProduct function
+  // Type-safe handleAddProduct function
   const handleAddProduct = (product: Product) => {
     const newProduct: Product = {
       ...product,
-      featuredType: "manual" as const, // Explicitly set as const
+      featuredType: "manual" as const,
       scheduleApplied: false,
       position: featuredProducts.length
     };
@@ -753,18 +811,11 @@ useEffect(() => {
         method: "POST",
         replace: true 
       });
-      
-      setSaveSuccess(true);
-      setActionMessage('Featured products imported successfully!');
-      
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
     } catch (error) {
       console.error("Import failed:", error);
       setActionMessage("Failed to import featured products");
-    } finally {
       setImportLoading(false);
+    } finally {
       if (e.target) e.target.value = '';
     }
   };
@@ -795,92 +846,83 @@ useEffect(() => {
     URL.revokeObjectURL(url);
   };
 
- const handleSaveFeaturedProducts = async () => {
-  setIsSaving(true);
-  setActionMessage("Saving featured products...");
-  
-  const formData = new FormData();
-  formData.append("intent", "save-featured-products");
-  formData.append("featuredProducts", JSON.stringify(featuredProducts));
-  formData.append("limitFeatured", limitFeatured);
-  
-  try {
+  // Fixed: Updated handleSaveFeaturedProducts to properly handle loading state
+  const handleSaveFeaturedProducts = () => {
+    setIsSaving(true);
+    setActionMessage("Saving featured products...");
+    
+    const formData = new FormData();
+    formData.append("intent", "save-featured-products");
+    formData.append("featuredProducts", JSON.stringify(featuredProducts));
+    formData.append("limitFeatured", limitFeatured);
+    
     submit(formData, { 
       method: "POST",
       replace: true 
     });
-    
-    // Use a more reliable refresh pattern
-    setTimeout(() => {
-      revalidate();
-      // Force a hard refresh if revalidate doesn't work
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    }, 1500);
-    
-  } catch (error) {
-    console.error("Save failed:", error);
-    setActionMessage("Failed to save featured products");
-    setIsSaving(false);
-  }
-};
+  };
 
-  const handleClearAllFeaturedProducts = async () => {
+  const handleClearAllFeaturedProducts = () => {
     setIsSaving(true);
     setActionMessage("Clearing all featured products...");
     
     const formData = new FormData();
     formData.append("intent", "clear-all-featured-products");
     
-    try {
-      submit(formData, { 
-        method: "POST",
-        replace: true 
-      });
-      
-      setSaveSuccess(true);
-      setActionMessage("All featured products cleared successfully!");
-      setClearFeaturedModalActive(false);
-      setFeaturedProducts([]);
-      setLimitFeatured("0");
-      
-      setTimeout(() => {
-        setSaveSuccess(false);
-        setActionMessage("");
-      }, 3000);
-    } catch (error) {
-      console.error("Clear failed:", error);
-      setActionMessage("Failed to clear featured products");
-    } finally {
-      setIsSaving(false);
-    }
+    submit(formData, { 
+      method: "POST",
+      replace: true 
+    });
   };
 
   const toastMarkup = saveSuccess ? (
     <Toast content={actionMessage || "Settings saved successfully!"} onDismiss={() => setSaveSuccess(false)} />
   ) : null;
 
+  // Show loading state if no loaderData
+  if (!loaderData) {
+    return (
+      <Page title="Loading...">
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <Text as="p">Loading collection data...</Text>
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </Page>
+    );
+  }
+
   return (
     <Page
-      title={`Featured Products: ${collection.title}`}
+      title={`Featured Products: ${loaderData.collection.title}`}
       primaryAction={{
         content: "Save Featured Products",
         onAction: handleSaveFeaturedProducts,
-        loading: isSaving,
+        loading: isSaving
       }}
       secondaryActions={[
         {
           content: "Back to collections",
-          onAction: () => navigate("/app"),
+          onAction: () => navigate("/app/collections"),
         },
       ]}
       backAction={{ 
         content: "Collections", 
-        onAction: () => navigate("/app"),
+        onAction: () => navigate("/app/collections"),
       }}
     >
       <Layout>
+        {/* Action Message Banner */}
+        {actionMessage && (
+          <Layout.Section>
+            <Banner tone={saveSuccess ? "success" : actionData?.error ? "critical" : "info"}>
+              <Text as="p">{actionMessage}</Text>
+            </Banner>
+          </Layout.Section>
+        )}
+
         {/* Manual Sort Order Control */}
         <Layout.Section>
           <Card>
@@ -902,7 +944,7 @@ useEffect(() => {
                 />
                 <Button
                   variant="plain"
-                  onClick={() => window.open(`https://${shopDomain}/admin/collections/${collectionId}`, '_blank')}
+                  onClick={() => window.open(`https://${loaderData.shopDomain}/admin/collections/${collectionId}`, '_blank')}
                 >
                   View in Shopify Admin
                 </Button>
@@ -924,15 +966,6 @@ useEffect(() => {
             </BlockStack>
           </Card>
         </Layout.Section>
-
-        {/* Action Message Banner */}
-        {actionMessage && (
-          <Layout.Section>
-            <Banner tone={saveSuccess ? "success" : "info"}>
-              <Text as="p">{actionMessage}</Text>
-            </Banner>
-          </Layout.Section>
-        )}
 
         {/* Import/Export Section */}
         <Layout.Section>
@@ -1181,47 +1214,45 @@ useEffect(() => {
               </Card>
 
               {/* Limit Featured Products */}
-              {/* Limit Featured Products Section */}
-<Card>
-  <BlockStack gap="200">
-    <Text as="h3" variant="headingSm">
-      Limit Featured Products
-    </Text>
-    <Text as="p" tone="subdued">
-      Maximum number of featured products to display at the top of your collection. 
-      Products beyond this limit will appear in their regular position in the collection.
-      Set to 0 to show all featured products at the top.
-    </Text>
-    <Box maxWidth="320px">
-      <TextField
-        label="Limit featured products"
-        labelHidden
-        type="number"
-        value={limitFeatured}
-        onChange={setLimitFeatured}
-        autoComplete="off"
-        min={0}
-        disabled={!manualSortOrder}
-        helpText={
-          parseInt(limitFeatured) > 0 ? 
-            `Only first ${limitFeatured} featured products will be displayed at the top of collection` : 
-            "All featured products will be displayed at the top of collection"
-        }
-      />
-    </Box>
-  </BlockStack>
-</Card>
+              <Card>
+                <BlockStack gap="200">
+                  <Text as="h3" variant="headingSm">
+                    Limit Featured Products
+                  </Text>
+                  <Text as="p" tone="subdued">
+                    Maximum number of featured products to display at the top of your collection. 
+                    Products beyond this limit will appear in their regular position in the collection.
+                    Set to 0 to show all featured products at the top.
+                  </Text>
+                  <Box maxWidth="320px">
+                    <TextField
+                      label="Limit featured products"
+                      labelHidden
+                      type="number"
+                      value={limitFeatured}
+                      onChange={setLimitFeatured}
+                      autoComplete="off"
+                      min={0}
+                      disabled={!manualSortOrder}
+                      helpText={
+                        parseInt(limitFeatured) > 0 ? 
+                          `Only first ${limitFeatured} featured products will be displayed at the top of collection` : 
+                          "All featured products will be displayed at the top of collection"
+                      }
+                    />
+                  </Box>
+                </BlockStack>
+              </Card>
 
               {/* Featured Products List */}
               <BlockStack gap="400">
-                {/* Featured Products List Header */}
-<Text as="h3" variant="headingSm">
-  Featured Products ({featuredProducts.length})
-  {parseInt(limitFeatured) > 0 && 
-    ` • First ${Math.min(featuredProducts.length, parseInt(limitFeatured))} displayed at top`}
-  {parseInt(limitFeatured) > 0 && featuredProducts.length > parseInt(limitFeatured) && 
-    ` • ${featuredProducts.length - parseInt(limitFeatured)} beyond limit in regular position`}
-</Text>
+                <Text as="h3" variant="headingSm">
+                  Featured Products ({featuredProducts.length})
+                  {parseInt(limitFeatured) > 0 && 
+                    ` • First ${Math.min(featuredProducts.length, parseInt(limitFeatured))} displayed at top`}
+                  {parseInt(limitFeatured) > 0 && featuredProducts.length > parseInt(limitFeatured) && 
+                    ` • ${featuredProducts.length - parseInt(limitFeatured)} beyond limit in regular position`}
+                </Text>
                 
                 {featuredProducts.length === 0 ? (
                   <Box padding="400" background="bg-surface-secondary">
@@ -1414,7 +1445,7 @@ useEffect(() => {
           content: "Yes, Remove All",
           onAction: handleClearAllFeaturedProducts,
           loading: isSaving,
-          destructive: true, // FIXED: Use 'destructive' instead of 'tone'
+          destructive: true,
         }}
         secondaryActions={[{
           content: "Cancel",

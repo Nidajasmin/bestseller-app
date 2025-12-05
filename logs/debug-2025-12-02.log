@@ -165,3 +165,7 @@
 [2025-12-02 15:44:08] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":10,"afterFilter":10}
 [2025-12-02 15:48:03] [DEBUG] TopNavbar item hover{"item":"Statistics","currentPath":"/app","timestamp":"2025-12-02T10:18:03.330Z"}
 [2025-12-02 15:48:13] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-12-02T10:18:13.918Z"}
+[2025-12-02 17:01:04] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":10,"afterFilter":10}
+[2025-12-02 17:01:04] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":10,"afterFilter":10}
+[2025-12-02 17:30:56] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":10,"afterFilter":10}
+[2025-12-02 17:30:56] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":10,"afterFilter":10}
