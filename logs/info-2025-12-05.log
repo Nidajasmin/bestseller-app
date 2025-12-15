@@ -1,0 +1,45 @@
+[2025-12-05 14:59:36] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:36] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:36] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":3}
+[2025-12-05 14:59:36] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":3}
+[2025-12-05 14:59:36] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:36] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:42] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:42] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:42] [INFO] [COLLECTIONS_LIST] Collection toggle triggered{"collectionId":"gid://shopify/Collection/302365605947","collectionTitle":"Watches","from":false,"to":true}
+[2025-12-05 14:59:43] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:43] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:43] [INFO] [COLLECTIONS_LIST] Toggle action successful{"collectionId":"gid://shopify/Collection/302365605947","enabled":true}
+[2025-12-05 14:59:46] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:46] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:46] [INFO] [COLLECTIONS_LIST] Toggle action successful{"collectionId":"gid://shopify/Collection/302365605947","enabled":true}
+[2025-12-05 14:59:49] [INFO] [COLLECTIONS_LIST] View collection in store clicked{"collectionId":"gid://shopify/Collection/302365605947","title":"Watches"}
+[2025-12-05 14:59:51] [INFO] [COLLECTIONS_LIST] Navigate to Featured Products{"collectionId":"gid://shopify/Collection/302365605947","title":"Watches"}
+[2025-12-05 14:59:51] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:51] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:52] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:52] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:54] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:54] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:54] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:54] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:58] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 14:59:58] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:00] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:00] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:01] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:01] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:03] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:03] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:08] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:08] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:12] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:12] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:14] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:14] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:16] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:16] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":3}
+[2025-12-05 15:00:16] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:16] [INFO] [COLLECTIONS_LIST] CollectionsListPageContent component mounted{"initialCollectionsCount":3}
+[2025-12-05 15:00:16] [INFO] App component rendered{"apiKey":"set"}
+[2025-12-05 15:00:16] [INFO] App component rendered{"apiKey":"set"}

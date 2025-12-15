@@ -1,0 +1,10 @@
+[2025-12-05 14:59:36] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":3,"afterFilter":3}
+[2025-12-05 14:59:36] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":3,"afterFilter":3}
+[2025-12-05 14:59:46] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":3,"afterFilter":3}
+[2025-12-05 14:59:46] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":3,"afterFilter":3}
+[2025-12-05 14:59:53] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app","timestamp":"2025-12-05T09:29:53.284Z"}
+[2025-12-05 14:59:57] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/featured-products/302365605947","timestamp":"2025-12-05T09:29:57.144Z"}
+[2025-12-05 15:00:13] [DEBUG] TopNavbar item hover{"item":"Tags & Collection Manager","currentPath":"/app/featured-products/302365605947","timestamp":"2025-12-05T09:30:13.398Z"}
+[2025-12-05 15:00:16] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":3,"afterFilter":3}
+[2025-12-05 15:00:16] [DEBUG] [COLLECTIONS_LIST] Client-side filtering applied{"searchQuery":"","statusFilter":"all","beforeFilter":3,"afterFilter":3}
+[2025-12-05 15:00:21] [DEBUG] TopNavbar item hover{"item":"Dashboard","currentPath":"/app","timestamp":"2025-12-05T09:30:21.315Z"}
